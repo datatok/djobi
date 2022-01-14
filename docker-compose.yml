@@ -27,7 +27,7 @@ services:
   # compile java
   ##
   gradle:
-    image: gradle:6.4.0-jdk11
+    image: gradle:7.3.3-jdk11
     command: gradle djobiAssemble testReport
     working_dir: /app
     environment:
@@ -53,7 +53,6 @@ services:
   # Build and run djobi
   ##
   djobi:
-    image: ${CI_REGISTRY_IMAGE}:${VERSION}
     build:
       context: .
       dockerfile: ./packages/docker/Dockerfile
@@ -71,7 +70,7 @@ services:
     - elasticsearch
     - minio
     ports:
-    - 4040:4040
+    - "4040:4040"
     volumes:
     - ./dev:/d/dev
     command: djobi -Adate=yesterday  /d/dev/pipelines/es2fs

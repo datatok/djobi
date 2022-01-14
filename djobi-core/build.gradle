@@ -38,25 +38,17 @@ configurations {
 
 dependencies {
     // deps shared by all djobi projects
-    djobiCore(
+
+
+    api(
         [group: 'org.apache.commons', name: 'commons-csv', version:'1.6'],
-        [group: 'com.google.inject', name: 'guice', version: '5.0.1'],
         [group: 'com.github.spullara.mustache.java', name: 'compiler', version:'0.9.6'],
         [group: 'org.yaml', name: 'snakeyaml', version:'1.29'],
-        [group: 'com.typesafe', name: 'config', version:'1.4.0'],
         [group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.3.1'],
-        [group: "co.elastic.apm", name: "apm-agent-api", version: '1.25.0']
+        [group: "co.elastic.apm", name: "apm-agent-api", version: '1.28.3'],
+        [group: 'com.google.inject', name: 'guice', version: '5.0.1'],
+        [group: 'com.typesafe', name: 'config', version:'1.4.0']
     )
-
-    /*
-     * Removed since Spark 2
-    djobiCore(
-        [group: "com.databricks", name: "spark-csv_2.10", version: "1.5.0"]
-    ) {
-        exclude group: "org.scala-lang"
-        exclude group: "org.apache.commons", module: 'commons-csv'
-    }
-     */
 
     // Provided by Apache Spark Assembly 1.6.3
     // Useful if you don't run via Hadoop
@@ -113,6 +105,58 @@ dependencies {
         exclude group: 'org.apache.hadoop', module: 'hadoop-yarn-client'
         exclude group: 'org.apache.hadoop', module: 'hadoop-yarn-api'
         exclude group: 'org.apache.hadoop', module: 'hadoop-yarn-common'
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = 'io.datatok.djobi'
+            artifactId = 'djobi-core'
+            version = '5.0.0'
+
+            from components.java
+
+            pom {
+                name = 'djobi-core'
+                description = 'Djobi core'
+                url = 'https://github.com/datatok/djobi'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'ebuildy'
+                        name = 'Thomas Decaux'
+                        email = 'ebuildy@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "OSSRH"
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
+        }
+
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/datatok/djobi"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
     }
 }
 

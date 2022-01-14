@@ -1,16 +1,11 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Beta release
+name: release
 
 on:
   push:
     branches:
-      - release
-    #tags:
-    #  - 'v*'
+      - main
+    tags:
+      - 'v*'
 
 jobs:
   build:
@@ -28,7 +23,7 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@4137be6a8bf7d7133955359dbd952c0ca73b1021
         with:
-          arguments: -Prelease.version=v5.0.0 djobiAssemble -x test
+          arguments: djobiAssemble -x test
       - name: upload artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -101,8 +96,6 @@ jobs:
       - uses: ncipollo/release-action@v1
         with:
           artifacts: "build"
-          name: beta
-          prerelease: true
           body: |
             Djobi release
           allowUpdates: true

@@ -3,29 +3,64 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 plugins {
     id 'java'
     id 'idea'
-    id "com.github.johnrengelman.shadow" version "6.1.0"
+    id 'distribution'
+    id "com.github.johnrengelman.shadow" version "7.1.2"
     id 'java-test-fixtures'
     id 'nebula.release' version '15.3.1'
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_9
-    targetCompatibility = JavaVersion.VERSION_1_9
+allprojects {
+    afterEvaluate { project ->
+        println "I'm configuring $project.name with version $project.version"
+    }
+    group = 'io.datatok'
 }
 
 subprojects {
-    apply plugin: 'java'
-    apply plugin: 'idea'
+    apply plugin: 'signing'
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'nebula.release'
+    apply plugin: 'distribution'
 
-    java {
-        sourceCompatibility = JavaVersion.VERSION_1_9
-        targetCompatibility = JavaVersion.VERSION_1_9
+    if (project.name == "djobi-cli") {
+        apply plugin: 'java'
+    } else {
+        apply plugin: 'java-library'
     }
+
+    configurations.runtimeOnly.setCanBeResolved(true)
+    configurations.compileOnly.setCanBeResolved(true)
 
     // https://remonsinnema.com/2016/05/09/how-to-manage-dependencies-in-a-gradle-multi-project-build/
     configurations {
+
+    }
+
+    java {
+        // It is more idiomatic to define different features for different sets of optional
+        // dependencies, e.g., 'dropwizard' and 'reactor'. If this library published Gradle
+        // metadata, Gradle users would be able to use these feature names in their dependency
+        // declarations instead of understanding the actual required optional dependencies.
+        // But we don't publish Gradle metadata yet and this may be overkill so just have a
+        // single feature for now to correspond to any optional dependency.
+        registerFeature('optional') {
+            usingSourceSet(sourceSets.main)
+        }
+    }
+
+    tasks {
+        compileJava {
+            options.encoding = 'UTF-8'
+            options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
+
+            sourceCompatibility = JavaVersion.VERSION_11
+            targetCompatibility = JavaVersion.VERSION_11
+        }
+        compileTestJava {
+            options.encoding = 'UTF-8'
+            options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
+
+        }
 
     }
 
@@ -62,6 +97,10 @@ subprojects {
             shadowJar.dependsOn(taskName)
         },
 
+        /**
+         * Create a task: "makeRelease"
+         * - called by djobiAssemble
+         */
         createRelease: {
             String projectShortName = project.name.replace("djobi-", "")
             String taskName = "makeRelease"
@@ -96,6 +135,10 @@ subprojects {
             shadowJar.dependsOn(taskName)
         },
 
+        /**
+         * Create a task: "{variant}MakeRelease"
+         * - called by djobiAssemble
+         */
         createReleaseWithVariants: { variants ->
             String projectShortName = project.name.replace("djobi-", "")
             //project.gradle.startParameter.excludedTaskNames.add('ShadowJar')
@@ -144,7 +187,8 @@ subprojects {
         testImplementation(
             [group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.2'],
             [group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: '5.7.2'],
-            [group: 'com.squareup.okhttp3', name: 'mockwebserver3-junit5', version: '5.0.0-alpha.2']
+            [group: 'com.squareup.okhttp3', name: 'mockwebserver3-junit5', version: '5.0.0-alpha.2'],
+            [group: 'com.google.inject', name: 'guice', version: '5.0.1']
         )
     }
 
@@ -202,7 +246,7 @@ task djobiAssemble(type: Sync) {
         }
 
         copy {
-            from 'djobi-app/src/main/release'
+            from 'djobi-cli/src/main/release'
             filter { line -> line.replaceAll('%%VERSION%%', project.version.toString()) }
             into "$buildDir/release"
             fileMode = 0744
@@ -274,4 +318,6 @@ shadowJar {
     relocate 'okio','my.okio'
 
     minimize()
-};
+}
+
+defaultTasks 'build'

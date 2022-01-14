@@ -1,6 +1,8 @@
-package io.datatok.djobi.test;
+package io.datatok.djobi.utils;
 
 import com.google.inject.Inject;
+import io.datatok.djobi.test.HttpNumbersResponse;
+import io.datatok.djobi.test.MyTestRunner;
 import io.datatok.djobi.test.mocks.HttpMock;
 import io.datatok.djobi.utils.MyMapUtils;
 import io.datatok.djobi.utils.http.Http;

@@ -127,7 +127,7 @@ public class ApplicationBuilder {
         try {
             final Properties releaseNotes = new Properties();
 
-            releaseNotes.load(IOFileUtils.openInClassPath("META-INF/djobi-app.properties"));
+            releaseNotes.load(IOFileUtils.openInClassPath("META-INF/djobi-cli.properties"));
 
             this.runData.setReleaseNote(releaseNotes);
 

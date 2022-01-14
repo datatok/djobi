@@ -1,3 +1,14 @@
+plugins {
+    id 'java-library'
+    id "idea"
+}
+
+def kafkaAttribute = Attribute.of("kafka.version", String)
+
+dependencies.attributesSchema {
+    attribute(kafkaAttribute)
+}
+
 ext {
     variants = [
             [name: "kafka1"]
@@ -7,10 +18,19 @@ ext {
 
 
 configurations {
+    kafka1 {
+        attributes {
+            attribute(kafkaAttribute, "1.1.1")
+        }
+        canBeResolved(true)
+    }
 
-    kafka1
-
-    kafka2
+    kafka2 {
+        attributes {
+            attribute(kafkaAttribute, "2.2.0")
+        }
+        canBeResolved(true)
+    }
 
     testRuntimeOnly.extendsFrom kafka1
     compileOnly.extendsFrom kafka1
@@ -21,6 +41,7 @@ dependencies {
     compileOnly project(':djobi-core')
     compileOnly project(path: ':djobi-core', configuration: "spark")
     compileOnly project(path: ':djobi-core', configuration: "djobiCore")
+
     testImplementation(testFixtures(project(":djobi-core")))
 
     kafka1(group: 'org.apache.kafka', name: 'kafka-clients', version:'1.1.1') {

@@ -1,4 +1,4 @@
-package io.datatok.djobi.test;
+package io.datatok.djobi.utils;
 
 import io.datatok.djobi.utils.MyMapUtils;
 import org.junit.jupiter.api.Assertions;

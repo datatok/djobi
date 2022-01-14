@@ -90,4 +90,4 @@ exec $SPARK_SUBMIT \
     --queue "${YARN_QUEUE}" \
     --conf "spark.rdd.compress=true" \
     --conf "spark.ui.port=${SPARK_UI_PORT}" \
-    ${LIBS}/djobi-app-%%VERSION%%.jar run $@
+    ${LIBS}/djobi-cli-%%VERSION%%.jar run $@

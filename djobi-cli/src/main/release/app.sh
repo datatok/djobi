@@ -24,7 +24,7 @@ RUN_JAVA_DRY=${RUN_JAVA_DRY:=}             # If not empty, do not exec Java comm
 DJOBI_MAIN=io.datatok.djobi.Main
 
 DJOBI_LIBS_FOLDER=${DJOBI_LIBS_FOLDER:=$SCRIPT_DIR/libs}
-JARS="${DJOBI_LIBS_FOLDER}/djobi-core-%%VERSION%%.jar:${DJOBI_LIBS_FOLDER}/djobi-app-%%VERSION%%.jar"
+JARS="${DJOBI_LIBS_FOLDER}/djobi-core-%%VERSION%%.jar:${DJOBI_LIBS_FOLDER}/djobi-cli-%%VERSION%%.jar"
 
 if [ -n "${ES_SUPPORT}" ]; then
 	JARS="${JARS}:${DJOBI_LIBS_FOLDER}/djobi-elasticsearch-es${ES_SUPPORT}-%%VERSION%%.jar"

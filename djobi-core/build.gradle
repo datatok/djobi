@@ -149,12 +149,13 @@ publishing {
 
     repositories {
         maven {
-            credentials {
-                username = "$usr"
-                password = "$pwd"
-            }
+            name = "OSSRH"
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
 
-            url = "https://maven.pkg.jetbrains.space/mycompany/p/projectkey/my-maven-repo"
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
         }
     }
 }

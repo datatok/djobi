@@ -23,7 +23,7 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@4137be6a8bf7d7133955359dbd952c0ca73b1021
         with:
-          arguments: djobiAssemble -x test
+          arguments: -Prelease.useLastTag=true djobiAssemble -x test
       - name: upload artifacts
         uses: actions/upload-artifact@v2
         with:

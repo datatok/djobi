@@ -2,6 +2,7 @@ plugins {
     id 'java-library'
     id "java-test-fixtures"
     id "idea"
+    id 'maven-publish'
 }
 
 configurations {
@@ -113,6 +114,40 @@ dependencies {
         exclude group: 'org.apache.hadoop', module: 'hadoop-yarn-client'
         exclude group: 'org.apache.hadoop', module: 'hadoop-yarn-api'
         exclude group: 'org.apache.hadoop', module: 'hadoop-yarn-common'
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = 'djobi-core'
+                description = 'Djobi core'
+                url = 'https://github.com/datatok/djobi'
+                properties = [
+                        myProp: "value",
+                        "prop.with.dots": "anotherValue"
+                ]
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'johnd'
+                        name = 'John Doe'
+                        email = 'john.doe@example.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://example.com/my-library.git'
+                    developerConnection = 'scm:git:ssh://example.com/my-library.git'
+                    url = 'http://example.com/my-library/'
+                }
+            }
+        }
     }
 }
 

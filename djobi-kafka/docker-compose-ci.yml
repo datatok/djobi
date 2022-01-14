@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+  kafka1:
+    image: wurstmeister/kafka:2.11-1.1.1
+    environment:
+      KAFKA_CREATE_TOPICS: "djobi:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_HOST_NAME: kafka1
+    depends_on:
+      - zookeeper

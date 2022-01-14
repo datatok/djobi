@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration  packages="org.apache.logging.log4j.test">
+    <Appenders>
+        <Appender type="console" name="stdout">
+            <Layout type="PatternLayout" pattern="%d{yy/MM/dd HH:mm:ss} %p %c{1}: %m%n"/>
+        </Appender>
+    </Appenders>
+    <Loggers>
+        <Logger name="io.datatok.djobi" level="info" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <Logger name="okhttp3.mockwebserver" level="warn" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <Logger name="org.eclipse.jetty" level="warn" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <Logger name="org.eclipse.jetty.util.component.AbstractLifeCycle" level="error" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <Logger name="org.apache.parquet" level="error" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <Root level="warn">
+            <AppenderRef ref="console"/>
+        </Root>
+    </Loggers>
+</Configuration>

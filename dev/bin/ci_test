@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+ROOT=$(dirname "$0")
+
+source ${ROOT}/dotenv
+
+set -eux
+
+chmod 600 ./dev/users/hdfs/ssh/id_rsa
+
+ENV=ci ${ROOT}/docker run -e USER_NAME=$USER -e USER_UID=$UID -e USER_GROUP=$(id -g) -e BEHAVE_ARGS=\"$@\" --rm tester

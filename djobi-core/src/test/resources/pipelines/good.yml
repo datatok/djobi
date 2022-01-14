@@ -1,0 +1,68 @@
+executor:
+  type: spark
+  spec:
+    cluster:
+      type: local
+    driver:
+      cpu: 1
+      memory: 4Gb
+    workers:
+      num: 2
+      cpus: 2
+      memory: 10Gb
+parameters:
+  date:
+    type: daily_date
+  pp: pp
+  pd: pipeline
+labels:
+  io.datatok/org-team: datahub
+  io.datatok/org-author: t.decaux
+jobs:
+  job1:
+    labels:
+      level: low
+    parameters:
+      p1: p1
+      p2: p2
+      pd: job
+    contexts:
+      a:
+        pjc1: a
+        pd: context_a
+        label_field: title
+        file: exists
+      b:
+        pjc2: b
+        pd: context_b
+        file: not_found
+    stages:
+      setup_file:
+        kind: fs-input
+        labels:
+          io.djobi/stage-type: input
+        spec:
+          path: "../data/json_1"
+          format: json
+      as_table:
+        kind: org.spark.mutate
+        spec:
+          alias_table: my_json_1
+      input:
+        kind: "sql"
+        check: false
+        spec:
+          query: "queries/{{pd}}.sql"
+      filter:
+        kind: "org.spark.mutate"
+        spec:
+          adds:
+            day: "{{day}}\\/{{month}}\\/{{year}}"
+      output:
+        kind: "fs-output"
+        labels:
+          io.datatok/stage-type: output
+        spec:
+          path: "/tmp/djobi_test_engine"
+          options:
+            mode: overwrite

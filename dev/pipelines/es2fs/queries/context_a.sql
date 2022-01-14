@@ -1,0 +1,1 @@
+SELECT *, "{{pd}}" AS pd, {{label_field}} AS label FROM my_json_1

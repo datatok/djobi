@@ -1,0 +1,17 @@
+executor:
+  type: io.datatok.djobi.test.executor.DummyExecutor
+
+jobs:
+  job1:
+    stages:
+      setup_file:
+        kind: "fs-input"
+        spec:
+          path: "../data/json_1/json.txt"
+          format: json
+      transform:
+        kind: "serializer"
+      output:
+        kind: "fs-output"
+        spec:
+          path: "/tmp/djobi_test_engine_file"

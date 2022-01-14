@@ -1,0 +1,119 @@
+plugins {
+    id "java-test-fixtures"
+}
+
+configurations {
+
+    // Hold deps from spark-hadoop-assembly.jar
+    sparkAssemblyProvided
+
+    // For AWS
+    sparkAWS
+
+    // Spark Core, SQL etc...
+    spark
+
+    // Common libs
+    djobiCore
+
+    testFixturesCompile.extendsFrom djobiCore
+    testFixturesCompile.extendsFrom spark
+
+    djobiRelease
+
+    djobiRelease.extendsFrom implementation
+
+    implementation.extendsFrom djobiCore
+
+    compileOnly.extendsFrom sparkAssemblyProvided
+    compileOnly.extendsFrom spark
+    compileOnly.extendsFrom sparkAWS
+
+    testCompile.extendsFrom testFixturesCompile
+    testFixturesCompile.extendsFrom sparkAssemblyProvided
+    testFixturesCompile.extendsFrom sparkAWS
+}
+
+dependencies {
+    // deps shared by all djobi projects
+    djobiCore(
+        [group: 'org.apache.commons', name: 'commons-csv', version:'1.6'],
+        [group: 'com.google.inject', name: 'guice', version: '5.0.1'],
+        [group: 'com.github.spullara.mustache.java', name: 'compiler', version:'0.9.6'],
+        [group: 'org.yaml', name: 'snakeyaml', version:'1.29'],
+        [group: 'com.typesafe', name: 'config', version:'1.4.0'],
+        [group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.3.1'],
+        [group: "co.elastic.apm", name: "apm-agent-api", version: '1.25.0']
+    )
+
+    /*
+     * Removed since Spark 2
+    djobiCore(
+        [group: "com.databricks", name: "spark-csv_2.10", version: "1.5.0"]
+    ) {
+        exclude group: "org.scala-lang"
+        exclude group: "org.apache.commons", module: 'commons-csv'
+    }
+     */
+
+    // Provided by Apache Spark Assembly 1.6.3
+    // Useful if you don't run via Hadoop
+    sparkAssemblyProvided(
+        [group: 'javax.mail', name: 'javax.mail-api', version:'1.6.2'],
+        [group: 'com.jcraft', name: 'jsch', version:'0.1.55'],
+        [group: 'org.fusesource.jansi', name: 'jansi', version: '2.3.4']
+    )
+
+    sparkAWS(
+        [group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.12.53']
+    ) {
+        exclude group: 'com.fasterxml.jackson.core'
+    }
+
+    sparkAWS(
+        [group: 'com.amazonaws', name: 'aws-java-sdk-core', version: '1.12.53']
+    ) {
+        exclude group: 'com.fasterxml.jackson.core'
+    }
+
+    sparkAWS(
+        [group: 'org.apache.hadoop', name: 'hadoop-aws', version: '3.2.0']
+    ) {
+        exclude group: 'com.fasterxml.jackson.core'
+    }
+
+    // Spark libs, as compileOnly, exclude guice (as we use the v4)
+    spark(
+        [group: 'org.apache.spark', name: 'spark-core_' + scalaVersion, version: sparkVersion]
+    ) {
+        exclude group: 'com.google.inject', module: 'guice'
+        exclude group: 'junit', module: 'junit'
+    }
+
+    spark(
+        [group: 'org.apache.spark', name: 'spark-hive_' + scalaVersion, version: sparkVersion],
+        [group: 'org.apache.spark', name: 'spark-sql_' + scalaVersion, version: sparkVersion]
+    )
+
+    testFixturesCompile(
+        [group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'],
+        [group: 'com.google.code.gson', name: 'gson', version: '2.8.5'],
+        [group: 'com.github.stefanbirkner', name: 'system-lambda', version: '1.2.0']
+    )
+
+    testFixturesImplementation(
+        [group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.2'],
+        [group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: '5.7.2'],
+        [group: 'com.squareup.okhttp3', name: 'mockwebserver3-junit5', version: '5.0.0-alpha.2']
+    )
+
+    configurations.all {
+        exclude group: 'junit', module: 'junit'
+        exclude group: 'org.apache.hadoop', module: 'hadoop-yarn-client'
+        exclude group: 'org.apache.hadoop', module: 'hadoop-yarn-api'
+        exclude group: 'org.apache.hadoop', module: 'hadoop-yarn-common'
+    }
+}
+
+djobi.createRelease()
+djobi.sparkAssemblyProvide()

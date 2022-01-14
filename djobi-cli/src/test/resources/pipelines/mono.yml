@@ -1,0 +1,12 @@
+executor:
+  type: io.datatok.djobi.test.executor.DummyExecutor
+
+jobs:
+  campaigns:
+    parameters:
+      country: fr
+    stages:
+      query:
+        kind: "fs-input"
+        spec:
+          path: "./data/{{country}}.txt"

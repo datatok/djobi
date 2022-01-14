@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELK_VERSION}
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+    ports:
+      - 9201:9200
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${ELK_VERSION}
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - 5601:5601
+
+  apm:
+    image: docker.elastic.co/apm/apm-server:${ELK_VERSION}
+    volumes:
+    - ./apm-server.yml:/usr/share/apm-server/apm-server.yml
+    environment:
+    - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    - KIBANA_HOST=http://kibana:5601
+    ports:
+    - 8200:8200

@@ -1,0 +1,36 @@
+ext {
+    variants = [
+            [name: "kafka1"]
+            //,[name: "kafka2"]
+    ]
+}
+
+
+configurations {
+
+    kafka1
+
+    kafka2
+
+    testRuntimeOnly.extendsFrom kafka1
+    compileOnly.extendsFrom kafka1
+}
+
+
+dependencies {
+    compileOnly project(':djobi-core')
+    compileOnly project(path: ':djobi-core', configuration: "spark")
+    compileOnly project(path: ':djobi-core', configuration: "djobiCore")
+    testImplementation(testFixtures(project(":djobi-core")))
+
+    kafka1(group: 'org.apache.kafka', name: 'kafka-clients', version:'1.1.1') {
+        exclude group: "org.xerial.snappy"
+        exclude group: "org.slf4j"
+    }
+
+    kafka2(group: 'org.apache.kafka', name: 'kafka-clients', version:'2.2.0') {
+        exclude group: "org.xerial.snappy"
+    }
+}
+
+djobi.createReleaseWithVariants(variants)

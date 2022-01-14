@@ -1,0 +1,35 @@
+executor:
+  type: spark
+  spec:
+    cluster:
+      type: local
+    driver:
+      cpu: 1
+      memory: 4Gb
+    workers:
+      num: 2
+      cpus: 2
+      memory: 10Gb
+parameters:
+  date:
+    type: daily_date
+jobs:
+  job1:
+    stages:
+      input:
+        kind: "random_generator"
+        spec:
+          count: 100
+      save:
+        kind: "fs-output"
+        spec:
+          path: "s3a://djobi/test_csv_2"
+          format: "com.databricks.spark.csv"
+          mode: overwrite
+          s3:
+            endpoint: "minio:9000"
+            access_key: root
+            secret_key: rootroot
+            ssl: "false"
+            path_style: "true"
+            bucket: djobi

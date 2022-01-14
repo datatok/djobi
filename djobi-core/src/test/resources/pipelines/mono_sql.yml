@@ -1,0 +1,24 @@
+jobs:
+  campaigns:
+    parameters:
+      label_field: title
+      query: csv_limit
+      limit: 1
+    stages:
+      setup_file:
+        kind: "fs-input"
+        spec:
+          path: "../data/json_1"
+          format: json
+      as_table:
+        kind: org.spark.mutate
+        spec:
+          alias_table: my_json_1
+      query:
+        kind: "org.spark.sql"
+        spec:
+          query: "./queries/{{query}}.sql"
+      to_json:
+        kind: json
+      collect:
+        kind: "org.spark.collect"

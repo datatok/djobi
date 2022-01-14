@@ -1,0 +1,38 @@
+parameters:
+  pp: pp
+  pd: pipeline
+jobs:
+  job1:
+    parameters:
+      p1: p1
+      p2: p2
+      pd: job
+    contexts:
+      c1:
+        name: c1
+      c2:
+        name: c2
+    stages:
+      setup_file:
+        kind: fs-input
+        condition: "true"
+        spec:
+          path: "../data/json_1"
+          format: json
+      as_table:
+        kind: org.spark.mutate
+        spec:
+          alias_table: my_json_1
+      input:
+        kind: "sql"
+        check: true
+        condition: "eq $context.name c1"
+        spec:
+          query: "queries/{{pd}}.sql"
+          check_path: "{{env.fs_data.root}}/{{file}}"
+      output:
+        kind: "org.elasticsearch.output"
+        spec:
+          host: "$env.elasticsearch"
+          index: "out-{{pd}}/all"
+          clean_query: "day:{{day}}\\/{{month}}\\/{{year}}"

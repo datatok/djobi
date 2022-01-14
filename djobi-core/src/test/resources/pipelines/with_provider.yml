@@ -1,0 +1,14 @@
+executor:
+  type: io.datatok.djobi.test.executor.DummyExecutor
+
+jobs:
+  job1:
+    stages:
+      input:
+        kind: "sql"
+        check: true
+        spec:
+          query: "queries/{{pd}}.sql"
+          check_path: "../{{file}}"
+      output:
+        kind: "stdout"

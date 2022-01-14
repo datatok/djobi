@@ -1,0 +1,10 @@
+jobs:
+  campaigns:
+    stages:
+      setup_file:
+        kind: "fs-input"
+        spec:
+          path: "../data/json_1"
+          format: json
+      collect:
+        kind: "org.spark.collect"

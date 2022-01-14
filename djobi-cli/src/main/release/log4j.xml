@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="null">
+
+    <appender class="org.apache.log4j.ConsoleAppender" name="stdout">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %p %c > %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="file" class="org.apache.log4j.RollingFileAppender">
+        <param name="append" value="false" />
+        <param name="maxFileSize" value="10KB" />
+        <param name="maxBackupIndex" value="10" />
+        <param name="file" value="./logs/djobi-errors.log" />
+
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern"
+                   value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c:%L - %m%n" />
+        </layout>
+    </appender>
+
+    <logger name="org.elasticsearch"  additivity="false">
+        <level value="WARN" />
+        <appender-ref ref="stdout"/>
+    </logger>
+
+    <logger name="io.datatok.djobi"  additivity="false">
+        <level value="INFO" />
+        <appender-ref ref="stdout"/>
+    </logger>
+
+    <logger name="okhttp3.mockwebserver" additivity="false">
+        <level value="ERROR" />
+        <appender-ref ref="stdout"/>
+    </logger>
+    <logger name="org.eclipse.jetty" additivity="false">
+        <level value="ERROR" />
+        <appender-ref ref="stdout"/>
+    </logger>
+    <logger name="org.eclipse.jetty.util.component.AbstractLifeCycle"  additivity="false">
+        <level value="ERROR" />
+        <appender-ref ref="stdout"/>
+    </logger>
+    <logger name="org.apache.parquet" additivity="false">
+        <level value="ERROR" />
+        <appender-ref ref="stdout"/>
+    </logger>
+    <logger name="org.apache.spark" additivity="false">
+        <level value="ERROR" />
+        <appender-ref ref="stdout"/>
+    </logger>
+
+    <root>
+        <priority value="WARN" />
+        <appender-ref ref="stdout" />
+    </root>
+
+</log4j:configuration>

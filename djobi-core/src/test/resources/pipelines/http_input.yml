@@ -1,0 +1,19 @@
+parameters:
+  date:
+    type: daily_date
+jobs:
+  get_data:
+    stages:
+      download:
+        kind: "http.input"
+        meta:
+          title: "Download data from Awin"
+          output: "Plain JSON"
+        spec:
+          url_base: "http://localhost:8080"
+          url_path: "/get_json"
+          url_query:
+            startDate: "{{year}}-{{month0}}-{{day0}}"
+            endDate: "{{year}}-{{month0}}-{{day0}}"
+            timezone: UTC
+            region: FR

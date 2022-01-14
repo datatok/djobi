@@ -1,0 +1,77 @@
+version: "3"
+
+services:
+
+  ##
+  # Front HTTP proxy to server services with DNS:
+  # http://elasticsearch:9200
+  ##
+  front:
+    image: traefik:v2.5
+    command:
+      - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.es.address=:9200"
+      - "--entrypoints.minio_api.address=:9000"
+      - "--entrypoints.minio_console.address=:9001"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 9200:9200
+      - 9000:9000
+      - 9001:9001
+
+  ##
+  # compile java
+  ##
+  gradle:
+    image: gradle:6.4.0-jdk11
+    command: gradle djobiAssemble testReport
+    working_dir: /app
+    environment:
+      #- GRADLE_OPTS="-Dorg.gradle.daemon=false"
+      - GRADLE_USER_HOME=/app/.gradle
+      - XDG_CONFIG_HOME=/app/
+      - http_proxy
+      - https_proxy
+      - no_proxy=${no_proxy},elasticsearch,gradle,minio,kafka,zookeeper,sftp
+      - GRGIT_USER=${GITLAB_LOGIN}
+      - GRGIT_PASS=${CI_JOB_TOKEN}
+    depends_on:
+      - elasticsearch
+      - kafka1
+      - sftp
+      - minio
+    volumes:
+      - .:/app
+      - .gradle:/home/gradle/.gradle
+      - /etc/passwd:/etc/passwd:ro
+
+  ##
+  # Build and run djobi
+  ##
+  djobi:
+    image: ${CI_REGISTRY_IMAGE}:${VERSION}
+    build:
+      context: .
+      dockerfile: ./packages/docker/Dockerfile
+      args:
+        http_proxy_ip:
+        http_proxy_port:
+        http_proxy:
+        https_proxy:
+    environment:
+      DJOBI_CONFIG: /d/dev/default.conf
+      USE_AGENT: "false"
+      SPARK_MASTER: "local[*]"
+      projectRoot: /d
+    depends_on:
+    - elasticsearch
+    - minio
+    ports:
+    - 4040:4040
+    volumes:
+    - ./dev:/d/dev
+    command: djobi -Adate=yesterday  /d/dev/pipelines/es2fs

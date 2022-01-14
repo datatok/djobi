@@ -1,0 +1,1 @@
+SELECT * FROM my_json_1

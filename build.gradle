@@ -1,0 +1,277 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+plugins {
+    id 'java'
+    id 'idea'
+    id "com.github.johnrengelman.shadow" version "6.1.0"
+    id 'java-test-fixtures'
+    id 'nebula.release' version '15.3.1'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_9
+    targetCompatibility = JavaVersion.VERSION_1_9
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'nebula.release'
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_1_9
+        targetCompatibility = JavaVersion.VERSION_1_9
+    }
+
+    // https://remonsinnema.com/2016/05/09/how-to-manage-dependencies-in-a-gradle-multi-project-build/
+    configurations {
+
+    }
+
+    ext.djobi = [
+        /**
+         * Build a JAR to use if Djobi dont run with Spark Assembly (YARN..)
+         */
+        sparkAssemblyProvide: {
+            String taskName = "sparkAssemblyProvide"
+
+            shadowJar.enabled = false
+
+            task(taskName, type: ShadowJar) {
+                doFirst {
+                    println "Packaging ${project.name}->sparkAssemblyProvide "
+                }
+
+                from sourceSets.main.output
+                configurations = [project.configurations.sparkAssemblyProvided]
+
+                archiveFileName = "${project.name}-${project.version}-spark-assembly-provided-all.jar"
+
+                relocate 'com.typesafe.config', 'my.typesafe.config'
+                relocate 'com.google.inject', 'my.google.inject'
+                relocate 'com.google.common', 'my.google.common'
+                relocate 'okhttp3', 'my.okhttp3'
+                relocate 'okio', 'my.okio'
+
+                /*minimize {
+                    exclude(dependency('org.elasticsearch:.*:.*'))
+                }*/
+            }
+
+            shadowJar.dependsOn(taskName)
+        },
+
+        createRelease: {
+            String projectShortName = project.name.replace("djobi-", "")
+            String taskName = "makeRelease"
+
+            shadowJar.enabled = false
+
+            task(taskName, type: ShadowJar) {
+                doFirst {
+                    println "Packaging ${project.name} "
+                }
+
+                from sourceSets.main.output
+                configurations = [project.configurations.djobiRelease]
+
+                archiveFileName = "${project.name}-${project.version}-all.jar"
+
+                relocate 'com.typesafe.config', 'my.typesafe.config'
+                relocate 'com.google.inject', 'my.google.inject'
+                relocate 'com.google.common', 'my.google.common'
+                relocate 'okhttp3', 'my.okhttp3'
+                relocate 'okio', 'my.okio'
+/*
+                minimize {
+                    exclude(
+                        'org.elasticsearch:.*:.*',
+                        'com.databricks:.*:.*'
+                    )
+                }
+                */
+            }
+
+            shadowJar.dependsOn(taskName)
+        },
+
+        createReleaseWithVariants: { variants ->
+            String projectShortName = project.name.replace("djobi-", "")
+            //project.gradle.startParameter.excludedTaskNames.add('ShadowJar')
+            shadowJar.enabled = false
+
+            variants.each { variant ->
+                String taskName = "${variant.name}MakeRelease"
+
+                task(taskName, type: ShadowJar) {
+                    doFirst {
+                        println "Packaging variant ${project.name} / ${variant.name} "
+                    }
+
+                    classifier = "${variant.name}"
+                    from sourceSets.main.output
+                    configurations = [project.configurations."${variant.name}"]
+
+                    archiveFileName = "${project.name}-${variant.name}-${project.version}-all.jar"
+
+                    relocate 'com.typesafe.config', 'my.typesafe.config'
+                    relocate 'com.google.inject', 'my.google.inject'
+                    relocate 'com.google.common', 'my.google.common'
+                    relocate 'okhttp3', 'my.okhttp3'
+                    relocate 'okio', 'my.okio'
+
+                    minimize {
+                        exclude(dependency('org.elasticsearch:.*:.*'))
+                    }
+                }
+
+                shadowJar.dependsOn(taskName)
+            }
+        }
+    ];
+
+    task allDeps(type: DependencyReportTask) {}
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-params:5.7.2'
+
+        testImplementation(
+            [group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.2'],
+            [group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: '5.7.2'],
+            [group: 'com.squareup.okhttp3', name: 'mockwebserver3-junit5', version: '5.0.0-alpha.2']
+        )
+    }
+
+    sourceSets {
+        test {
+            compileClasspath += configurations.compileOnly
+        }
+    }
+
+    test {
+        useJUnitPlatform()
+
+        environment "projectRoot", System.getProperty("user.dir")
+        environment "SPARK_LOCAL_IP", "127.0.0.1"
+
+        jvmArgs (
+                '-Dconfig.file=./src/test/resources/env.conf',
+                '-Dlog4j.configuration=log4j.properties',
+                '-Djunit.jupiter.extensions.autodetection.enabled=true'
+        )
+
+        testLogging {
+            exceptionFormat = "short"
+
+            debug {
+                events "started", "skipped", "failed"
+                exceptionFormat "short"
+            }
+        }
+
+        failFast = false
+        testLogging.showStandardStreams = true
+        //reports.html.enabled = false
+    };
+};
+
+nebulaRelease {
+    releaseBranchPatterns = [/master/, /HEAD/, /(release(-|\/))?v?\d+\.\d+\.\d+/]
+};
+
+task djobiAssemble(type: Sync) {
+    doFirst {
+        file("$buildDir/release").delete()
+    }
+
+    doLast {
+        copy {
+            from 'djobi-core/build/manifest/djobi-core.properties'
+            into "$buildDir/release"
+        }
+
+        copy {
+            from 'VERSION'
+            into "$buildDir/release"
+        }
+
+        copy {
+            from 'djobi-app/src/main/release'
+            filter { line -> line.replaceAll('%%VERSION%%', project.version.toString()) }
+            into "$buildDir/release"
+            fileMode = 0744
+
+            rename 'app.sh', 'app'
+            rename 'djobi.sh', 'djobi'
+        }
+    }
+
+    from(subprojects.collect { it.tasks.withType(ShadowJar) }) {
+        include "**/*-all.jar"
+        into "libs"
+        rename '^(.+)-all.jar', '$1.jar'
+    }
+
+    into "$buildDir/release"
+};
+
+task testReport(type: TestReport) {
+    destinationDir = file("$buildDir/reports/allTests")
+    // Include the results from the `test` task in all subprojects
+    reportOn subprojects*.test
+
+    //
+    // Keep track of total failure count for later test and output
+    //
+    def testFailures = 0
+
+    //
+    // Every subproject should ignore test failures, but here we add a
+    // test suite failure filter to ensure we keep track of the fact that
+    // failures have occurred (for the build failure check below)
+    //
+    subprojects {
+        test {
+            ignoreFailures true
+            afterSuite { td, tr ->
+                if (td.getParent() == null) {
+                    testFailures += tr.getFailedTestCount()
+                }
+            }
+        }
+    }
+
+    //
+    // The last thing to do in this task is to check for failures.
+    // The build as a whole should fail if any tests failed.
+    //
+    doLast {
+        if (testFailures > 0) {
+            throw new Exception("There were ${testFailures} test failures")
+        }
+    }
+};
+
+//
+// Add the test report to the dependency tree for a standard build
+//
+build.dependsOn(testReport);
+
+/**
+ * Relocate some common libs, to prevent conflicts.
+ */
+shadowJar {
+    relocate 'com.typesafe.config', 'my.typesafe.config'
+    relocate 'com.google.inject', 'my.google.inject'
+    relocate 'com.google.common', 'my.google.common'
+    relocate 'okhttp3', 'my.okhttp3'
+    relocate 'okio','my.okio'
+
+    minimize()
+};

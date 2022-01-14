@@ -1,0 +1,22 @@
+executor:
+  type: local
+jobs:
+  test:
+    contexts:
+      a:
+        country: "fr"
+      b:
+        country: "it"
+    stages:
+      input:
+        kind: "fs-input"
+        spec:
+          path: "./data/{{country}}.txt"
+      scp:
+        kind: "net.scp.output"
+        spec:
+          host: "{{config.share.host}}"
+          port: "{{config.share.port}}"
+          user: "{{config.share.user}}"
+          identity: "{{config.share.identity}}"
+          path: "{{config.share.path}}/{{country}}.csv"

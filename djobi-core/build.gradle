@@ -2,6 +2,8 @@ plugins {
     id 'java-library'
     id "java-test-fixtures"
     id "idea"
+    id 'maven-publish'
+    id 'signing'
 }
 
 configurations {
@@ -108,6 +110,10 @@ dependencies {
     }
 }
 
+signing {
+    sign configurations.archives
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -141,7 +147,7 @@ publishing {
     repositories {
         maven {
             name = "OSSRH"
-            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            url = "https://s01.oss.sonatype.org/"
 
             credentials {
                 username = System.getenv("MAVEN_USERNAME")

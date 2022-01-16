@@ -23,13 +23,11 @@ dependencies {
 
     testImplementation(testFixtures(project(":djobi-core")))
 
-    // Upgrade to 6.3.X because https://github.com/elastic/elasticsearch-hadoop/issues/1139
-    /*es24(group: 'org.elasticsearch', name: 'elasticsearch-spark-30_' + scalaVersion, version:'7.14.0') {
+    es7(group: 'org.elasticsearch', name: 'elasticsearch-spark-30_' + scalaVersion, version:'7.16.2') {
         exclude group: "org.scala-lang"
-    }*/
-
-    es7(group: 'org.elasticsearch', name: 'elasticsearch-spark-30_' + scalaVersion, version:'7.14.0') {
-        exclude group: "org.scala-lang"
+        exclude group: "org.apache.spark"
+        exclude group: "com.google.protobuf"
+        exclude group: "javax.xml.bind"
     }
 }
 

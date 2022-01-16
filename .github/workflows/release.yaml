@@ -1,0 +1,106 @@
+name: release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install gpg secret key
+        run: |
+          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@4137be6a8bf7d7133955359dbd952c0ca73b1021
+        with:
+          arguments: -Prelease.useLastTag=true djobiAssemble -x test
+      - name: upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: app
+          path: build/release
+
+  docker-package:
+    name: Package app as Docker image
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: datatok/djobi
+
+    steps:
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - uses: actions/checkout@v2
+
+      - name: Download dist artifact
+        uses: actions/download-artifact@v2
+        id: distArtifacts
+        with:
+          name: app
+          path: build/release
+
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: packages/docker/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+
+  release-github:
+    name: Create github release
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - docker-package
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download dist artifact
+        uses: actions/download-artifact@v2
+        id: distArtifacts
+        with:
+          name: app
+          path: build
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "build"
+          body: |
+            Djobi release
+          allowUpdates: true
+          token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,11 +1,9 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
+name: dev
 
-name: Java CI
-
-on: [push]
+on:
+  push:
+    branches:
+      - develop
 
 jobs:
   build:
@@ -20,12 +18,15 @@ jobs:
           distribution: 'adopt'
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
+      - name: Install gpg secret key
+        run: |
+          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
       - name: Build with Gradle
         uses: gradle/gradle-build-action@4137be6a8bf7d7133955359dbd952c0ca73b1021
         with:
-          arguments: djobiAssemble -x test
-      - name: upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: Package
-          path: build/release
+          arguments: |
+            -Prelease.version=dev \
+            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+            -x test \
+            djobiAssemble

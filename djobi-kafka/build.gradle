@@ -3,12 +3,6 @@ plugins {
     id "idea"
 }
 
-def kafkaAttribute = Attribute.of("kafka.version", String)
-
-dependencies.attributesSchema {
-    attribute(kafkaAttribute)
-}
-
 ext {
     variants = [
             [name: "kafka1"]
@@ -19,17 +13,9 @@ ext {
 
 configurations {
     kafka1 {
-        attributes {
-            attribute(kafkaAttribute, "1.1.1")
-        }
-        canBeResolved(true)
     }
 
     kafka2 {
-        attributes {
-            attribute(kafkaAttribute, "2.2.0")
-        }
-        canBeResolved(true)
     }
 
     testRuntimeOnly.extendsFrom kafka1

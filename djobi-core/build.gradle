@@ -104,7 +104,6 @@ publishing {
         mavenJava(MavenPublication) {
             groupId = 'io.datatok.djobi'
             artifactId = 'djobi-core'
-            version = '5.0.0'
 
             from components.java
 

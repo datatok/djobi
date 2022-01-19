@@ -3,3 +3,5 @@ include(":djobi-elasticsearch")
 include(":djobi-kafka")
 include(":djobi-filter-user_agent")
 include(":djobi-cli")
+include(":djobi-tests")
+

@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import io.datatok.djobi.test.HttpNumbersResponse;
 import io.datatok.djobi.test.MyTestRunner;
 import io.datatok.djobi.test.mocks.HttpMock;
-import io.datatok.djobi.utils.MyMapUtils;
 import io.datatok.djobi.utils.http.Http;
 import io.datatok.djobi.utils.http.HttpRequest;
 import org.junit.jupiter.api.AfterAll;

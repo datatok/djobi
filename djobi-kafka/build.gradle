@@ -28,7 +28,7 @@ dependencies {
     compileOnly project(path: ':djobi-core', configuration: "spark")
     compileOnly project(path: ':djobi-core', configuration: "djobiCore")
 
-    testImplementation(testFixtures(project(":djobi-core")))
+    testImplementation(project(":djobi-tests"))
 
     kafka1(group: 'org.apache.kafka', name: 'kafka-clients', version:'1.1.1') {
         exclude group: "org.xerial.snappy"

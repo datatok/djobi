@@ -21,7 +21,7 @@ dependencies {
     compileOnly project(path: ':djobi-core', configuration: "spark")
     compileOnly project(path: ':djobi-core', configuration: "djobiCore")
 
-    testImplementation(testFixtures(project(":djobi-core")))
+    testImplementation(project(":djobi-tests"))
 
     es7(group: 'org.elasticsearch', name: 'elasticsearch-spark-30_' + scalaVersion, version:'7.16.2') {
         exclude group: "org.scala-lang"

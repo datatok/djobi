@@ -2,8 +2,6 @@ name: release
 
 on:
   push:
-    branches:
-      - main
     tags:
       - 'v*'
 
@@ -28,7 +26,7 @@ jobs:
         uses: gradle/gradle-build-action@4137be6a8bf7d7133955359dbd952c0ca73b1021
         with:
           arguments: |
-            -Prelease.useLastTag=true -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} djobiAssemble -x test
+            -Prelease.useLastTag=true -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} djobiAssemble
       - name: upload artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -127,7 +125,8 @@ jobs:
       - name: Publish package
         uses: gradle/gradle-build-action@4137be6a8bf7d7133955359dbd952c0ca73b1021
         with:
-          arguments: publish
+          arguments: |
+            -Prelease.useLastTag=true publish
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}

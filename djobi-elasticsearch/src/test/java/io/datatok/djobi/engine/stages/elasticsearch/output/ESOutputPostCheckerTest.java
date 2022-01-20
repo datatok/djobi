@@ -12,16 +12,14 @@ import io.datatok.djobi.utils.MyMapUtils;
 import io.datatok.djobi.utils.http.Http;
 import io.datatok.djobi.utils.templating.TemplateUtils;
 import org.apache.log4j.Logger;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.inject.Inject;
 import java.io.IOException;
 
 @ExtendWith(MyTestRunner.class)
+@Tag("IntegrationTest")
 public class ESOutputPostCheckerTest {
 
     private static Logger logger = Logger.getLogger(ESOutputPostCheckerTest.class);

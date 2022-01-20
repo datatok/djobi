@@ -38,10 +38,9 @@ public class StageDefinition {
     public String condition;
 
     public Stage buildStage(final String name) {
-        return new Stage()
+        final Stage s = new Stage()
                 .setAllowFailure(allowFailure)
                 .setCondition(condition)
-                .setName(name)
                 .setEnabled(enabled)
                 .setPreCheckEnabled(check)
                 .setPostCheckEnabled(check)
@@ -49,5 +48,14 @@ public class StageDefinition {
                 .setKind(kind)
                 .setLabels(labels)
         ;
+
+        // Deprecated: name must come always from "name: " field
+        if (this.name == null || this.name.isEmpty()) {
+            s.setName(name);
+        } else {
+            s.setName(this.name);
+        }
+
+        return s;
     }
 }

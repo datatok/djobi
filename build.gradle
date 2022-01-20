@@ -183,7 +183,9 @@ subprojects {
     }
 
     test {
-        useJUnitPlatform()
+        useJUnitPlatform {
+            excludeTags("IntegrationTest", "NeedDocker")
+        }
 
         environment "projectRoot", System.getProperty("user.dir")
         environment "SPARK_LOCAL_IP", "127.0.0.1"

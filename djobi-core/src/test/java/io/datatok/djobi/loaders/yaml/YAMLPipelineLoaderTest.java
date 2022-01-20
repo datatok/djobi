@@ -80,6 +80,18 @@ class YAMLPipelineLoaderTest {
     }
 
     @Test()
+    void testName() throws Exception {
+        final Pipeline p = load("good.yml");
+
+        Assertions.assertNotNull(p);
+
+        final Job job1  = p.getJobs().get(0);
+
+        Assertions.assertEquals("setup-file-overriden-name", job1.getStages().get(0).getName());
+        Assertions.assertEquals("as_table", job1.getStages().get(1).getName());
+    }
+
+    @Test()
     void testLabels() throws Exception {
         final Pipeline p = load("good.yml");
 
@@ -87,11 +99,11 @@ class YAMLPipelineLoaderTest {
 
         final Job job1  = p.getJobs().get(0);
 
-        Assertions.assertEquals("t.decaux", p.getLabel("io.datatok/org-author"));
+        Assertions.assertEquals("t.decaux", p.getLabel("io.datatok.djobi/org-author"));
 
         Assertions.assertEquals("low", job1.getLabel("level"));
 
-        Assertions.assertEquals("input", job1.getStages().get(0).getLabel("io.datatok/stage-type"));
+        Assertions.assertEquals("input", job1.getStages().get(0).getLabel("io.datatok.djobi/stage-type"));
     }
 
     private Pipeline load(final String pipeline) throws Exception {

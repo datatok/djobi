@@ -9,6 +9,7 @@ import io.datatok.djobi.loaders.yaml.YAMLPipelineLoader;
 import io.datatok.djobi.test.MyTestRunner;
 import io.datatok.djobi.utils.elasticsearch.ElasticsearchUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -16,6 +17,7 @@ import javax.inject.Inject;
 import java.lang.reflect.Method;
 
 @ExtendWith(MyTestRunner.class)
+@Tag("IntegrationTest")
 public class ElasticsearchEngineTest {
 
     @Inject

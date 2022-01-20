@@ -16,8 +16,8 @@ parameters:
   pp: pp
   pd: pipeline
 labels:
-  io.datatok/org-team: datahub
-  io.datatok/org-author: t.decaux
+  io.datatok.djobi/org-team: datahub
+  io.datatok.djobi/org-author: t.decaux
 jobs:
   job1:
     labels:
@@ -38,9 +38,10 @@ jobs:
         file: not_found
     stages:
       setup_file:
+        name: setup-file-overriden-name
         kind: fs-input
         labels:
-          io.djobi/stage-type: input
+          io.datatok.djobi/stage-type: input
         spec:
           path: "../data/json_1"
           format: json
@@ -61,7 +62,7 @@ jobs:
       output:
         kind: "fs-output"
         labels:
-          io.datatok/stage-type: output
+          io.datatok.djobi/stage-type: output
         spec:
           path: "/tmp/djobi_test_engine"
           options:

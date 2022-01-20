@@ -11,13 +11,11 @@ import io.datatok.djobi.test.mocks.HttpMock;
 import io.datatok.djobi.utils.Bag;
 import io.datatok.djobi.utils.io.IOFileUtils;
 import io.datatok.djobi.utils.templating.TemplateUtils;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 
+@Tag("UnitTest")
 class SCPOutputPostCheckerTest {
 
     @Inject
@@ -70,7 +68,7 @@ class SCPOutputPostCheckerTest {
     void testTooSmall() throws Exception {
         Stage stage = StageTestUtils.getNewStage();
 
-        stage.setParameters(ActionConfiguration.get(SCPOutputConfig.class, new Bag("path", "steam/toto.csv"), stage, templateUtils));
+        stage.setParameters(ActionConfiguration.get(SCPOutputConfig.class, new Bag("path", "/opt/toto.csv"), stage, templateUtils));
 
         CheckResult res = checker.postCheck(stage);
 
@@ -82,7 +80,7 @@ class SCPOutputPostCheckerTest {
     void testTooOld() throws Exception {
         Stage stage = StageTestUtils.getNewStage();
 
-        stage.setParameters(ActionConfiguration.get(SCPOutputConfig.class, new Bag("path", "steam/junior.csv", "check_service", "http_files_listing_local"), stage, templateUtils));
+        stage.setParameters(ActionConfiguration.get(SCPOutputConfig.class, new Bag("path", "/opt/report_2017_10_10.csv", "check_service", "http_files_listing_local"), stage, templateUtils));
 
         CheckResult res = checker.postCheck(stage);
 

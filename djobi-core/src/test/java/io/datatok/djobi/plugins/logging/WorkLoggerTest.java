@@ -22,6 +22,7 @@ import io.datatok.djobi.utils.JSONUtils;
 import io.datatok.djobi.utils.MyMapUtils;
 import io.datatok.djobi.utils.elasticsearch.ElasticsearchUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -61,6 +62,7 @@ class WorkLoggerTest {
      * @todo implements log structure tests here.
      */
     @Test
+    @Tag("IntegrationTest")
     void testElasticsearchSink() throws Exception {
 
         final String configPrefix = "djobi.plugins.logger.sinks.";

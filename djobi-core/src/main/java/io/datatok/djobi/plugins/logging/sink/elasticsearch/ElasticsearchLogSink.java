@@ -1,8 +1,7 @@
 package io.datatok.djobi.plugins.logging.sink.elasticsearch;
 
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
+import io.datatok.djobi.plugins.logging.config.LoggingSinkConfig;
 import io.datatok.djobi.plugins.logging.sink.LogSink;
 import io.datatok.djobi.utils.MyMapUtils;
 import io.datatok.djobi.utils.http.Http;
@@ -25,7 +24,7 @@ public class ElasticsearchLogSink implements LogSink {
     
     static private final Logger logger = Logger.getLogger(ElasticsearchLogSink.class);
 
-    private String settingUrl;
+    private final String settingUrl;
 
     private String settingIndex;
 
@@ -33,14 +32,9 @@ public class ElasticsearchLogSink implements LogSink {
 
     private boolean isWorking = true;
 
-    public ElasticsearchLogSink(final Config config) {
-        final Config c = config.withFallback(ConfigFactory.parseMap(MyMapUtils.mapString(
-            "url", "http://localhost:9200",
-                "index", "djobi-default"
-        )));
-
-        this.settingIndex = c.getString("index");
-        this.settingUrl = c.getString("url");
+    public ElasticsearchLogSink(final LoggingSinkConfig config) {
+        this.settingIndex = config.getStoreBucket();
+        this.settingUrl = config.getStoreURL();
     }
 
     /**

@@ -5,8 +5,8 @@ import io.datatok.djobi.application.plugins.PluginBootstrap;
 import io.datatok.djobi.engine.events.*;
 import io.datatok.djobi.event.EventBus;
 import io.datatok.djobi.executors.events.MetricAvailableEvent;
-import io.datatok.djobi.plugins.logging.loggers.Log4jLogger;
-import io.datatok.djobi.plugins.logging.sink.LoggerSinkFactory;
+import io.datatok.djobi.plugins.logging.config.LoggingConfig;
+import io.datatok.djobi.plugins.logging.config.LoggingConfigFactory;
 import io.datatok.djobi.plugins.logging.subcribers.*;
 import io.datatok.djobi.utils.di.SimpleProviderFactory;
 
@@ -21,32 +21,34 @@ public class LoggingPlugin extends Plugin implements PluginBootstrap {
     private SimpleProviderFactory providerFactory;
 
     @Inject
-    private LoggerSinkFactory sinkFactory;
+    private LoggingConfigFactory configFactory;
 
     public Class<LoggingPlugin> getBootstrap() {
         return LoggingPlugin.class;
     }
 
     public void bootstrap() {
-        if (sinkFactory.enabled(LoggerTypes.TYPE_JOBS)) {
+        final LoggingConfig config = configFactory.build();
+
+        if (config.getJobSink().isEnabled()) {
             eventBus.subscribe(JobRunStartEvent.NAME, providerFactory.get(JobRunStartSubscriber.class));
             eventBus.subscribe(JobRunFinishEvent.NAME, providerFactory.get(JobRunFinishSubscriber.class));
         }
 
-        if (sinkFactory.enabled(LoggerTypes.TYPE_METRICS)) {
+        if (config.getMetricSink().isEnabled()) {
             eventBus.subscribe(MetricAvailableEvent.NAME, providerFactory.get(MetricsLogger.class));
         }
 
-        if (sinkFactory.enabled(LoggerTypes.TYPE_STAGES)) {
+        if (config.getStageSink().isEnabled()) {
             eventBus.subscribe(StageRunStartEvent.NAME, providerFactory.get(StageRunSubscriber.class));
             eventBus.subscribe(StageRunFinishEvent.NAME, providerFactory.get(StageRunSubscriber.class));
             eventBus.subscribe(StagePreCheckDoneEvent.NAME, providerFactory.get(StagePostCheckSubscriber.class));
             eventBus.subscribe(StagePostCheckDoneEvent.NAME, providerFactory.get(StagePostCheckSubscriber.class));
         }
 
-        if (sinkFactory.enabled(LoggerTypes.TYPE_LOGS)) {
+        /*if (sinkFactory.enabled(LoggerTypes.TYPE_LOGS)) {
             providerFactory.get(Log4jLogger.class).get().call(null);
-        }
+        }*/
     }
 
 }

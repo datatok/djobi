@@ -39,9 +39,9 @@ dependencies {
         [group: 'com.github.spullara.mustache.java', name: 'compiler', version:'0.9.6'],
         [group: 'org.yaml', name: 'snakeyaml', version:'1.29'],
         [group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.3.1'],
-        [group: "co.elastic.apm", name: "apm-agent-api", version: '1.28.3'],
+        [group: "co.elastic.apm", name: "apm-agent-api", version: '1.28.4'],
         [group: 'com.google.inject', name: 'guice', version: '5.0.1'],
-        [group: 'com.typesafe', name: 'config', version:'1.4.0']
+        [group: 'com.typesafe', name: 'config', version:'1.4.1']
     )
 
     // Provided by Apache Spark Assembly 1.6.3

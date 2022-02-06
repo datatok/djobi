@@ -26,7 +26,7 @@ jobs:
       p1: p1
       p2: p2
       pd: job
-    contexts:
+    matrix:
       a:
         pjc1: a
         pd: context_a
@@ -37,7 +37,7 @@ jobs:
         pd: context_b
         file: not_found
     stages:
-      setup_file:
+      - name: setup_file
         name: setup-file-overriden-name
         kind: fs-input
         labels:
@@ -45,21 +45,21 @@ jobs:
         spec:
           path: "../data/json_1"
           format: json
-      as_table:
+      - name: as_table
         kind: org.spark.mutate
         spec:
           alias_table: my_json_1
-      input:
+      - name: input
         kind: "sql"
         check: false
         spec:
           query: "queries/{{pd}}.sql"
-      filter:
+      - name: filter
         kind: "org.spark.mutate"
         spec:
           adds:
             day: "{{day}}\\/{{month}}\\/{{year}}"
-      output:
+      - name: output
         kind: "fs-output"
         labels:
           io.datatok.djobi/stage-type: output

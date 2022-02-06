@@ -6,7 +6,7 @@ jobs:
     parameters:
       country: fr
     stages:
-      query:
+      - name: query
         kind: "fs-input"
         spec:
           path: "./data/{{country}}.txt"

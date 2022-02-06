@@ -8,24 +8,24 @@ jobs:
       p2: p2
       pd: job
     stages:
-      setup_file:
+      - name: setup_file
         kind: fs-input
         condition: "true"
         spec:
           path: "../data/json_1"
           format: json
-      as_table:
+      - name: as_table
         kind: org.spark.mutate
         spec:
           alias_table: my_json_1
-      input:
+      - name: input
         kind: "sql"
         check: true
         condition: "eq $pd job"
         spec:
           query: "queries/{{pd}}.sql"
           check_path: "{{env.fs_data.root}}/{{file}}"
-      output:
+      - name: output
         kind: "org.elasticsearch.output"
         spec:
           host: "{{env.elasticsearch}}"

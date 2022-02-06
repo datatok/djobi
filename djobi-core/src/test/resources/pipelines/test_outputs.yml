@@ -8,11 +8,11 @@ jobs:
       b:
         country: "it"
     stages:
-      input:
+      - name: input
         kind: "fs-input"
         spec:
           path: "./data/{{country}}.txt"
-      scp:
+      - name: scp
         kind: "net.scp.output"
         spec:
           host: "{{config.share.host}}"

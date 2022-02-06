@@ -5,20 +5,20 @@ jobs:
       query: csv_limit
       limit: 1
     stages:
-      setup_file:
+      - name: setup_file
         kind: "fs-input"
         spec:
           path: "../data/json_1"
           format: json
-      as_table:
+      - name: as_table
         kind: org.spark.mutate
         spec:
           alias_table: my_json_1
-      query:
+      - name: query
         kind: "org.spark.sql"
         spec:
           query: "./queries/{{query}}.sql"
-      to_json:
+      - name: to_json
         kind: json
-      collect:
+      - name: collect
         kind: "org.spark.collect"

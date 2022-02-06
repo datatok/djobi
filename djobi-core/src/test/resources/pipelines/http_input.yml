@@ -4,7 +4,7 @@ parameters:
 jobs:
   get_data:
     stages:
-      download:
+      - name: download
         kind: "http.input"
         meta:
           title: "Download data from Awin"

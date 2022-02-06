@@ -1,25 +1,25 @@
 jobs:
   raw:
     stages:
-      setup_file:
+      - name: setup_file
         kind: "fs-input"
         spec:
           path: "../data/json_1"
           format: json
-      collect:
+      - name: collect
         kind: "org.spark.collect"
-      stdout:
+      - name: stdout
         kind: stdout
   as_json:
     stages:
-      setup_file:
+      - name: setup_file
         kind: "fs-input"
         spec:
           path: "../data/json_1"
           format: json
-      to_json:
+      - name: to_json
         kind: "json"
-      collect:
+      - name: collect
         kind: "org.spark.collect"
-      stdout:
+      - name: stdout
         kind: stdout

@@ -12,7 +12,7 @@ jobs:
       p1: p1
       p2: p2
       pd: job
-    contexts:
+    matrix:
       a:
         pjc1: a
         pd: context_a
@@ -24,22 +24,22 @@ jobs:
         file: not_found
         input: not_found
     stages:
-      setup_file:
+      - name: setup_file
         kind: fs-input
         spec:
           path: "{{input}}"
           format: json
-      as_table:
+      - name: as_table
         kind: org.spark.mutate
         spec:
           alias_table: my_json_1
-      input:
+      - name: input
         kind: sql
         check: true
         spec:
           query: "queries/{{pd}}.sql"
           check_path: "../{{file}}"
-      output:
+      - name: output
         kind: org.elasticsearch.output
         spec:
           host: "{{env.elasticsearch}}"

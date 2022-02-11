@@ -156,11 +156,17 @@ public class YAMLPipelineLoader {
                         final ParameterBag jobParameters = actionArgFactory.resolve(jobDefinition.parameters, pipelineRequest);
                         final Map<String, ParameterBag> jobContextParameters = new HashMap<>();
 
-                        if (jobDefinition.matrix == null) {
+                        if (jobDefinition.contexts == null) {
                             jobContextParameters.put(DEFAULT_CONTEXT, jobParameters);
                         } else {
-                            for (String c : jobDefinition.matrix.keySet()) {
-                                jobContextParameters.put(c, ParameterBag.merge(jobParameters, actionArgFactory.resolve(jobDefinition.matrix.get(c), pipelineRequest)));
+                            for (String c :  jobDefinition.contexts.keySet()) {
+                                jobContextParameters.put(c, ParameterBag.merge(
+                                    jobParameters,
+                                    actionArgFactory.resolve(
+                                        jobDefinition.contexts.get(c),
+                                        pipelineRequest
+                                    )
+                                ));
                             }
                         }
 

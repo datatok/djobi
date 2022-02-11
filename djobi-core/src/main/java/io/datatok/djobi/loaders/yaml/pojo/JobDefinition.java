@@ -12,17 +12,24 @@ import java.util.stream.Collectors;
 
 public class JobDefinition {
 
+    /**
+     * Stages definition
+     */
     public List<StageDefinition> stages;
 
+    /**
+     * Parameters definition
+     */
     public Map<String, Object> parameters;
 
     /**
-     * @since v5.0.0
+     * Labels definition
      */
     public Map<String, String> labels;
 
-    public Map<String, Map<String, Object>> matrix;
-
+    /**
+     * Define a matrix to execute job as variant.
+     */
     public Map<String, Map<String, Object>> contexts;
 
     public String id;
@@ -33,11 +40,6 @@ public class JobDefinition {
 
     public JobDefinition() {
         this.uid = UUID.randomUUID().toString();
-    }
-
-    public JobDefinition setContexts(Map<String, Map<String, Object>> context) {
-        this.matrix = context;
-        return this;
     }
 
     public Job getJob(final Pipeline pipeline, final ParameterBag run)

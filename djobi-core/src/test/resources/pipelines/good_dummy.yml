@@ -12,7 +12,7 @@ jobs:
       p1: p1
       p2: p2
       pd: job
-    matrix:
+    contexts:
       a:
         pjc1: a
         pd: context_a

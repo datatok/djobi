@@ -1,10 +1,9 @@
 package io.datatok.djobi.cli.commands;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.datatok.djobi.cli.utils.CLIUtils;
+import io.datatok.djobi.cli.utils.PipelineRequestFactory;
 import io.datatok.djobi.engine.Job;
 import io.datatok.djobi.engine.Pipeline;
-import io.datatok.djobi.engine.PipelineExecutionRequest;
 import io.datatok.djobi.engine.phases.ActionPhases;
 import io.datatok.djobi.engine.phases.StagePhaseMetaData;
 import io.datatok.djobi.engine.stage.ActionFactory;
@@ -32,6 +31,9 @@ public class DumpPipelineCommand implements Runnable {
     @Inject
     ActionFactory actionFactory;
 
+    @Inject
+    PipelineRequestFactory pipelineRequestFactory;
+
     @CommandLine.ParentCommand
     DumpCommand dumpCommand;
 
@@ -51,7 +53,7 @@ public class DumpPipelineCommand implements Runnable {
         AnsiConsole.systemInstall();
 
         try {
-            pipeline = pipelineLoader.get(PipelineExecutionRequest.build(pipelinePath, args).setJobsFilter(Arrays.asList(jobs.split(","))));
+            pipeline = pipelineLoader.get(pipelineRequestFactory.build(pipelinePath).setJobsFilter(Arrays.asList(jobs.split(","))));
         } catch (IOException e) {
             e.printStackTrace();
         }

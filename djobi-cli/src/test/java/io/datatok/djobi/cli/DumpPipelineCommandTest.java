@@ -16,7 +16,7 @@ import java.util.HashMap;
 class DumpPipelineCommandTest {
 
     @Inject
-    private CommandFactory commandFactory;
+    private CommandKernel commandKernel;
 
     @Inject
     private DumpPipelineCommand dumpPipelineCommand;
@@ -28,7 +28,7 @@ class DumpPipelineCommandTest {
     }
 
     @Test void basic() {
-        new CommandLine(dumpPipelineCommand).parse(new String[]{"--args", "date=today", "-Ahello=toto", "./src/test/resources/pipelines/good.yml"});
+        new CommandLine(dumpPipelineCommand).parseArgs("--args", "date=today", "-Ahello=toto", "./src/test/resources/pipelines/good.yml");
 
         Assertions.assertEquals(MyMapUtils.map("date", "today", "hello", "toto"), dumpPipelineCommand.args);
     }
@@ -51,7 +51,7 @@ class DumpPipelineCommandTest {
     }
 
     private void run(final String[] args) {
-        commandFactory.run(args);
+        commandKernel.run(args);
     }
 
     private String captureStdout() {

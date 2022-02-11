@@ -13,7 +13,7 @@ import java.util.HashMap;
 class DumpActionCommandTest {
 
     @Inject
-    private CommandFactory commandFactory;
+    private CommandKernel commandKernel;
 
     @Test void jsonExample() throws Exception {
         run(new String[]{"dump", "--format", "json", "action"});
@@ -24,7 +24,7 @@ class DumpActionCommandTest {
     }
 
     private void run(final String[] args) {
-        commandFactory.run(args);
+        commandKernel.run(args);
     }
 
 }

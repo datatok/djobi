@@ -42,7 +42,7 @@ dependencies {
     )
 
     implementation(
-        [group: 'info.picocli', name: 'picocli', version: '3.9.5']
+        [group: 'info.picocli', name: 'picocli', version: '4.6.2']
     )
 }
 

@@ -1,6 +1,7 @@
 package io.datatok.djobi.cli.commands;
 
 import com.google.inject.Inject;
+import io.datatok.djobi.cli.utils.PipelineRequestFactory;
 import io.datatok.djobi.cli.utils.CLIUtils;
 import io.datatok.djobi.engine.Engine;
 import io.datatok.djobi.engine.Pipeline;
@@ -9,6 +10,7 @@ import io.datatok.djobi.loaders.yaml.YAMLPipelineLoader;
 import io.datatok.djobi.plugins.report.OutVerbosity;
 import io.datatok.djobi.plugins.report.VerbosityLevel;
 import io.datatok.djobi.utils.MetaUtils;
+import io.datatok.djobi.utils.MyMapUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -19,24 +21,24 @@ import java.util.Map;
 public class RunPipelineCommand implements Runnable {
 
     @Inject
+    PipelineRequestFactory pipelineRequestFactory;
+
+    @Inject
     YAMLPipelineLoader pipelineLoader;
 
     @Inject
     Engine pipelineRunner;
 
     @Inject
-    MetaUtils metaUtils;
-
-    @Inject
     OutVerbosity outVerbosity;
 
-    @CommandLine.Option(paramLabel = "args", names = {"-A", "--args"}, description = "arguments (date, ...)")
+    @CommandLine.Option(paramLabel = "args", names = {"-a", "--arg"}, description = "arguments (date, ...)")
     Map<String, String> args;
 
     @CommandLine.Option(paramLabel = "jobs", names = {"--jobs"}, description = "jobs filter", defaultValue = "")
     String jobs;
 
-    @CommandLine.Option(paramLabel = "run_metas", names = {"-M", "--meta"}, description = "pipeline run meta (for logging)")
+    @CommandLine.Option(paramLabel = "run_metas", names = {"-m", "--meta"}, description = "pipeline run meta (for logging)")
     Map<String, String> runMetas;
 
     @CommandLine.Option(
@@ -47,69 +49,41 @@ public class RunPipelineCommand implements Runnable {
     )
     String phases;
 
-    @CommandLine.Parameters(paramLabel = "pipeline", arity = "1..*", description = "the pipeline directory path")
+    @CommandLine.Parameters(paramLabel = "pipeline", defaultValue = "${DJOBI_PIPELINE}" ,arity = "1..*", description = "the pipeline directory path")
     String pipelinePath;
 
     @CommandLine.Option(names = { "-v", "--verbose" }, description = "Verbose mode. Helpful for troubleshooting. " +
             "Multiple -v options increase the verbosity.")
-    private boolean[] verbose = new boolean[0];
+    private boolean[] verbosityOption = new boolean[0];
 
     @Override
     public void run() {
         Pipeline pipeline = null;
 
-        if (pipelinePath != null && !pipelinePath.isEmpty()) {
+        if (pipelinePath == null || pipelinePath.isEmpty()) {
+            CLIUtils.printError("pipeline is missing!");
+            return ;
+        }
 
-            final PipelineExecutionRequest pipelineRequest = new PipelineExecutionRequest(args);
+        final PipelineExecutionRequest pipelineRequest = pipelineRequestFactory.build(pipelinePath, args, runMetas, jobs, phases, verbosityOption);
 
-            pipelineRequest
-                .setPipelineDefinitionPath(pipelinePath)
-                .setJobsFilter(Arrays.asList(this.jobs.split(",")))
-                .setJobPhases(Arrays.asList(this.phases.split(",")))
-                .setMeta(metaUtils.clean(runMetas))
-                .setVerbosity(getVerbosity())
-            ;
+        outVerbosity.setVerbosityLevel(pipelineRequest.getVerbosity());
 
-            outVerbosity.setVerbosityLevel(pipelineRequest.getVerbosity());
+        try {
+            pipeline = pipelineLoader.get(pipelineRequest);
+            pipelineRequest.setPipeline(pipeline);
+        } catch (IOException e) {
+            CLIUtils.printError(e.getMessage());
+            e.printStackTrace();
+        }
 
+        if (pipeline != null) {
             try {
-                pipeline = pipelineLoader.get(pipelineRequest);
-                pipelineRequest.setPipeline(pipeline);
-            } catch (IOException e) {
+                pipelineRunner.run(pipelineRequest);
+            } catch (Exception e) {
                 CLIUtils.printError(e.getMessage());
                 e.printStackTrace();
             }
-
-            if (pipeline != null) {
-                try {
-                    pipelineRunner.run(pipelineRequest);
-                } catch (Exception e) {
-                    CLIUtils.printError(e.getMessage());
-                    e.printStackTrace();
-                }
-            }
         }
-    }
-
-    private VerbosityLevel getVerbosity() {
-        int l = verbose.length;
-
-        if (l < 1) {
-            return VerbosityLevel.NORMAL;
-        }
-
-        if (l < 2) {
-            return VerbosityLevel.VERBOSE;
-        }
-
-        if (l < 3) {
-            return VerbosityLevel.VERY_VERBOSE;
-        }
-
-        if (l < 4) {
-            return VerbosityLevel.VERY_VERY_VERBOSE;
-        }
-
-        return VerbosityLevel.ALICIA;
     }
 }

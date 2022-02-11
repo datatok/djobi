@@ -1,15 +1,17 @@
 package io.datatok.djobi;
 
+import com.google.inject.Injector;
 import io.datatok.djobi.application.ApplicationBuilder;
 import io.datatok.djobi.application.Djobi;
 import io.datatok.djobi.application.exceptions.BuildApplicationException;
-import io.datatok.djobi.cli.CommandFactory;
+import io.datatok.djobi.cli.CommandKernel;
 import io.datatok.djobi.cli.StdoutReporter;
 import io.datatok.djobi.plugins.report.Reporter;
 import io.datatok.djobi.plugins.s3.S3Plugin;
 import io.datatok.djobi.plugins.stages.DefaultActionsPlugin;
 import io.datatok.djobi.spark.SparkPlugin;
 import io.datatok.djobi.utils.ClassUtils;
+import picocli.CommandLine;
 
 import java.io.Serializable;
 
@@ -52,8 +54,12 @@ final public class Main implements Serializable {
             return ;
         }
 
+        Injector injector = application.getInjector();
+        CommandKernel commandKernel = injector.getInstance(CommandKernel.class);
+        CommandLine rootCommandImpl = commandKernel.getRootCommand();
+
         try {
-            application.getInjector().getInstance(CommandFactory.class).run(args);
+            rootCommandImpl.execute(args);
         } catch(RuntimeException e) {
             e.printStackTrace();
         }

@@ -1,4 +1,4 @@
-package io.datatok.djobi.cli;
+package io.datatok.djobi.cli.utils;
 
 import io.datatok.djobi.cli.utils.CLIOutUtils;
 import org.junit.jupiter.api.Assertions;

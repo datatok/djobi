@@ -59,11 +59,11 @@ public class PipelineExecutionRequest {
      */
     private List<String> jobPhases;
 
-    static public PipelineExecutionRequest build(final String pipelineDefinitionPath) {
+    public static PipelineExecutionRequest build(final String pipelineDefinitionPath) {
         return new PipelineExecutionRequest(pipelineDefinitionPath);
     }
 
-    static public PipelineExecutionRequest build(final String pipelineDefinitionPath, final Map<String, String> args) {
+    public static PipelineExecutionRequest build(final String pipelineDefinitionPath, final Map<String, String> args) {
         return new PipelineExecutionRequest(args).setPipelineDefinitionPath(pipelineDefinitionPath);
     }
 
@@ -79,6 +79,9 @@ public class PipelineExecutionRequest {
         }
 
         this.debug = this.raw.containsKey("debug");
+    }
+
+    public PipelineExecutionRequest() {
     }
 
     public PipelineExecutionRequest addArgument(final String k, final String v) {
@@ -101,6 +104,11 @@ public class PipelineExecutionRequest {
 
     public Map<String, String> getRaw() {
         return raw;
+    }
+
+    public PipelineExecutionRequest setRaw(Map<String, String> raw) {
+        this.raw = raw;
+        return this;
     }
 
     public PipelineExecutionRequest setPipelineDefinitionPath(String pipelineDefinitionPath) {

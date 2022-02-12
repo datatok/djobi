@@ -1,6 +1,7 @@
 package io.datatok.djobi.cli;
 
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import io.datatok.djobi.cli.utils.PipelineRequestFactory;
 import io.datatok.djobi.engine.PipelineExecutionRequest;
 import io.datatok.djobi.plugins.report.OutVerbosity;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+
+import static com.github.stefanbirkner.systemlambda.SystemLambda.*;
 
 public class RunPipelineCommandTest {
 
@@ -50,6 +53,18 @@ public class RunPipelineCommandTest {
         Assertions.assertFalse(outVerbosity.isVerbose());
 
         Assertions.assertEquals("yesterday", lastObj.getRaw().get("date"));
+    }
+
+    @Test
+    void runPipelinePathFromEnv() throws Exception {
+        withEnvironmentVariable("DJOBI_PIPELINE", "./src/test/resources/pipelines/mono.yml")
+            .execute(() -> {
+                commandKernel.run("run");
+
+                PipelineExecutionRequest lastObj = pipelineRequestFactory.getLastObjectBuilt();
+
+                Assertions.assertEquals("./src/test/resources/pipelines/mono.yml", lastObj.getPipelineDefinitionPath());
+            });
     }
 
     @Test

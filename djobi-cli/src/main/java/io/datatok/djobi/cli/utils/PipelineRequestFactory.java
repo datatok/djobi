@@ -8,12 +8,8 @@ import io.datatok.djobi.utils.EnvProvider;
 import io.datatok.djobi.utils.MetaUtils;
 import io.datatok.djobi.utils.MyMapUtils;
 
-import java.nio.channels.Pipe;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Singleton
 public class PipelineRequestFactory {
@@ -54,11 +50,11 @@ public class PipelineRequestFactory {
                 );
 
         pipelineRequest
-            .setPipelineDefinitionPath(inPipelinePath)
-            .setRaw(argsMap)
+            .setDefinitionURI(inPipelinePath)
+            .setArguments(argsMap)
             .setJobsFilter(Arrays.asList(inJobsFilter.split(",")))
             .setJobPhases(Arrays.asList(inPhasesFilter.split(",")))
-            .setMeta(metasMap)
+            .setMetaDataLabels(metasMap)
             .setVerbosity(getVerbosity(verbosity))
         ;
 
@@ -74,7 +70,7 @@ public class PipelineRequestFactory {
     }
 
     private VerbosityLevel getVerbosity(boolean[] verbosity) {
-        int l = verbosity.length;
+        int l = verbosity == null ? 0 : verbosity.length;
 
         if (l < 1) {
             return VerbosityLevel.NORMAL;

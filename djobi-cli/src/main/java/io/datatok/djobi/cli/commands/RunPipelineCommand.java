@@ -54,7 +54,7 @@ public class RunPipelineCommand implements Runnable {
 
     @CommandLine.Option(names = { "-v", "--verbose" }, description = "Verbose mode. Helpful for troubleshooting. " +
             "Multiple -v options increase the verbosity.")
-    private boolean[] verbosityOption = new boolean[0];
+    private final boolean[] verbosityOption = new boolean[0];
 
     @Override
     public void run() {
@@ -71,7 +71,6 @@ public class RunPipelineCommand implements Runnable {
 
         try {
             pipeline = pipelineLoader.get(pipelineRequest);
-            pipelineRequest.setPipeline(pipeline);
         } catch (IOException e) {
             CLIUtils.printError(e.getMessage());
             e.printStackTrace();
@@ -79,7 +78,7 @@ public class RunPipelineCommand implements Runnable {
 
         if (pipeline != null) {
             try {
-                pipelineRunner.run(pipelineRequest);
+                pipelineRunner.run(pipeline);
             } catch (Exception e) {
                 CLIUtils.printError(e.getMessage());
                 e.printStackTrace();

@@ -1,7 +1,6 @@
 package io.datatok.djobi.cli;
 
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
 import io.datatok.djobi.cli.utils.PipelineRequestFactory;
 import io.datatok.djobi.engine.PipelineExecutionRequest;
 import io.datatok.djobi.plugins.report.OutVerbosity;
@@ -52,7 +51,7 @@ public class RunPipelineCommandTest {
         Assertions.assertTrue(outVerbosity.isNotQuiet());
         Assertions.assertFalse(outVerbosity.isVerbose());
 
-        Assertions.assertEquals("yesterday", lastObj.getRaw().get("date"));
+        Assertions.assertEquals("yesterday", lastObj.getArgument("date"));
     }
 
     @Test
@@ -63,7 +62,7 @@ public class RunPipelineCommandTest {
 
                 PipelineExecutionRequest lastObj = pipelineRequestFactory.getLastObjectBuilt();
 
-                Assertions.assertEquals("./src/test/resources/pipelines/mono.yml", lastObj.getPipelineDefinitionPath());
+                Assertions.assertEquals("./src/test/resources/pipelines/mono.yml", lastObj.getDefinitionURI());
             });
     }
 

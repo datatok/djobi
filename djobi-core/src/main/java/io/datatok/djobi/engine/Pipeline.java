@@ -102,7 +102,7 @@ public class Pipeline implements Dumpable, Labelized {
     }
 
     public String getName() {
-        final String path = getPipelineRequest().getPipelineDefinitionPath();
+        final String path = getPipelineRequest().getDefinitionURI();
 
         return StringUtils.strip(Arrays.stream(path.split("/")).reduce("", (a, b) -> {
             if (b.equals("pipelines")) {

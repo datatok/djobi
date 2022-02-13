@@ -63,7 +63,7 @@ public class JobRunStartSubscriber extends BaseLogger implements Subscriber {
             "pipeline", pipelineMap,
             "date", dateParser.format(new java.util.Date()),
             "timeline", timelineMap,
-            "meta", pipeline.getPipelineRequest().getMeta(),
+            "meta", pipeline.getPipelineRequest().getMetaDataLabels(),
             "labels", job.getLabels()
         );
 

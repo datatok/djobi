@@ -77,7 +77,7 @@ public class YAMLPipelineLoader {
 
         final Yaml yaml = new Yaml(constructor);
         final String yamlContent;
-        File definitionFile = Paths.get(pipelineRequest.getPipelineDefinitionPath()).toFile();
+        File definitionFile = Paths.get(pipelineRequest.getDefinitionURI()).toFile();
 
         if (!definitionFile.exists())
         {
@@ -96,7 +96,7 @@ public class YAMLPipelineLoader {
 
             if (definitionFile == null)
             {
-                throw new IOException(String.format("Dont find a valid definition file under %s !", pipelineRequest.getPipelineDefinitionPath()));
+                throw new IOException(String.format("Dont find a valid definition file under %s !", pipelineRequest.getDefinitionURI()));
             }
         }
         else if (!extensionCandidates.contains(FilenameUtils.getExtension(definitionBaseName)))
@@ -207,10 +207,6 @@ public class YAMLPipelineLoader {
             .setLabels(definition.labels)
             .setExecutor(executor)
             .setJobs(jobs)
-        ;
-
-        pipelineRequest
-            .setPipeline(pipeline)
         ;
 
         return pipeline;

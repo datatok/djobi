@@ -67,21 +67,6 @@ public class Parameter {
         return this.getValue().toString();
     }
 
-    public List<Map<Object, Object>> getValuesWithIndex() {
-        List<String> v = (List<String>) this.value;
-
-        return
-            IntStream
-                .range(0, v.size())
-                .mapToObj(i -> MyMapUtils.map(
-            "value", v.get(i),
-                    "loop_index", i + 1,
-                    "loop_first", i == 0,
-                    "loop_last", i == (v.size() - 1)
-                )
-        ).collect(Collectors.toList());
-    }
-
     public String getValueDescription() {
         final Object v = this.getValue();
 

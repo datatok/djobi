@@ -1,20 +1,15 @@
 package io.datatok.djobi.utils.templating;
 
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
+import com.hubspot.jinjava.Jinjava;
 import io.datatok.djobi.configuration.Configuration;
 import io.datatok.djobi.engine.Job;
 import io.datatok.djobi.utils.MyMapUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.IOException;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Singleton
 public class TemplateUtils {
@@ -42,55 +37,46 @@ public class TemplateUtils {
     }
 
     public String render(String snippet) {
-        return renderTemplate(false, snippet);
-    }
-
-    public String render(String snippet, final List<Object> templateDataBuffer) {
-        return renderTemplate(false, snippet, templateDataBuffer);
+        return renderTemplate(snippet);
     }
 
     public String render(String snippet, final Job job) {
-        return renderTemplate(false, snippet, Arrays.asList(MyMapUtils.map("pipeline", job.getPipeline(), "job", job, "data", job.getData(), "args", job.getParameters(), "context", job.getParameters()), job.getParameters()));
+        Map<String, Object> templateData = new HashMap<>();
+
+        if (job.getParameters() != null) {
+            templateData.putAll(job.getParameters());
+        }
+
+        templateData.putAll(MyMapUtils.map(
+            "pipeline", job.getPipeline(),
+            "job", job,
+            "data", job.getData(),
+            "parameters", job.getParameters(),
+            "context", job.getParameters()
+        ));
+
+        return renderTemplate(snippet, templateData);
     }
 
-    public String renderTemplate(boolean isFile, String template) {
-        return renderTemplate(isFile, template, new ArrayList<>());
+    public String renderTemplate(String template) {
+        return renderTemplate(template, new HashMap<>());
     }
 
-    public String renderTemplate(boolean isFile, String template, final List<Object> templateDataBuffer) {
-        final DefaultMustacheFactory mf = new DefaultMustacheFactory();
-        final Writer writerMessage = new StringWriter();
-        final Mustache mustache;
-
-        mf.setObjectHandler(new MyReflectionObjectHander());
+    public String renderTemplate(String template, Map<String, ?> inTemplateData) {
+        final Jinjava jinjava = new Jinjava();
 
         if (template == null) {
             return null;
         }
 
-        if (isFile) {
-            mustache = mf.compile(template);
-        } else {
-            mustache = mf.compile(new StringReader(template), "template");
-        }
-
-        final ArrayList<Object> templateData = new ArrayList<>(templateDataBuffer);
+        //final Map<String, ?> templateData = new HashMap<>();
 
         if (configuration != null) {
-            /** "config." is deprecated, use "env." **/
-            templateData.add(MyMapUtils.map("config", configuration.root().unwrapped()));
-            templateData.add(MyMapUtils.map("env", MyMapUtils.wrapByMissingKeyException(configuration.root().unwrapped())));
+            jinjava.getGlobalContext().put("env", MyMapUtils.wrapByMissingKeyException(configuration.root().unwrapped()));
+            jinjava.getGlobalContext().put("config", configuration.root().unwrapped());
         }
 
-        mustache.execute(writerMessage, templateData);
-
-        try {
-            writerMessage.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return writerMessage.toString();
+        return jinjava.render(template, inTemplateData);
     }
 
     /**

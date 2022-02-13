@@ -128,7 +128,7 @@ public class JobMaterializer {
             if (p.getType().equals(Parameter.TYPE_STRING) && p.getValue() != null && p.getValueAsString().contains("{")) {
                 final Parameter pc = p.clone();
 
-                pc.setValue(templateUtils.render((String) p.getValue(), Arrays.asList(MyMapUtils.map("args", parameterBag))));
+                pc.setValue(templateUtils.renderTemplate((String) p.getValue(), MyMapUtils.map("args", parameterBag)));
 
                 ret.put(entry.getKey(), pc);
             } else {

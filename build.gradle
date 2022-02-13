@@ -297,11 +297,11 @@ build.dependsOn(testReport);
  * Relocate some common libs, to prevent conflicts.
  */
 shadowJar {
-    relocate 'com.typesafe.config', 'my.typesafe.config'
-    relocate 'com.google.inject', 'my.google.inject'
-    relocate 'com.google.common', 'my.google.common'
-    relocate 'okhttp3', 'my.okhttp3'
-    relocate 'okio','my.okio'
+    relocate 'com.typesafe.config', 'io.datatok.djobi.typesafe.config'
+    relocate 'com.google.inject', 'io.datatok.djobi.google.inject'
+    relocate 'com.google.common', 'io.datatok.djobi.google.common'
+    relocate 'okhttp3', 'io.datatok.djobi.okhttp3'
+    relocate 'okio','io.datatok.djobi.okio'
 
     minimize()
 }

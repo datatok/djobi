@@ -16,6 +16,7 @@ public class PipelineExecutionRequest {
 
     /**
      * The full URL or path to the pipeline definition.
+     * We just support classic file-system (no HDFS, S3 yet).
      */
     private String definitionURI;
 

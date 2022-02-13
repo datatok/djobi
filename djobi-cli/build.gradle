@@ -31,6 +31,7 @@ dependencies {
      * Need core tests code
      */
     testImplementation(project(":djobi-tests"))
+    testImplementation(project(':djobi-core'))
 
     /**
      * To run Djobi via Idea.

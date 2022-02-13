@@ -12,6 +12,7 @@ import io.datatok.djobi.utils.Bag;
 import io.datatok.djobi.utils.templating.TemplateUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -19,6 +20,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 @ExtendWith(MyTestRunner.class)
+@Tag("IntegrationTest")
 public class KafkaPreCheckerStage {
 
     @Inject

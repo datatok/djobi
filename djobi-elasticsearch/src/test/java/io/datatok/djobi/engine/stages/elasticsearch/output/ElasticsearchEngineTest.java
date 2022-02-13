@@ -38,8 +38,6 @@ public class ElasticsearchEngineTest {
 
         final Pipeline pipeline = getPipeline("good.yml");
 
-        engine.setExecutionRequest(pipeline.getPipelineRequest());
-
         Method method = Engine.class.getDeclaredMethod("run", Job.class);
         method.setAccessible(true);
 

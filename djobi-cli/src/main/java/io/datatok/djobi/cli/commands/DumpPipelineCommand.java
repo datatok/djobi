@@ -53,7 +53,9 @@ public class DumpPipelineCommand implements Runnable {
         AnsiConsole.systemInstall();
 
         try {
-            pipeline = pipelineLoader.get(pipelineRequestFactory.build(pipelinePath).setJobsFilter(Arrays.asList(jobs.split(","))));
+            pipeline = pipelineLoader.get(
+                    pipelineRequestFactory.build(pipelinePath, args, null, jobs, "", null)
+            );
         } catch (IOException e) {
             e.printStackTrace();
         }

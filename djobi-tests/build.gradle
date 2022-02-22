@@ -23,6 +23,7 @@ dependencies {
     implementation 'org.json:json:20211205'
 
     compileOnly project(':djobi-core')
+    compileOnly project(path: ':djobi-core', configuration: 'spark')
 
     compileOnly(
         [group: 'com.squareup.okhttp3', name: 'mockwebserver3-junit5', version: '5.0.0-alpha.4']

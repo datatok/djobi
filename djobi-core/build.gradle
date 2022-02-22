@@ -7,50 +7,32 @@ plugins {
 
 configurations {
 
-    // Hold deps from spark-hadoop-assembly.jar
-    sparkAssemblyProvided
-
     // For AWS
     sparkAWS
 
     // Spark Core, SQL etc...
     spark
 
-    // Common libs
-    djobiCore
+    compileOnly.extendsFrom spark, sparkAWS
+    testImplementation.extendsFrom spark, sparkAWS
 
-    djobiRelease
-
-    djobiRelease.extendsFrom djobiCore
-
-    implementation.extendsFrom djobiCore
-
-    api.extendsFrom sparkAssemblyProvided
-    api.extendsFrom spark
-    api.extendsFrom sparkAWS
+    djobiRelease.extendsFrom implementation
 }
 
 dependencies {
     // deps shared by all djobi projects
 
-
-    api(
+    implementation(
         [group: 'org.apache.commons', name: 'commons-csv', version:'1.6'],
         [group: 'com.hubspot.jinjava', name: 'jinjava', version: jinjavaVersion],
-        [group: 'org.yaml', name: 'snakeyaml', version:'1.29'],
-        [group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.3'],
-        [group: "co.elastic.apm", name: "apm-agent-api", version: '1.28.4'],
-        [group: 'com.google.inject', name: 'guice', version: '5.1.0'],
-        [group: 'com.typesafe', name: 'config', version:'1.4.1']
+        [group: 'javax.mail', name: 'javax.mail-api', version:'1.6.2']
     )
 
-    // Provided by Apache Spark Assembly 1.6.3
-    // Useful if you don't run via Hadoop
-    sparkAssemblyProvided(
-        [group: 'javax.mail', name: 'javax.mail-api', version:'1.6.2'],
-        [group: 'com.jcraft', name: 'jsch', version:'0.1.55'],
-        [group: 'org.fusesource.jansi', name: 'jansi', version: '2.3.4']
-    )
+    api dependencyStrings.GOOGLE_GUICE
+    api dependencyStrings.TYPESAFE_CONFIG
+    api dependencyStrings.ORG_YAML
+    api dependencyStrings.OKHTTP
+    api dependencyStrings.ELASTIC_APM
 
     sparkAWS(
         [group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.12.53']
@@ -93,7 +75,25 @@ dependencies {
     testImplementation(project(":djobi-tests"))
 }
 
+jar {
+    manifest {
+        attributes 'Implementation-Version': archiveVersion
+        attributes 'Automatic-Module-Name': 'io.datatok.djobi'
+
+        // OSGi metadata
+        attributes 'Bundle-SymbolicName': 'io.datatok.djobi'
+        attributes 'Bundle-Name': 'Application to run ETL over Apache Spark'
+        attributes 'Bundle-Vendor': 'Datatok'
+        attributes 'Bundle-DocURL': 'https://github.com/datatok/djobi'
+        attributes 'Bundle-License': 'https://www.apache.org/licenses/LICENSE-2.0'
+        attributes 'Export-Package': 'io.datatok.djobi.*'
+    }
+}
+
+
 javadoc.options.addStringOption('Xdoclint:none', '-quiet')
+
+/* RELEASE */
 
 signing {
     sign configurations.archives
@@ -151,4 +151,3 @@ publishing {
 }
 
 djobi.createRelease()
-djobi.sparkAssemblyProvide()

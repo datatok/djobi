@@ -18,8 +18,7 @@ configurations {
 
 dependencies {
     compileOnly project(':djobi-core')
-    compileOnly project(path: ':djobi-core', configuration: "spark")
-    compileOnly project(path: ':djobi-core', configuration: "djobiCore")
+    compileOnly project(path: ':djobi-core', configuration: 'spark')
 
     testImplementation(project(":djobi-tests"))
     testImplementation(project(':djobi-core'))

@@ -3,9 +3,13 @@ package io.datatok.djobi.engine.stages;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.Protocol;
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.S3ClientOptions;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import io.datatok.djobi.engine.actions.fs.output.FSOutputType;
@@ -49,9 +53,14 @@ public class S3Test extends ActionTest {
         ClientConfiguration clientConfig = new ClientConfiguration();
         clientConfig.setProtocol(Protocol.HTTP);
 
-        this.conn = new AmazonS3Client(credentials, clientConfig);
-        this.conn.setEndpoint(S3_ENDPOINT);
-        this.conn.setS3ClientOptions(new S3ClientOptions().withPathStyleAccess(true));
+        this.conn = AmazonS3ClientBuilder
+                .standard()
+                .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                .withRegion(Regions.US_EAST_2)
+                .withClientConfiguration(clientConfig)
+                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(S3_ENDPOINT, Regions.US_EAST_2.getName()))
+                .withPathStyleAccessEnabled(true)
+                .build();
     }
 
 

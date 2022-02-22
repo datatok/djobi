@@ -7,6 +7,28 @@ plugins {
     id 'nebula.release' version '16.0.0'
 }
 
+/* PROJECT DEPENDENCY VERSIONS */
+// define all common versioned dependencies here
+project.ext.dependencyStrings = [
+    GOOGLE_GUICE: 'com.google.inject:guice:5.0.1',
+    TYPESAFE_CONFIG: 'com.typesafe:config:1.4.1',
+    ORG_YAML: 'org.yaml:snakeyaml:1.29',
+    OKHTTP: 'com.squareup.okhttp3:okhttp:4.9.3',
+    ELASTIC_APM: 'co.elastic.apm:apm-agent-api:1.29.0',
+    JANSI: 'org.fusesource.jansi:jansi:2.4.0',
+    PICOCLI: 'info.picocli:picocli:4.6.2'
+]
+
+/**
+ * Spark provided dependencies
+ * Can be used with compileOnly
+ */
+project.ext.sparkDependencyStrings = [
+    JACKSON_CORE: 'com.fasterxml.jackson.core:jackson-core:2.10.0',
+    JCRAFT: 'com.jcraft:jsch:0.1.55',
+    APACHE_COMMONS_TEXT: 'org.apache.commons:commons-text:1.4'
+]
+
 allprojects {
     afterEvaluate { project ->
         println "I'm configuring $project.name with version $project.version"
@@ -49,38 +71,6 @@ subprojects {
     }
 
     ext.djobi = [
-        /**
-         * Build a JAR to use if Djobi dont run with Spark Assembly (YARN..)
-         */
-        sparkAssemblyProvide: {
-            String taskName = "sparkAssemblyProvide"
-
-            shadowJar.enabled = false
-
-            task(taskName, type: ShadowJar) {
-                doFirst {
-                    println "Packaging ${project.name}->sparkAssemblyProvide "
-                }
-
-                from sourceSets.main.output
-                configurations = [project.configurations.sparkAssemblyProvided]
-
-                archiveFileName = "${project.name}-${project.version}-spark-assembly-provided-all.jar"
-
-                relocate 'com.typesafe.config', 'my.typesafe.config'
-                relocate 'com.google.inject', 'my.google.inject'
-                relocate 'com.google.common', 'my.google.common'
-                relocate 'okhttp3', 'my.okhttp3'
-                relocate 'okio', 'my.okio'
-
-                /*minimize {
-                    exclude(dependency('org.elasticsearch:.*:.*'))
-                }*/
-            }
-
-            shadowJar.dependsOn(taskName)
-        },
-
         /**
          * Create a task: "makeRelease"
          * - called by djobiAssemble
@@ -171,8 +161,7 @@ subprojects {
         testImplementation(
             [group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.2'],
             [group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: '5.7.2'],
-            [group: 'com.squareup.okhttp3', name: 'mockwebserver3-junit5', version: '5.0.0-alpha.2'],
-            [group: 'com.google.inject', name: 'guice', version: '5.0.1']
+            [group: 'com.squareup.okhttp3', name: 'mockwebserver3-junit5', version: '5.0.0-alpha.2']
         )
     }
 

@@ -1,12 +1,13 @@
 package io.datatok.djobi.cli;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
-import io.datatok.djobi.cli.commands.DjobiCommand;
-import org.fusesource.jansi.AnsiConsole;
+import com.google.inject.Singleton;
+import io.datatok.djobi.cli.utils.CLIUtils;
 import picocli.CommandLine;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import java.util.List;
+import java.util.Map;
 
 @Singleton
 public class CommandFactory implements CommandLine.IFactory {
@@ -14,16 +15,14 @@ public class CommandFactory implements CommandLine.IFactory {
     @Inject
     private Injector injector;
 
-    public CommandFactory() {
-        AnsiConsole.systemInstall();
-    }
-
-    public void run(final String[] args) {
-        CommandLine.run(DjobiCommand.class, this, args);
-    }
+    @Inject
+    private CLIUtils cliUtils;
 
     @Override
     public <K> K create(Class<K> cls) throws Exception {
+        if (cls.equals(Map.class) || cls.equals(List.class)) {
+            return CommandLine.defaultFactory().create(cls);
+        }
         return injector.getInstance(cls);
     }
 }

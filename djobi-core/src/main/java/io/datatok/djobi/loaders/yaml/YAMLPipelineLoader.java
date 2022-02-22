@@ -77,7 +77,7 @@ public class YAMLPipelineLoader {
 
         final Yaml yaml = new Yaml(constructor);
         final String yamlContent;
-        File definitionFile = Paths.get(pipelineRequest.getPipelineDefinitionPath()).toFile();
+        File definitionFile = Paths.get(pipelineRequest.getDefinitionURI()).toFile();
 
         if (!definitionFile.exists())
         {
@@ -96,7 +96,7 @@ public class YAMLPipelineLoader {
 
             if (definitionFile == null)
             {
-                throw new IOException(String.format("Dont find a valid definition file under %s !", pipelineRequest.getPipelineDefinitionPath()));
+                throw new IOException(String.format("Dont find a valid definition file under %s !", pipelineRequest.getDefinitionURI()));
             }
         }
         else if (!extensionCandidates.contains(FilenameUtils.getExtension(definitionBaseName)))
@@ -156,11 +156,17 @@ public class YAMLPipelineLoader {
                         final ParameterBag jobParameters = actionArgFactory.resolve(jobDefinition.parameters, pipelineRequest);
                         final Map<String, ParameterBag> jobContextParameters = new HashMap<>();
 
-                        if (jobDefinition.matrix == null) {
+                        if (jobDefinition.contexts == null) {
                             jobContextParameters.put(DEFAULT_CONTEXT, jobParameters);
                         } else {
-                            for (String c : jobDefinition.matrix.keySet()) {
-                                jobContextParameters.put(c, ParameterBag.merge(jobParameters, actionArgFactory.resolve(jobDefinition.matrix.get(c), pipelineRequest)));
+                            for (String c :  jobDefinition.contexts.keySet()) {
+                                jobContextParameters.put(c, ParameterBag.merge(
+                                    jobParameters,
+                                    actionArgFactory.resolve(
+                                        jobDefinition.contexts.get(c),
+                                        pipelineRequest
+                                    )
+                                ));
                             }
                         }
 
@@ -201,10 +207,6 @@ public class YAMLPipelineLoader {
             .setLabels(definition.labels)
             .setExecutor(executor)
             .setJobs(jobs)
-        ;
-
-        pipelineRequest
-            .setPipeline(pipeline)
         ;
 
         return pipeline;

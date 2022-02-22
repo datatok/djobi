@@ -1,23 +1,20 @@
 package io.datatok.djobi.cli.commands;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.datatok.djobi.cli.utils.CLIUtils;
+import io.datatok.djobi.cli.utils.PipelineRequestFactory;
 import io.datatok.djobi.engine.Job;
 import io.datatok.djobi.engine.Pipeline;
-import io.datatok.djobi.engine.PipelineExecutionRequest;
 import io.datatok.djobi.engine.phases.ActionPhases;
 import io.datatok.djobi.engine.phases.StagePhaseMetaData;
 import io.datatok.djobi.engine.stage.ActionFactory;
 import io.datatok.djobi.loaders.yaml.YAMLPipelineLoader;
 import io.datatok.djobi.plugins.report.Reporter;
 import io.datatok.djobi.utils.JSONUtils;
-import org.apache.commons.lang.StringUtils;
-import org.fusesource.jansi.AnsiConsole;
+import org.apache.commons.lang3.StringUtils;
 import picocli.CommandLine;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Map;
 
 @CommandLine.Command(name = "pipeline", description = "dump a pipeline")
@@ -31,6 +28,9 @@ public class DumpPipelineCommand implements Runnable {
 
     @Inject
     ActionFactory actionFactory;
+
+    @Inject
+    PipelineRequestFactory pipelineRequestFactory;
 
     @CommandLine.ParentCommand
     DumpCommand dumpCommand;
@@ -48,10 +48,10 @@ public class DumpPipelineCommand implements Runnable {
     public void run() {
         Pipeline pipeline = null;
 
-        AnsiConsole.systemInstall();
-
         try {
-            pipeline = pipelineLoader.get(PipelineExecutionRequest.build(pipelinePath, args).setJobsFilter(Arrays.asList(jobs.split(","))));
+            pipeline = pipelineLoader.get(
+                    pipelineRequestFactory.build(pipelinePath, args, null, jobs, "", null)
+            );
         } catch (IOException e) {
             e.printStackTrace();
         }

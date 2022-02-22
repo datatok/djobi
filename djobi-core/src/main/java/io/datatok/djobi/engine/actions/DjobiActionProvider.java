@@ -27,7 +27,7 @@ import io.datatok.djobi.engine.actions.sql.SQLType;
 import io.datatok.djobi.engine.actions.transformer.serializer.SerializerConfigurator;
 import io.datatok.djobi.engine.actions.transformer.serializer.SerializerRunner;
 import io.datatok.djobi.engine.actions.transformer.serializer.SerializerType;
-import io.datatok.djobi.engine.actions.transformer.serializers.MustacheView;
+import io.datatok.djobi.engine.actions.transformer.serializers.TemplateRenderActionRunner;
 import io.datatok.djobi.engine.actions.csv.CSVFilterConfigurator;
 import io.datatok.djobi.engine.actions.utils.generator.RandomGeneratorConfigurator;
 import io.datatok.djobi.engine.actions.utils.generator.RandomGeneratorRunner;
@@ -124,7 +124,7 @@ public class DjobiActionProvider extends ActionProvider {
     protected void configureTransformers() {
         registerConfigurator(CSVType.NAME, CSVFilterConfigurator.class);
 
-        registerRunner(MustacheView.TYPE, MustacheView.class);
+        registerRunner(TemplateRenderActionRunner.TYPE, TemplateRenderActionRunner.class);
 
         registerConfigurator(SerializerType.TYPE, SerializerConfigurator.class);
         registerRunner(SerializerType.TYPE, SerializerRunner.class);

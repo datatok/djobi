@@ -88,8 +88,6 @@ class EngineTest {
 
         this.eventBus.unsubscribe();
 
-        engine.setExecutionRequest(pipeline.getPipelineRequest());
-
         final Job job0 = pipeline.getJob(0);
 
         Assertions.assertEquals(ExecutionStatus.DONE_OK, job0.getExecutionStatus());
@@ -113,8 +111,6 @@ class EngineTest {
 
         Method method = Engine.class.getDeclaredMethod("run", Job.class);
         method.setAccessible(true);
-
-        engine.setExecutionRequest(pipeline.getPipelineRequest());
 
         final Job job0 = pipeline.getJob(0);
 

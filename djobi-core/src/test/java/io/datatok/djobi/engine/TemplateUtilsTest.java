@@ -1,6 +1,5 @@
 package io.datatok.djobi.engine;
 
-import com.github.mustachejava.MustacheException;
 import io.datatok.djobi.engine.parameters.DateParameter;
 import io.datatok.djobi.loaders.yaml.YAMLPipelineLoader;
 import io.datatok.djobi.test.MyTestRunner;
@@ -26,15 +25,8 @@ class TemplateUtilsTest {
     private YAMLPipelineLoader yamlPipelineLoader;
 
     @Test void stringTest() {
-        Assertions.assertEquals("Hello, env is test", templateUtils.renderTemplate(false, "Hello, env is {{env._meta_.config}}"));
+        Assertions.assertEquals("Hello, env is test", templateUtils.renderTemplate("Hello, env is {{env._meta_.config}}"));
     }
-
-    @Test void testMissingData() {
-        Assertions.assertThrows (MustacheException.class, () -> templateUtils.renderTemplate(false, "Hello, env is {{toto}}"));
-        Assertions.assertThrows (MustacheException.class, () -> templateUtils.renderTemplate(false, "Hello, env is {{env.toto}}"));
-        Assertions.assertThrows (MustacheException.class, () -> templateUtils.renderTemplate(false, "Hello, env is {{env._meta_.toto}}"));
-    }
-
 
     @Test void testWithJobData() {
         final Job job = new Job();
@@ -57,11 +49,16 @@ class TemplateUtilsTest {
     @Test void testWithList() {
         final Job job = new Job();
 
-        job.setParameters(new ParameterBag("hello", Arrays.asList("hello", "world"), "date", new DateParameter("date", Calendar.getInstance())));
+        job.setParameters(
+                new ParameterBag(
+                "hello", Arrays.asList("hello", "world"),
+                    "date", new DateParameter("date", Calendar.getInstance())
+            )
+        );
 
-        Assertions.assertEquals("hello world ", templateUtils.render("{{#hello.value}}{{.}} {{/hello.value}}", job));
+        Assertions.assertEquals("hello world ", templateUtils.render("{% for h in parameters.hello.value %}{{h}} {% endfor %}", job));
 
-        Assertions.assertEquals("1 2 ", templateUtils.render("{{#hello.valuesWithIndex}}{{loop_index}} {{/hello.valuesWithIndex}}", job));
+        Assertions.assertEquals("1 2 ", templateUtils.render("{% for h in parameters.hello.value %}{{loop.index}} {% endfor %}", job));
     }
 
     @Test void testWithPipelineData() throws IOException {

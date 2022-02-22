@@ -18,10 +18,7 @@ configurations {
 
 dependencies {
     compileOnly project(':djobi-core')
-    compileOnly project(path: ':djobi-core', configuration: "spark")
-    compileOnly project(path: ':djobi-core', configuration: "djobiCore")
-
-    testImplementation(project(":djobi-tests"))
+    compileOnly project(path: ':djobi-core', configuration: 'spark')
 
     es7(group: 'org.elasticsearch', name: 'elasticsearch-spark-30_' + scalaVersion, version:'7.16.2') {
         exclude group: "org.scala-lang"
@@ -29,6 +26,15 @@ dependencies {
         exclude group: "com.google.protobuf"
         exclude group: "javax.xml.bind"
     }
+
+    testImplementation(
+        project(":djobi-tests"),
+        project(':djobi-core')
+    )
+
+    testRuntimeOnly(
+        project(path: ':djobi-core', configuration: 'spark')
+    )
 }
 
 djobi.createReleaseWithVariants(variants)

@@ -12,7 +12,7 @@ import io.datatok.djobi.utils.templating.TemplateUtils;
 
 import javax.inject.Inject;
 
-public class MustacheView implements ActionRunner {
+public class TemplateRenderActionRunner implements ActionRunner {
 
     final static public String TYPE = "transform.mustache";
 

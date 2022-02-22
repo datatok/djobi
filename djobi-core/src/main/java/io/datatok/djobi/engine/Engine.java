@@ -31,23 +31,7 @@ public class Engine {
     /**
      * @since v3.6.0
      */
-    private PipelineExecutionRequest executionRequest;
-
-    /**
-     * @since v3.6.0
-     */
     private boolean clearJobAfterExecution = true;
-
-    /**
-     *
-     * @param executionRequest PipelineExecutionRequest
-     * @throws Exception
-     */
-    public void run(final PipelineExecutionRequest executionRequest) throws Exception {
-        this.executionRequest = executionRequest;
-
-        run(executionRequest.getPipeline());
-    }
 
     /**
      * Run the pipline.
@@ -59,8 +43,6 @@ public class Engine {
     }
 
     public void run(final Pipeline pipeline, String jobIdFilter) throws Exception {
-        this.executionRequest = pipeline.getPipelineRequest();
-
         lookupContext.setCurrentPipeline(pipeline);
 
         logger.info(String.format("Run pipeline with %d jobs", pipeline.getJobs().size()));
@@ -98,7 +80,7 @@ public class Engine {
 
         logger.info(String.format("Executing job [%s]", job.getId()));
 
-        final List<String> phasesFilter = executionRequest.getJobPhases();
+        final List<String> phasesFilter = pipeline.getPipelineRequest().getJobPhases();
 
         this.runJobPhase(job, ActionPhases.CONFIGURE);
 
@@ -132,14 +114,6 @@ public class Engine {
         }
 
         this.eventBus.trigger(new JobRunFinishEvent(job));
-    }
-
-    public PipelineExecutionRequest getExecutionRequest() {
-        return executionRequest;
-    }
-
-    public void setExecutionRequest(PipelineExecutionRequest executionRequest) {
-        this.executionRequest = executionRequest;
     }
 
     public boolean isClearJobAfterExecution() {

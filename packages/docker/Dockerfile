@@ -1,68 +1,52 @@
-#
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-ARG java_image_tag=11-jre-slim
+ARG java_image_tag=11-jre
 
-FROM openjdk:${java_image_tag}
-
-# Before building the docker image, first build and make a Spark distribution following
-# the instructions in http://spark.apache.org/docs/latest/building-spark.html.
-# If this docker file is being used in the context of building your images from a Spark
-# distribution, the docker build command should be invoked from the top level directory
-# of the Spark distribution. E.g.:
-# docker build -t spark:latest -f kubernetes/dockerfiles/spark/Dockerfile .
+##
+# Stage base (tooling)
+##
+FROM openjdk:${java_image_tag} AS base
 
 RUN set -ex && \
     sed -i 's/http:\/\/deb.\(.*\)/https:\/\/deb.\1/g' /etc/apt/sources.list && \
     apt-get update && \
     ln -s /lib /lib64 && \
     apt install -y bash tini libc6 libpam-modules krb5-user libnss3 procps curl && \
-    mkdir -p /opt/spark && \
-    mkdir -p /opt/spark/work-dir && \
-    touch /opt/spark/RELEASE && \
-    rm /bin/sh && \
-    ln -sv /bin/bash /bin/sh && \
     echo "auth required pam_wheel.so use_uid" >> /etc/pam.d/su && \
     chgrp root /etc/passwd && chmod ug+rw /etc/passwd && \
     rm -rf /var/cache/apt/*
 
-ARG spark_version=3.1.2
-ARG hadoop_version=3.2
+##
+# Stage Apache Spark
+##
+ARG SPARK_VERSION=3.1.2
+ARG HADOOP_VERSION=3.2
 
-RUN curl -sL https://mirrors.estointernet.in/apache/spark/spark-${spark_version}/spark-${spark_version}-bin-hadoop${hadoop_version}.tgz --output spark-bin-hadoop.tgz && \
-    tar -xzf spark-bin-hadoop.tgz
+FROM base AS spark-base
 
-RUN cd spark-${spark_version}-bin-hadoop${hadoop_version} && \
-    cp -r jars /opt/spark/jars && \
-    cp -r bin /opt/spark/bin && \
-    cp -r sbin /opt/spark/sbin && \
-    cp -r conf /opt/spark/conf && \
-    cp -r kubernetes/dockerfiles/spark/entrypoint.sh /opt/  && \
-    cp -r kubernetes/dockerfiles/spark/decom.sh /opt/  && \
-    cp -r kubernetes/tests /opt/spark/tests  && \
-    cp -r data /opt/spark/data
+# Download and extract Spark
+RUN curl -L https://downloads.apache.org/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz -o spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
+    && tar -xvzf spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
+    && mv spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} /opt/spark \
+    && rm spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz
 
-ENV SPARK_HOME /opt/spark
-ENV DJOBI_HOME /opt/djobi
+##
+# Stage Elastic APM
+##
+ARG ELASTIC_APM_VERSION=1.29.0
 
-ENV PATH $PATH:${SPARK_HOME}/bin:${DJOBI_HOME}
+FROM base AS elastic-apm
 
-ADD build/release ${DJOBI_HOME}
+RUN mkdir -p /opt/elastic && \
+    curl -L https://search.maven.org/remotecontent?filepath=co/elastic/apm/elastic-apm-agent/${ELASTIC_APM_VERSION}/elastic-apm-agent-${ELASTIC_APM_VERSION}.jar -o /opt/elastic/elastic-apm-agent-${ELASTIC_APM_VERSION}.jar
 
-WORKDIR ${DJOBI_HOME}
+##
+# Stage Djobi
+##
+FROM base
+
+ENV SPARK_HOME      /opt/spark
+ENV DJOBI_HOME      /opt/djobi
+ENV ELASTIC_HOME    /opt/elastic
+ENV PATH            $PATH:${SPARK_HOME}/bin:${DJOBI_HOME}
 
 ##
 # add djobi user to run as no-root
@@ -70,8 +54,19 @@ WORKDIR ${DJOBI_HOME}
 RUN groupadd --gid 1000 djobi && \
     useradd --no-create-home --uid 1000 --home-dir ${DJOBI_HOME} --gid 1000 djobi
 
-RUN chmod g+w /opt/spark/work-dir
-RUN chmod a+x /opt/decom.sh
+##
+# get artifacts
+##
+COPY --from=elastic-apm /opt/elastic    ${ELASTIC_HOME}
+COPY --from=spark-base  /opt/spark      ${SPARK_HOME}
+COPY                    build/release   ${DJOBI_HOME}
+COPY                    packages/docker ${DJOBI_HOME}/docker
+
+WORKDIR ${DJOBI_HOME}
+
 RUN chmod +x /opt/djobi/djobi
+RUN chmod a+x ${DJOBI_HOME}/docker/entrypoint.sh
+
+ENTRYPOINT [ "/opt/djobi/docker/entrypoint.sh" ]
 
 USER djobi

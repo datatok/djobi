@@ -22,15 +22,22 @@ dependencies {
      */
     compileOnly project(':djobi-core')
 
-    compileOnly project(path: ':djobi-core', configuration: "spark")
-    compileOnly project(path: ':djobi-core', configuration: "sparkAssemblyProvided")
-    compileOnly project(path: ':djobi-core', configuration: "sparkAWS")
-    compileOnly project(path: ':djobi-core', configuration: "djobiCore")
+    /**
+     * Provided by Spark - but we dont want Spark dep here for cli
+     */
+    compileOnly sparkDependencyStrings.JACKSON_CORE
+    compileOnly sparkDependencyStrings.JCRAFT
+    compileOnly sparkDependencyStrings.APACHE_COMMONS_TEXT
 
     /**
      * Need core tests code
      */
     testImplementation(project(":djobi-tests"))
+
+    testRuntimeOnly(
+        project(path: ':djobi-core'),
+        project(path: ':djobi-core', configuration: 'spark')
+    )
 
     /**
      * To run Djobi via Idea.
@@ -41,9 +48,12 @@ dependencies {
         [group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.3.1'],
     )
 
-    implementation(
-        [group: 'info.picocli', name: 'picocli', version: '3.9.5']
-    )
+    /**
+     * Optional dep as it may not work on ARM64
+     */
+    compileOnly dependencyStrings.JANSI
+
+    implementation dependencyStrings.PICOCLI
 }
 
 run {

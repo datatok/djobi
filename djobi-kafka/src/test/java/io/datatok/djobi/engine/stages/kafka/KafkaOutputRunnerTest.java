@@ -17,16 +17,14 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 
 @ExtendWith(MyTestRunner.class)
+@Tag("IntegrationTest")
 public class KafkaOutputRunnerTest {
 
     @Inject

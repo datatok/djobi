@@ -57,9 +57,7 @@ public class ElasticsearchLogSink implements LogSink {
             final String version = serverVersions.get(this.settingUrl);
 
             if (version == null || version.startsWith("2")) {
-                this.settingIndex += "/doc";
-            } else {
-                this.settingIndex += "/_doc";
+                logger.error("Only support ES >= 7");
             }
         }
     }

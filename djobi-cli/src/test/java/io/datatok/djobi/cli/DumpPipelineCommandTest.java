@@ -7,16 +7,18 @@ import io.datatok.djobi.utils.MyMapUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import picocli.CommandLine;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 
+@ExtendWith(CLITestRunner.class)
 class DumpPipelineCommandTest {
 
     @Inject
-    private CommandFactory commandFactory;
+    private CommandKernel commandKernel;
 
     @Inject
     private DumpPipelineCommand dumpPipelineCommand;
@@ -28,7 +30,7 @@ class DumpPipelineCommandTest {
     }
 
     @Test void basic() {
-        new CommandLine(dumpPipelineCommand).parse(new String[]{"--args", "date=today", "-Ahello=toto", "./src/test/resources/pipelines/good.yml"});
+        new CommandLine(dumpPipelineCommand).parseArgs("--args", "date=today", "-Ahello=toto", "./src/test/resources/pipelines/good.yml");
 
         Assertions.assertEquals(MyMapUtils.map("date", "today", "hello", "toto"), dumpPipelineCommand.args);
     }
@@ -51,7 +53,7 @@ class DumpPipelineCommandTest {
     }
 
     private void run(final String[] args) {
-        commandFactory.run(args);
+        commandKernel.run(args);
     }
 
     private String captureStdout() {

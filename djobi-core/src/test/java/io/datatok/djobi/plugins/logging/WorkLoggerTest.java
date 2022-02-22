@@ -27,7 +27,6 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 @ExtendWith(MyTestRunner.class)
@@ -40,57 +39,46 @@ class WorkLoggerTest {
     static private void setup() throws IOException {
         final HttpMock httpMock = MyTestRunner.injector.getInstance(HttpMock.class);
 
-        final String responseComponents =  "{\n" +
-                "  \"href\": \"http://localhost:8080/api/v1/clusters/DataHub/services/SPARK/components/SPARK_THRIFTSERVER\",\n" +
-                "  \"ServiceComponentInfo\": {\n" +
-                "    \"category\": \"SLAVE\",\n" +
-                "    \"cluster_name\": \"DataHub\",\n" +
-                "    \"component_name\": \"SPARK_THRIFTSERVER\",\n" +
-                "    \"display_name\": \"Spark Thrift Server\",\n" +
-                "    \"init_count\": 0,\n" +
-                "    \"install_failed_count\": 0,\n" +
-                "    \"installed_count\": 0,\n" +
-                "    \"recovery_enabled\": \"false\",\n" +
-                "    \"service_name\": \"SPARK\",\n" +
-                "    \"started_count\": 1,\n" +
-                "    \"state\": \"STARTED\",\n" +
-                "    \"total_count\": 1,\n" +
-                "    \"unknown_count\": 0\n" +
-                "  },\n" +
-                "  \"host_components\": [\n" +
-                "    {\n" +
-                "      \"href\": \"http://localhost:8080/api/v1/clusters/DataHub/hosts/my-host/host_components/SPARK_THRIFTSERVER\",\n" +
-                "      \"HostRoles\": {\n" +
-                "        \"cluster_name\": \"DataHub\",\n" +
-                "        \"component_name\": \"SPARK_THRIFTSERVER\",\n" +
-                "        \"host_name\": \"my-host\"\n" +
-                "      }\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}";
-
-        final String responseRestartAction = "{\n" +
-                "  \"href\": \"http://localhost:8080/api/v1/clusters/datahub_dev/requests/102\",\n" +
-                "  \"Requests\": {\n" +
-                "    \"id\": 102,\n" +
-                "    \"status\": \"Accepted\"\n" +
-                "  }\n" +
-                "}";
-
         httpMock
-                .start(8080)
-                .addEndpoint("get_components", httpMock
-                        .endpoint()
-                        .responseAsJSON()
-                        .ifRequestRegex("/api/v1/clusters/([a-z]*)/services/([a-z]*)/components/([a-z]*)\\??")
-                        .withResponseBody(responseComponents)
-                )
-                .addEndpoint("action_restart", httpMock
-                        .endpoint()
-                        .responseAsJSON()
-                        .ifRequestRegex("/api/v1/clusters/([a-z]*)/requests\\??")
-                        .withResponseBody(responseRestartAction)
-                )
+            .start(8080)
+            .addEndpoint("home", httpMock
+                .endpoint()
+                .responseAsJSON()
+                .ifRequest("GET", "/")
+                .withResponseBody("{ 'name' : 'elasticsearch', 'version' : { 'number' : '7.16.2' } }".replace("'", "\""))
+            )
+            .addEndpoint("index_delete", httpMock
+                .endpoint()
+                .responseAsJSON()
+                .ifMethod("DELETE")
+                .withResponseBody("{ \"acknowledged\":true }")
+            )
+            .addEndpoint("index_send_document", httpMock
+                .endpoint()
+                .responseAsJSON()
+                .ifMethod("POST")
+                .withResponseBody("{ \"acknowledged\":true, \"_id\" : \"toto\" }")
+            )
+            .addEndpoint("index_send_document", httpMock
+                .endpoint()
+                .responseAsJSON()
+                .ifMethod("PUT")
+                .withResponseBody("{ \"acknowledged\":true, \"_id\" : \"toto\" }")
+            )
+            .addEndpoint("count", httpMock
+                .endpoint()
+                .responseAsJSON()
+                .ifMethod("GET")
+                .ifRequestRegex("/([a-z-]+)/_count")
+                .withResponseBody("{ \"count\" : 1}")
+            )
+            .addEndpoint("get_document", httpMock
+                .endpoint()
+                .responseAsJSON()
+                .ifMethod("GET")
+                .ifRequestRegex("/djobi-jobs/(.+)")
+                .withResponseBody("{ \"_source\" : { \"pipeline\" : { \"name\" : \"good_dummy2.yml\"} } }")
+            )
         ;
     }
 
@@ -135,22 +123,26 @@ class WorkLoggerTest {
     @Test
     @Tag("IntegrationTest")
     void testElasticsearchSink() throws Exception {
+        final String configStr = "djobi.plugins.logger { sinks { " +
+                "jobs { enabled = true, type = elasticsearch, options { url = \"http://localhost:8080\", index = \"djobi-jobs\" } } \n" +
+                "stages { enabled = true, type = elasticsearch, options { url = \"http://localhost:8080\", index = \"djobi-stages\" } } \n" +
+                "metrics { enabled = false } \n" +
+                "" +
+                "} }";
 
-        final String configPrefix = "djobi.plugins.logger.sinks.";
 
         final Djobi application =
-                new ApplicationBuilder()
-                        .configure(ConfigFactory.parseMap(
-                                MyMapUtils.mapString(
-                                        configPrefix + LoggerTypes.TYPE_JOBS + ".type", "elasticsearch",
-                                        configPrefix + LoggerTypes.TYPE_STAGES + ".type", "elasticsearch",
-                                        configPrefix + LoggerTypes.TYPE_METRICS + ".type", ""
-                                )
-                        ).withFallback(ConfigFactory.load().resolveWith(ConfigFactory.parseMap(MyMapUtils.mapString("loggerType", "elasticsearch")))))
-                        .addPlugin(new DefaultActionsPlugin())
-                        .addPlugin(new LoggingPlugin())
-                        .addDependency(Reporter.class, TestStdoutReporter.class)
-                        .build();
+            new ApplicationBuilder()
+                .configure(
+                    ConfigFactory
+                        .parseString(configStr)
+                        .withFallback(ConfigFactory.load())
+                )
+                .addPlugin(new DefaultActionsPlugin())
+                .addPlugin(new LoggingPlugin())
+                .addDependency(Reporter.class, TestStdoutReporter.class)
+                .build()
+            ;
 
         final Injector injector = application.getInjector();
         final JobRunStartSubscriber jobRunStartSubscriber = injector.getInstance(JobRunStartSubscriber.class);
@@ -180,8 +172,6 @@ class WorkLoggerTest {
         Assertions.assertEquals(1, c);
 
         assertJobLog(elasticsearchUtils, esSink, pipeline);
-
-        assertStageLog(elasticsearchUtils, stageSink, pipeline);
     }
 
     private void assertJobLog(ElasticsearchUtils elasticsearchUtils, ElasticsearchLogSink esSink, Pipeline pipeline) throws Exception {
@@ -190,16 +180,6 @@ class WorkLoggerTest {
         doc = (Map<String, Object>) MyMapUtils.browse(doc, "_source");
 
         Assertions.assertEquals("good_dummy2.yml", MyMapUtils.browse(doc, "pipeline.name"));
-    }
-
-    private void assertStageLog(ElasticsearchUtils elasticsearchUtils, ElasticsearchLogSink esSink, Pipeline pipeline) throws Exception {
-        Map<String, Object> result = elasticsearchUtils.query(esSink.getSettingUrl(), esSink.getSettingIndex(), "_search?q=job.uid:" + pipeline.getJob(0).getUid());
-
-        Assertions.assertNotNull(result);
-
-        List hits = (List) MyMapUtils.browse(result, "hits.hits");
-
-        Assertions.assertEquals(3, hits.size());
     }
 
 }

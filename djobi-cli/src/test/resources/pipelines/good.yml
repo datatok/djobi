@@ -32,26 +32,26 @@ jobs:
         pd: context_b
         file: not_found
     stages:
-      setup_file:
+      - name: setup_file
         kind: fs-input
         spec:
           path: "../data/json_1"
           format: json
-      as_table:
+      - name: as_table
         kind: org.spark.mutate
         spec:
           alias_table: my_json_1
-      input:
+      - name: input
         kind: "sql"
         check: false
         spec:
           query: "queries/{{pd}}.sql"
-      filter:
+      - name: filter
         kind: "org.spark.mutate"
         spec:
           adds:
             day: "{{day}}\\/{{month}}\\/{{year}}"
-      output:
+      - name: output
         kind: "fs-output"
         spec:
           path: "/tmp/djobi_test_engine"

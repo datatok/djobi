@@ -27,21 +27,11 @@ import javax.inject.Inject;
             ""},
     subcommands = {DumpCommand.class, RunPipelineCommand.class}
 )
-public class DjobiCommand implements Runnable {
-
-    @Inject
-    private CommandFactory commandFactory;
-
-    @Inject
-    private Reporter reporter;
-
-    @Inject
-    private ApplicationData app;
-
+public class RootCommand implements Runnable {
 
     public void run() {
-        reporter.output("Djobi version %s", app.getVersion());
+        //reporter.output("Djobi version %s", app.getVersion());
 
-        new CommandLine(this, commandFactory).usage(System.out);
+        //new CommandLine(this, commandFactory).usage(System.out);
     }
 }

@@ -5,15 +5,18 @@ import com.google.inject.Inject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import picocli.CommandLine;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 
+@ExtendWith(CLITestRunner.class)
 class DumpEnvCommandTest {
 
     @Inject
-    private CommandFactory commandFactory;
+    private CommandKernel commandKernel;
 
     private final ByteArrayOutputStream myOut = new ByteArrayOutputStream();
 
@@ -22,7 +25,7 @@ class DumpEnvCommandTest {
     }
 
     @Test void jsonExample() throws Exception {
-        run(new String[]{"dump", "--format", "json", "env"});
+        run("dump", "--format", "json", "env");
 
         final String output = captureStdout();
 
@@ -31,7 +34,7 @@ class DumpEnvCommandTest {
     }
 
     @Test void tableExample() {
-        run(new String[]{"dump", "--format", "plain", "env"});
+        run("dump", "--format", "plain", "env");
 
         final String output = captureStdout();
 
@@ -39,7 +42,7 @@ class DumpEnvCommandTest {
     }
 
     @Test void tableWithGrepExample() {
-        run(new String[]{"dump", "--format", "plain", "--grep", "hello,djobi", "env"});
+        run("dump", "--format", "plain", "--grep", "hello,djobi", "env");
 
         final String output = captureStdout();
 
@@ -48,8 +51,8 @@ class DumpEnvCommandTest {
         Assertions.assertTrue(output.split("\n").length < 5);
     }
 
-    private void run(final String[] args) {
-        commandFactory.run(args);
+    private void run(String... args) {
+        commandKernel.getRootCommand().execute(args);
     }
 
     private String captureStdout() {

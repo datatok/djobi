@@ -25,6 +25,10 @@ public class ConditionFlow {
             return true;
         }
 
+        if (condition.equals("false") || condition.equals("no")) {
+            return false;
+        }
+
         final String[] items = condition.split("\\s+");
 
         final String operator = items[0];

@@ -8,12 +8,14 @@ import io.datatok.djobi.plugins.report.VerbosityLevel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.*;
 
+@ExtendWith(CLITestRunner.class)
 public class RunPipelineCommandTest {
 
     @Inject

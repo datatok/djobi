@@ -1,14 +1,17 @@
 package io.datatok.djobi.cli.utils;
 
 import com.google.inject.Inject;
+import io.datatok.djobi.cli.CLITestRunner;
 import io.datatok.djobi.engine.PipelineExecutionRequest;
 import io.datatok.djobi.utils.EnvProvider;
 import io.datatok.djobi.utils.MyMapUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Arrays;
 
+@ExtendWith(CLITestRunner.class)
 public class PipelineRequestFactoryTest {
 
     @Inject

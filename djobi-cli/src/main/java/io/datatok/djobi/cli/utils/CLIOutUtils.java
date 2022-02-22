@@ -2,7 +2,7 @@ package io.datatok.djobi.cli.utils;
 
 import io.datatok.djobi.engine.Parameter;
 import io.datatok.djobi.utils.bags.ParameterBag;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 

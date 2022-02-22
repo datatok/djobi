@@ -1,5 +1,7 @@
 package io.datatok.djobi.cli;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.datatok.djobi.cli.utils.CLIOutUtils;
 import io.datatok.djobi.cli.utils.CLIUtils;
 import io.datatok.djobi.engine.Job;
@@ -8,9 +10,8 @@ import io.datatok.djobi.engine.phases.StagePhaseMetaData;
 import io.datatok.djobi.engine.stage.Stage;
 import io.datatok.djobi.plugins.report.Reporter;
 import io.datatok.djobi.utils.ClassUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
-import javax.inject.Singleton;
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,11 +21,14 @@ import static org.fusesource.jansi.Ansi.ansi;
 @Singleton
 public class StdoutReporter implements Reporter {
 
+    @Inject
+    private CLIUtils cliUtils;
+
     private PrintStream stdoutPrintStream = System.out;
 
     @Override
     public void output(String format, Object... args) {
-        CLIUtils.output(format, args);
+        cliUtils.output(format, args);
     }
 
     @Override

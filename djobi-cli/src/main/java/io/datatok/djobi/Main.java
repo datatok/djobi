@@ -6,6 +6,8 @@ import io.datatok.djobi.application.Djobi;
 import io.datatok.djobi.application.exceptions.BuildApplicationException;
 import io.datatok.djobi.cli.CommandKernel;
 import io.datatok.djobi.cli.StdoutReporter;
+import io.datatok.djobi.cli.utils.CLISimpleUtils;
+import io.datatok.djobi.cli.utils.CLIUtils;
 import io.datatok.djobi.plugins.report.Reporter;
 import io.datatok.djobi.plugins.s3.S3Plugin;
 import io.datatok.djobi.plugins.stages.DefaultActionsPlugin;
@@ -43,7 +45,10 @@ final public class Main implements Serializable {
                 builder.addPlugin(new S3Plugin());
             }
 
-            builder.addDependency(Reporter.class, StdoutReporter.class);
+            builder
+                .addDependency(Reporter.class, StdoutReporter.class)
+                .addDependency(CLIUtils.class, CLISimpleUtils.class)
+            ;
 
             application = builder.loadPlugins().build();
         } catch(BuildApplicationException e) {
@@ -55,6 +60,7 @@ final public class Main implements Serializable {
         }
 
         Injector injector = application.getInjector();
+
         CommandKernel commandKernel = injector.getInstance(CommandKernel.class);
         CommandLine rootCommandImpl = commandKernel.getRootCommand();
 

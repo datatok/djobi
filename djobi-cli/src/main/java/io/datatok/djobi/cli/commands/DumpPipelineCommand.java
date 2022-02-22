@@ -10,13 +10,11 @@ import io.datatok.djobi.engine.stage.ActionFactory;
 import io.datatok.djobi.loaders.yaml.YAMLPipelineLoader;
 import io.datatok.djobi.plugins.report.Reporter;
 import io.datatok.djobi.utils.JSONUtils;
-import org.apache.commons.lang.StringUtils;
-import org.fusesource.jansi.AnsiConsole;
+import org.apache.commons.lang3.StringUtils;
 import picocli.CommandLine;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Map;
 
 @CommandLine.Command(name = "pipeline", description = "dump a pipeline")
@@ -49,8 +47,6 @@ public class DumpPipelineCommand implements Runnable {
     @Override
     public void run() {
         Pipeline pipeline = null;
-
-        AnsiConsole.systemInstall();
 
         try {
             pipeline = pipelineLoader.get(

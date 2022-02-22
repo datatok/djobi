@@ -32,6 +32,9 @@ public class RunPipelineCommand implements Runnable {
     @Inject
     OutVerbosity outVerbosity;
 
+    @Inject
+    CLIUtils cliUtils;
+
     @CommandLine.Option(paramLabel = "args", names = {"-a", "--arg"}, description = "arguments (date, ...)")
     Map<String, String> args;
 
@@ -61,7 +64,7 @@ public class RunPipelineCommand implements Runnable {
         Pipeline pipeline = null;
 
         if (pipelinePath == null || pipelinePath.isEmpty()) {
-            CLIUtils.printError("pipeline is missing!");
+            cliUtils.printError("pipeline is missing!");
             return ;
         }
 
@@ -72,7 +75,7 @@ public class RunPipelineCommand implements Runnable {
         try {
             pipeline = pipelineLoader.get(pipelineRequest);
         } catch (IOException e) {
-            CLIUtils.printError(e.getMessage());
+            cliUtils.printError(e.getMessage());
             e.printStackTrace();
         }
 
@@ -80,7 +83,7 @@ public class RunPipelineCommand implements Runnable {
             try {
                 pipelineRunner.run(pipeline);
             } catch (Exception e) {
-                CLIUtils.printError(e.getMessage());
+                cliUtils.printError(e.getMessage());
                 e.printStackTrace();
             }
         }

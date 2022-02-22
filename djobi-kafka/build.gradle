@@ -27,9 +27,6 @@ dependencies {
     compileOnly project(':djobi-core')
     compileOnly project(path: ':djobi-core', configuration: 'spark')
 
-    testImplementation(project(":djobi-tests"))
-    testImplementation(project(':djobi-core'))
-
     kafka1(group: 'org.apache.kafka', name: 'kafka-clients', version:'1.1.1') {
         exclude group: "org.xerial.snappy"
         exclude group: "org.slf4j"
@@ -38,6 +35,15 @@ dependencies {
     kafka2(group: 'org.apache.kafka', name: 'kafka-clients', version:'2.2.0') {
         exclude group: "org.xerial.snappy"
     }
+
+    testImplementation(
+            project(":djobi-tests"),
+            project(':djobi-core')
+    )
+
+    testRuntimeOnly(
+            project(path: ':djobi-core', configuration: 'spark')
+    )
 }
 
 djobi.createReleaseWithVariants(variants)

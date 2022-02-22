@@ -14,12 +14,18 @@ dependencies {
     compileOnly project(':djobi-core')
     compileOnly project(path: ':djobi-core', configuration: 'spark')
 
-    testImplementation(project(':djobi-tests'))
-    testImplementation(project(':djobi-core'))
-
     compileOnly(group: 'eu.bitwalker', name: 'UserAgentUtils', version: '1.21')
 
     bitwalker(group: 'eu.bitwalker', name: 'UserAgentUtils', version: '1.21')
+
+    testImplementation(
+            project(":djobi-tests"),
+            project(':djobi-core')
+    )
+
+    testRuntimeOnly(
+            project(path: ':djobi-core', configuration: 'spark')
+    )
 }
 
 djobi.createReleaseWithVariants(variants)

@@ -13,6 +13,8 @@ public interface Reporter {
 
     String error(String text);
 
+    void error(Throwable exception);
+
     void printSummary(final Pipeline pipeline);
 
     void printSummary(final Job job);

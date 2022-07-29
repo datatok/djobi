@@ -1,5 +1,6 @@
 package io.datatok.djobi.plugins.apm_opentracing.subscribers;
 
+import co.elastic.apm.api.ElasticApm;
 import co.elastic.apm.api.Transaction;
 import io.datatok.djobi.engine.Job;
 import io.datatok.djobi.engine.events.ErrorEvent;
@@ -29,6 +30,8 @@ public class EngineErrorSubscriber  implements Subscriber {
                     transaction.captureException(((ErrorEvent) event).getException());
                 }
             }
+        } else {
+            ElasticApm.currentSpan().captureException( ((ErrorEvent) event).getException() );
         }
     }
 }

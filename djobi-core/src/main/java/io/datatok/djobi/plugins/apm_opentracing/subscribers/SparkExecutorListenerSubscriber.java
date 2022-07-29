@@ -1,6 +1,7 @@
 package io.datatok.djobi.plugins.apm_opentracing.subscribers;
 
 import co.elastic.apm.api.Span;
+import co.elastic.apm.api.Transaction;
 import io.datatok.djobi.event.Event;
 import io.datatok.djobi.event.Subscriber;
 import io.datatok.djobi.plugins.apm_opentracing.services.APMStore;
@@ -51,18 +52,22 @@ public class SparkExecutorListenerSubscriber implements Subscriber {
         //final Transaction djobiJobTransaction = this.store.getTransactionByJob();
         //final Map<String, String> headers = MyMapUtils.mapString("elastic-apm-traceparent",.getTraceId());
 
-        final Span span = this.store.getTransactionForCurrentJob().startSpan("executor", "spark", "job");
+        final Transaction transaction = this.store.getTransactionForCurrentJob();
 
-        span
-            .setName("Spark job " + jobId)
-            .setLabel("executor", "spark")
-        ;
+        if (transaction != null) {
+            final Span span = transaction.startSpan("executor", "spark", "job");
 
-        data.forEach(span::setLabel);
+            span
+                    .setName("Spark job " + jobId)
+                    .setLabel("executor", "spark")
+            ;
 
-        this.jobToSpan.put(jobId, span);
+            data.forEach(span::setLabel);
 
-        span.activate();
+            this.jobToSpan.put(jobId, span);
+
+            span.activate();
+        }
     }
 
     private void onJobEnd(Map<String, String> data) {
@@ -81,17 +86,20 @@ public class SparkExecutorListenerSubscriber implements Subscriber {
     public void onStageSubmitted(Map<String, String> data) {
         final String taskId = data.get("id");
 
-        final Span span = this.store.getTransactionForCurrentJob()
-                .startSpan("executor", "spark", "stage")
-                .setName("Spark stage " + taskId)
-                .setLabel("executor", "spark")
-        ;
+        final Transaction transaction = this.store.getTransactionForCurrentJob();
 
-        data.forEach(span::setLabel);
+        if (transaction != null) {
+            final Span span = transaction
+                    .startSpan("executor", "spark", "stage")
+                    .setName("Spark stage " + taskId)
+                    .setLabel("executor", "spark");
 
-        this.taskToSpan.put(taskId, span);
+            data.forEach(span::setLabel);
 
-        span.activate();
+            this.taskToSpan.put(taskId, span);
+
+            span.activate();
+        }
     }
 
     private void onStageCompleted(Map<String, String> data) {

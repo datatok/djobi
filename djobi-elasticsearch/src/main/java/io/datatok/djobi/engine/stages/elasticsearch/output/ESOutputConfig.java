@@ -11,17 +11,7 @@ public class ESOutputConfig extends ActionConfiguration {
     String host;
     String url;
 
-    /**
-     * @deprecated
-     *
-     * Use "realIndex" for es7
-     */
     String index;
-
-    /**
-     *
-     */
-    String realIndex;
 
     String clean_query;
 
@@ -33,15 +23,11 @@ public class ESOutputConfig extends ActionConfiguration {
         this.url = resolveUrl(render("host"));
         this.index = render("index");
         this.clean_query = render("clean_query");
-
-        this.realIndex = getIndex(this.index);
     }
 
-    private String getIndex(final String value) {
-        if (value != null && value.contains("/")) {
-            return value.substring(0, value.indexOf("/"));
-        } else {
-            return value;
+    public void validate() throws Exception {
+        if (this.index.contains("/")) {
+            throw new Exception("index name must not contains type!");
         }
     }
 

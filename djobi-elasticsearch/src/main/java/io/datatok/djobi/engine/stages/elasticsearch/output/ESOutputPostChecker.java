@@ -21,7 +21,7 @@ public class ESOutputPostChecker implements ActionPostChecker {
     public CheckResult postCheck(Stage stage) throws Exception {
         final ESOutputConfig config = (ESOutputConfig) stage.getParameters();
         final CheckResult result = new CheckResult();
-        final String elasticsearchIndex = config.realIndex;
+        final String elasticsearchIndex = config.index;
 
         try {
             logger.debug(String.format("Checking elasticsearch index %s / %s ?q= %s", config.url, elasticsearchIndex, config.clean_query));

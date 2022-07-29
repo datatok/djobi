@@ -3,70 +3,85 @@ ARG java_image_tag=11-jre
 ##
 # Stage base (tooling)
 ##
-FROM openjdk:${java_image_tag} AS base
+FROM alpine:3.16 AS base
 
-RUN set -ex && \
-    sed -i 's/http:\/\/deb.\(.*\)/https:\/\/deb.\1/g' /etc/apt/sources.list && \
-    apt-get update && \
-    ln -s /lib /lib64 && \
-    apt install -y bash tini libc6 libpam-modules krb5-user libnss3 procps curl && \
-    echo "auth required pam_wheel.so use_uid" >> /etc/pam.d/su && \
-    chgrp root /etc/passwd && chmod ug+rw /etc/passwd && \
-    rm -rf /var/cache/apt/*
+ENV SPARK_HOME      /opt/spark
+ENV DJOBI_HOME      /opt/djobi
+ENV ELASTIC_HOME    /opt/elastic
+
+RUN apk add --update --no-cache wget curl
 
 ##
 # Stage Apache Spark
 ##
-ARG SPARK_VERSION=3.1.2
-ARG HADOOP_VERSION=3.2
-
 FROM base AS spark-base
 
-# Download and extract Spark
-RUN curl -L https://downloads.apache.org/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz -o spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
-    && tar -xvzf spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
-    && mv spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} /opt/spark \
-    && rm spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz
+ARG SPARK_VERSION=3.2.2
+ARG HADOOP_VERSION=3.2
+ARG SPARK_CDN=https://dlcdn.apache.org/spark
+
+RUN wget --quiet ${SPARK_CDN}/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
+      && tar -xzf spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
+      && mv spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} spark \
+      && rm -rf spark/examples spark/data \
+      && rm spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz
 
 ##
 # Stage Elastic APM
 ##
-ARG ELASTIC_APM_VERSION=1.29.0
-
 FROM base AS elastic-apm
 
+ARG ELASTIC_APM_VERSION=1.32.0
+
 RUN mkdir -p /opt/elastic && \
-    curl -L https://search.maven.org/remotecontent?filepath=co/elastic/apm/elastic-apm-agent/${ELASTIC_APM_VERSION}/elastic-apm-agent-${ELASTIC_APM_VERSION}.jar -o /opt/elastic/elastic-apm-agent-${ELASTIC_APM_VERSION}.jar
+    curl -sL https://search.maven.org/remotecontent?filepath=co/elastic/apm/elastic-apm-agent/${ELASTIC_APM_VERSION}/elastic-apm-agent-${ELASTIC_APM_VERSION}.jar -o /opt/elastic/elastic-apm-agent-${ELASTIC_APM_VERSION}.jar && \
+    ln -s /opt/elastic/elastic-apm-agent-${ELASTIC_APM_VERSION}.jar /opt/elastic/elastic-apm-agent.jar
 
 ##
 # Stage Djobi
 ##
 FROM base
 
-ENV SPARK_HOME      /opt/spark
-ENV DJOBI_HOME      /opt/djobi
-ENV ELASTIC_HOME    /opt/elastic
-ENV PATH            $PATH:${SPARK_HOME}/bin:${DJOBI_HOME}
+RUN apk --no-cache add openjdk11 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
-##
-# add djobi user to run as no-root
-##
-RUN groupadd --gid 1000 djobi && \
-    useradd --no-create-home --uid 1000 --home-dir ${DJOBI_HOME} --gid 1000 djobi
+RUN apk add --update --no-cache \
+            bash \
+            tini \
+            python3 py3-pip \
+            java-snappy-native
+
+ENV LANG=en_US.UTF-8 \
+    LC_ALL=en_US.UTF-8 \
+    PYTHONPATH="/opt/spark/python/:$PYTHONPATH" \
+    SPARK_WORK_DIR="${SPARK_HOME}/work" \
+    JAVA_HOME="/usr/lib/jvm/java-11-openjdk"
+
+ENV PATH="/opt/python/bin:${JAVA_HOME}/bin:${SPARK_HOME}/bin:${SPARK_HOME}/sbin:${DJOBI_HOME}:$PATH"
 
 ##
 # get artifacts
 ##
-COPY --from=elastic-apm /opt/elastic    ${ELASTIC_HOME}
-COPY --from=spark-base  /opt/spark      ${SPARK_HOME}
-COPY                    build/release   ${DJOBI_HOME}
-COPY                    packages/docker ${DJOBI_HOME}/docker
+COPY --from=elastic-apm /opt/elastic        ${ELASTIC_HOME}
+COPY --from=spark-base  /spark              ${SPARK_HOME}
+COPY                    build/release       ${DJOBI_HOME}
+COPY                    packages/docker     ${DJOBI_HOME}/docker
+COPY                    djobi-submit        ${DJOBI_HOME}/submit
 
-WORKDIR ${DJOBI_HOME}
+##
+# add djobi user to run as no-root
+##
+RUN adduser --no-create-home --disabled-password --uid 1000 --home ${DJOBI_HOME} djobi && \
+    mkdir ${SPARK_WORK_DIR} && \
+    chgrp root /etc/passwd && chmod ug+rw /etc/passwd && \
+    chmod g+w ${SPARK_WORK_DIR} && \
+    chown djobi ${DJOBI_HOME} ${SPARK_WORK_DIR}
 
-RUN chmod +x /opt/djobi/djobi
+WORKDIR ${SPARK_WORK_DIR}
+
 RUN chmod a+x ${DJOBI_HOME}/docker/entrypoint.sh
 
 ENTRYPOINT [ "/opt/djobi/docker/entrypoint.sh" ]
 
 USER djobi
+
+RUN pip install ${DJOBI_HOME}/submit/dist/djobi_submit-0.1.0-py3-none-any.whl

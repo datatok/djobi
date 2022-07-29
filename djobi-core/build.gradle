@@ -25,7 +25,8 @@ dependencies {
     implementation(
         [group: 'org.apache.commons', name: 'commons-csv', version:'1.6'],
         [group: 'com.hubspot.jinjava', name: 'jinjava', version: jinjavaVersion],
-        [group: 'javax.mail', name: 'javax.mail-api', version:'1.6.2']
+        [group: 'javax.mail', name: 'javax.mail-api', version:'1.6.2'],
+        [group: 'com.jcraft', name : 'jsch', version: '0.1.55']
     )
 
     api dependencyStrings.GOOGLE_GUICE

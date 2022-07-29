@@ -26,7 +26,6 @@ dependencies {
      * Provided by Spark - but we dont want Spark dep here for cli
      */
     compileOnly sparkDependencyStrings.JACKSON_CORE
-    compileOnly sparkDependencyStrings.JCRAFT
     compileOnly sparkDependencyStrings.APACHE_COMMONS_TEXT
 
     /**

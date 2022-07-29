@@ -48,6 +48,12 @@ Based on the following guidelines:
 * A new *minor* release indicates a normal change that maintains backwards compatibility.
 * A new *patch* release indicates a bugfix or small change which does not affect compatibility.
 
-## Compile
+## Gradle
+
+### compile
+
+`` gradle assemble -x :djobi-core:signArchives -x :djobi-tests:signArchives``
+
+### create release
 
 ``gradle -Prelease.version=$(cat VERSION) clean djobi_assemble -x test``

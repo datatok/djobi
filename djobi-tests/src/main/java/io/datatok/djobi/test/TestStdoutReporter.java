@@ -32,6 +32,11 @@ public class TestStdoutReporter implements Reporter {
     }
 
     @Override
+    public void error(Throwable exception) {
+
+    }
+
+    @Override
     public void printSummary(Pipeline pipeline) {
 
     }

@@ -42,6 +42,12 @@ public class StdoutReporter implements Reporter {
     }
 
     @Override
+    public void error(Throwable exception) {
+        cliUtils.printError(exception.getMessage());
+        exception.printStackTrace();
+    }
+
+    @Override
     public PrintStream getPrintStream() {
         return stdoutPrintStream;
     }

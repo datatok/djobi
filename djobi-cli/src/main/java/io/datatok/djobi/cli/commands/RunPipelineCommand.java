@@ -6,6 +6,8 @@ import io.datatok.djobi.cli.utils.CLIUtils;
 import io.datatok.djobi.engine.Engine;
 import io.datatok.djobi.engine.Pipeline;
 import io.datatok.djobi.engine.PipelineExecutionRequest;
+import io.datatok.djobi.engine.events.ErrorEvent;
+import io.datatok.djobi.event.EventBus;
 import io.datatok.djobi.loaders.yaml.YAMLPipelineLoader;
 import io.datatok.djobi.plugins.report.OutVerbosity;
 import io.datatok.djobi.plugins.report.VerbosityLevel;
@@ -34,6 +36,9 @@ public class RunPipelineCommand implements Runnable {
 
     @Inject
     CLIUtils cliUtils;
+
+    @Inject
+    EventBus eventBus;
 
     @CommandLine.Option(paramLabel = "args", names = {"-a", "--arg"}, description = "arguments (date, ...)")
     Map<String, String> args;
@@ -75,16 +80,14 @@ public class RunPipelineCommand implements Runnable {
         try {
             pipeline = pipelineLoader.get(pipelineRequest);
         } catch (IOException e) {
-            cliUtils.printError(e.getMessage());
-            e.printStackTrace();
+            eventBus.trigger(new ErrorEvent(e, e.getMessage()));
         }
 
         if (pipeline != null) {
             try {
                 pipelineRunner.run(pipeline);
             } catch (Exception e) {
-                cliUtils.printError(e.getMessage());
-                e.printStackTrace();
+                eventBus.trigger(new ErrorEvent(e, e.getMessage()));
             }
         }
     }

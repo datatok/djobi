@@ -60,6 +60,22 @@ def run(
     JVMCommonOtions     = f"-XX:+UseCompressedOops -XX:+UseParallelGC -Dconfig.override_with_env_vars=true"
     JVMDriverOptions    = f"{driver_java_options} -Dlog4j.configuration=file:{log4j} -Dconfig.file={config_file} {JVMCommonOtions} "
     JVMExecutorOptions  = f"{executor_java_options} -Dlog4j.configuration=file:log4j.properties {JVMCommonOtions}"
+
+    if not spark_home:
+        print("spark_home is empty, SPARK_HOME env variable is missing?")
+        exit(1)
+
+    if not djobi_version:
+        print("djobi_version is empty, DJOBI_VERSION env variable is missing?")
+        exit(1)
+
+    if not djobi_home:
+        print("djobi_home is empty, DJOBI_HOME env variable is missing?")
+        exit(1)
+
+    if not config_file:
+        print("config_file is empty, DJOBI_CONF env variable is missing?")
+        exit(1)
     
     spark_jars.append(f"{djobi_home}/libs/djobi-core-{djobi_version}.jar")
     
@@ -78,8 +94,8 @@ def run(
 
         elastic_home        = os.getenv("ELASTIC_HOME")
         apm_agent_config    = f"-Delastic.apm.service_name=djobi -Delastic.apm.server_urls={apm_server_url} -Delastic.apm.verify_server_cert=false -Delastic.apm.disable_instrumentations=okhttp,jdbc,asynchttpclient,concurrent,servlet-api-async,servlet-api,jax-rs,jax-ws,render,quartz,executor,annotations"
-        JVMDriverOptions    = f"{JVMDriverOptions} -javaagent:{elastic_home}/elastic-apm-agent.jar {apm_agent_config}"
-        JVMExecutorOptions  = f"{JVMExecutorOptions} -javaagent:elastic-apm-agent.jar {apm_agent_config}"
+        JVMDriverOptions    = trim(f"{JVMDriverOptions} -javaagent:{elastic_home}/elastic-apm-agent.jar {apm_agent_config}", " ")
+        JVMExecutorOptions  = trim(f"{JVMExecutorOptions} -javaagent:elastic-apm-agent.jar {apm_agent_config}", " ")
         
         spark_files.append(f"${elastic_home}/elastic-apm-agent.jar")
     

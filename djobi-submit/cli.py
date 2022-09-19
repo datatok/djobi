@@ -57,7 +57,6 @@ def run(
     spark_jars          = []
     djobi_version       = os.getenv("DJOBI_VERSION")
     djobi_home          = os.getenv("DJOBI_HOME")
-    spark_home          = os.getenv("SPARK_HOME")
     log4j               = f"{djobi_home}/log4j.properties"
     JVMCommonOtions     = f"-XX:+UseCompressedOops -XX:+UseParallelGC -Dconfig.override_with_env_vars=true"
     JVMDriverOptions    = f"{driver_java_options} -Dlog4j.configuration=file:{log4j} -Dconfig.file={config_file} {JVMCommonOtions} "
@@ -93,7 +92,7 @@ def run(
         extra_env_variables[f"CONFIG_FORCE_{k}"] = v 
     
     args1 = [
-        f"{spark_home}/bin/spark-submit",
+        "spark-submit",
         "--jars", ",".join(spark_jars),
         "--class", "io.datatok.djobi.Main",
         "--name", name,

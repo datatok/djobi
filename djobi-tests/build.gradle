@@ -10,9 +10,12 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    // Hack, it must exist a better solution
+    compileOnly.extendsFrom testImplementation
+}
+
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
 
     api(
         [group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.36'],
@@ -20,14 +23,10 @@ dependencies {
     )
 
     // https://mvnrepository.com/artifact/org.json/json
-    implementation 'org.json:json:20211205'
+    implementation 'org.json:json:20220320'
 
     compileOnly project(':djobi-core')
     compileOnly project(path: ':djobi-core', configuration: 'spark')
-
-    compileOnly(
-        [group: 'com.squareup.okhttp3', name: 'mockwebserver3-junit5', version: '5.0.0-alpha.4']
-    )
 }
 
 test {

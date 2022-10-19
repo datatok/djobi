@@ -46,6 +46,15 @@ class TemplateUtilsTest {
         Assertions.assertEquals("today is the " + Calendar.getInstance().get(Calendar.DAY_OF_MONTH), templateUtils.render("today is the {{date.dayBefore.dayAfter.day}}", job));
     }
 
+    @Test void testConditional() {
+        final Job job = new Job();
+
+        job.setParameters(new ParameterBag("hello", true));
+
+        Assertions.assertEquals("hello world!", templateUtils.render("hello {% if hello %}world!{% endif %}", job));
+        Assertions.assertEquals("hello world!", templateUtils.render("hello {% if not hello %}toto{% else %}world!{% endif %}", job));
+    }
+
     @Test void testWithList() {
         final Job job = new Job();
 

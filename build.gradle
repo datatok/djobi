@@ -7,14 +7,19 @@ plugins {
     id 'nebula.release' version '16.0.0'
 }
 
+project.ext {
+    JUNIT_VERSION = '5.9.0'
+    JUNIT_MOCKSERVER_VERSION = '5.0.0-alpha.10'
+}
+
 /* PROJECT DEPENDENCY VERSIONS */
 // define all common versioned dependencies here
 project.ext.dependencyStrings = [
-    GOOGLE_GUICE: 'com.google.inject:guice:5.0.1',
-    TYPESAFE_CONFIG: 'com.typesafe:config:1.4.1',
-    ORG_YAML: 'org.yaml:snakeyaml:1.29',
-    OKHTTP: 'com.squareup.okhttp3:okhttp:4.9.3',
-    ELASTIC_APM: 'co.elastic.apm:apm-agent-api:1.29.0',
+    GOOGLE_GUICE: 'com.google.inject:guice:5.1.0',
+    TYPESAFE_CONFIG: 'com.typesafe:config:1.4.2',
+    ORG_YAML: 'org.yaml:snakeyaml:1.32',
+    OKHTTP: 'com.squareup.okhttp3:okhttp:4.10.0',
+    ELASTIC_APM: 'co.elastic.apm:apm-agent-api:1.34.0',
     JANSI: 'org.fusesource.jansi:jansi:2.4.0',
     PICOCLI: 'info.picocli:picocli:4.6.2'
 ]
@@ -154,13 +159,13 @@ subprojects {
     }
 
     dependencies {
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-params:5.7.2'
+        testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: "${JUNIT_VERSION}"
+        testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: "${JUNIT_VERSION}"
 
         testImplementation(
-            [group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.2'],
-            [group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: '5.7.2'],
-            [group: 'com.squareup.okhttp3', name: 'mockwebserver3-junit5', version: '5.0.0-alpha.2']
+            [group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: "${JUNIT_VERSION}"],
+            [group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: "${JUNIT_VERSION}"],
+            [group: 'com.squareup.okhttp3', name: 'mockwebserver3-junit5', version: "${JUNIT_MOCKSERVER_VERSION}"]
         )
     }
 
@@ -222,7 +227,7 @@ task djobiAssemble(type: Sync) {
         }
     }
 
-    from(subprojects.collect { it.tasks.withType(ShadowJar) }) {
+    from(subprojects.findAll { (it.name != "djobi-tests") }.collect { it.tasks.withType(ShadowJar) }) {
         include "**/*-all.jar"
         into "libs"
         rename '^(.+)-all.jar', '$1.jar'

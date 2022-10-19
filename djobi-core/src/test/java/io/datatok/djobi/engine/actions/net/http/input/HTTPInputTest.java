@@ -27,7 +27,7 @@ public class HTTPInputTest extends ActionTest {
     private HttpMock httpMock;
 
     @BeforeAll
-    static private void setup() throws Exception {
+    static void setup() throws Exception {
         final HttpMock httpMock = MyTestRunner.injector.getInstance(HttpMock.class);
 
         final String responseComponents = "[{\"letter\" : \"A\", \"count\" : 12},{\"letter\" : \"B\", \"count\" : 1}, {\"letter\" : \"C\", \"count\" : 2}]";
@@ -49,7 +49,7 @@ public class HTTPInputTest extends ActionTest {
     }
 
     @AfterAll
-    static private void stopAll() throws IOException {
+    static void stopAll() throws IOException {
         final HttpMock httpMock = MyTestRunner.injector.getInstance(HttpMock.class);
 
         if (httpMock != null) {

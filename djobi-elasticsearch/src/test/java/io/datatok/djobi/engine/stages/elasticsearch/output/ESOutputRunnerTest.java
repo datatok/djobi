@@ -28,7 +28,7 @@ class ESOutputRunnerTest extends ActionTest {
     private String elasticsearchUrl = "elasticsearch:9200";
 
     @BeforeEach
-    private void resetES() throws IOException {
+    void resetES() throws IOException {
         elasticsearchUtils.deleteIndex("http://" + elasticsearchUrl, "test");
     }
 

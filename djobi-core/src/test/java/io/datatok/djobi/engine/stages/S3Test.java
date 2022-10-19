@@ -56,7 +56,6 @@ public class S3Test extends ActionTest {
         this.conn = AmazonS3ClientBuilder
                 .standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withRegion(Regions.US_EAST_2)
                 .withClientConfiguration(clientConfig)
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(S3_ENDPOINT, Regions.US_EAST_2.getName()))
                 .withPathStyleAccessEnabled(true)

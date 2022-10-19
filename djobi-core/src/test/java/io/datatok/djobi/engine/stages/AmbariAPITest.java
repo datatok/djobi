@@ -23,7 +23,7 @@ class AmbariAPITest extends ActionTest {
     private HttpMock httpMock;
 
     @BeforeAll
-    static private void setup() throws IOException {
+    static void setup() throws IOException {
         final HttpMock httpMock = MyTestRunner.injector.getInstance(HttpMock.class);
 
         final String responseComponents =  "{\n" +
@@ -81,7 +81,7 @@ class AmbariAPITest extends ActionTest {
     }
 
     @AfterAll
-    static private void stopAll() throws IOException {
+    static void stopAll() throws IOException {
         final HttpMock httpMock = MyTestRunner.injector.getInstance(HttpMock.class);
 
         if (httpMock != null) {

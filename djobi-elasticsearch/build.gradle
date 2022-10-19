@@ -5,12 +5,14 @@ plugins {
 
 ext {
     variants = [
-        [name: "es7"]
+        [name: "es7"],
+        [name: "es8"]
     ]
 }
 
 configurations {
     es7
+    es8
 
     testRuntimeOnly.extendsFrom es7
     compileOnly.extendsFrom es7
@@ -20,7 +22,14 @@ dependencies {
     compileOnly project(':djobi-core')
     compileOnly project(path: ':djobi-core', configuration: 'spark')
 
-    es7(group: 'org.elasticsearch', name: 'elasticsearch-spark-30_' + scalaVersion, version:'7.16.2') {
+    es7(group: 'org.elasticsearch', name: 'elasticsearch-spark-30_' + scalaVersion, version:'7.17.3') {
+        exclude group: "org.scala-lang"
+        exclude group: "org.apache.spark"
+        exclude group: "com.google.protobuf"
+        exclude group: "javax.xml.bind"
+    }
+
+    es8(group: 'org.elasticsearch', name: 'elasticsearch-spark-30_' + scalaVersion, version:'8.4.1') {
         exclude group: "org.scala-lang"
         exclude group: "org.apache.spark"
         exclude group: "com.google.protobuf"

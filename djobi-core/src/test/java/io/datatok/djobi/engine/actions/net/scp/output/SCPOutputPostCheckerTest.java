@@ -28,7 +28,7 @@ class SCPOutputPostCheckerTest {
     private HttpMock httpMock;
 
     @BeforeAll
-    static private void setup() throws Exception {
+    static void setup() throws Exception {
         final HttpMock httpMock = MyTestRunner.injector.getInstance(HttpMock.class);
 
         final String responseComponents = IOFileUtils.readInClassPath("files_listing_sample/scp.csv");
@@ -44,7 +44,7 @@ class SCPOutputPostCheckerTest {
     }
 
     @AfterAll
-    static private void stopAll() throws IOException {
+    static void stopAll() throws IOException {
         final HttpMock httpMock = MyTestRunner.injector.getInstance(HttpMock.class);
 
         if (httpMock != null) {

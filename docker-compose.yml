@@ -7,7 +7,7 @@ services:
   # http://elasticsearch:9200
   ##
   front:
-    image: traefik:v2.5
+    image: traefik:v2.9
     command:
       - "--log.level=DEBUG"
       - "--api.insecure=true"
@@ -56,11 +56,11 @@ services:
     build:
       context: .
       dockerfile: ./packages/docker/Dockerfile
-      args:
-        http_proxy_ip:
-        http_proxy_port:
-        http_proxy:
-        https_proxy:
+      #args:
+      #  http_proxy_ip:
+      #  http_proxy_port:
+      #  http_proxy:
+      #  https_proxy:
     command: |+
       djobi 
         --djobi-conf djobi.plugins.logger.enabled false 

@@ -2,6 +2,7 @@ package io.datatok.djobi.plugins.s3;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider;
 import org.apache.spark.SparkContext;
 
 import java.io.IOException;
@@ -21,6 +22,8 @@ public class S3SparkUtils {
 
     static public void configure(Configuration conf, Map<String, String> spec) {
         //System.setProperty(SDKGlobalConfiguration.ENABLE_S3_SIGV4_SYSTEM_PROPERTY, "true");
+
+        conf.set("fs.s3a.aws.credentials.provider", SimpleAWSCredentialsProvider.NAME);
 
         conf.set("fs.s3a.endpoint", spec.get(S3BagKeys.ENDPOINT));
         conf.set("fs.s3a.access.key", spec.get(S3BagKeys.ACCESS_KEY));

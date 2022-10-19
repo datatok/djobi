@@ -16,7 +16,7 @@ services:
     command: foo:pass:999
 
   minio:
-    image: bitnami/minio:2021.6.17-debian-10-r60
+    image: bitnami/minio:2022.9.7
     labels:
     - "traefik.enable=true"
     - "traefik.http.routers.minio.rule=Host(`minio`)"

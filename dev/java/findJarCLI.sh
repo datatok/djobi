@@ -1,0 +1,1 @@
+find ~/.m2/repository -type f -name '*.jar' -exec ./findJar.sh {} $1 \;

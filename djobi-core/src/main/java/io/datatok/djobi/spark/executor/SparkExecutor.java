@@ -48,14 +48,12 @@ public class SparkExecutor implements Executor {
 
     protected Bag lastConf;
 
-
     protected boolean connected = false;
 
     static public Dataset<Row> asDataset(Object buffer)
     {
         return (Dataset<Row>) buffer;
     }
-
 
     @Override
     public String getType() {
@@ -73,22 +71,23 @@ public class SparkExecutor implements Executor {
 
         sparkConfigure(esSparkConf);
 
-        this.sparkSession = SparkSession.builder()
-                .config(esSparkConf)
-                .getOrCreate();
+        if (SparkSession.getActiveSession().nonEmpty()) {
+            this.sparkSession = SparkSession.getActiveSession().get();
+        } else {
+            this.sparkSession = SparkSession.builder()
+                    .config(esSparkConf)
+                    .getOrCreate();
+        }
 
-        this.sqlContext = this.sparkSession.sqlContext();
-        this.sparkContext = this.sparkSession.sparkContext();
+        this.sqlContext = sparkSession.sqlContext();
+        this.sparkContext = sparkSession.sparkContext();
         this.javaSparkContext = new JavaSparkContext(sparkContext);
 
         this.reporter.setCurrentApplicationID(this.sparkContext.applicationId());
 
         sparkContext.addSparkListener(this.reporter);
 
-        this.hdfs = FileSystem.get(this.sparkSession.sparkContext().hadoopConfiguration());
-
-        sqlContext.setConf("hive.exec.dynamic.partition", "true");
-        sqlContext.setConf("hive.exec.dynamic.partition.mode", "nonstrict");
+        this.hdfs = FileSystem.get(sparkSession.sparkContext().hadoopConfiguration());
 
         connected = true;
 
@@ -102,7 +101,6 @@ public class SparkExecutor implements Executor {
 
     @Override
     public void setCurrentStage(Stage stage) {
-
         this.reporter.setCurrentStage(stage);
 
         if (this.sparkContext != null) {

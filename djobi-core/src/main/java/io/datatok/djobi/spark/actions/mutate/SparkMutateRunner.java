@@ -42,7 +42,7 @@ public class SparkMutateRunner implements ActionRunner {
             if (contextData.getData() instanceof JavaRDD) {
                 final SQLContext sqlContext = (SQLContext) job.getPipeline().getExecutor().get("sql_context");
                 final JavaRDD<DataFrameBean> rdds = ((JavaRDD<Object>) contextData.getData()).map(rddData -> {
-                    final DataFrameBean bean = clazz.newInstance();
+                    final DataFrameBean bean = clazz.getDeclaredConstructor().newInstance();
 
                     try {
                         bean.transform(rddData);

@@ -1,0 +1,36 @@
+security:
+  auth:
+    anonymous:
+      enabled: true
+
+  rbac:
+    enabled: true
+    items:
+      - entity: anonymous
+        rules:
+          - list
+          - read
+          - write
+          - delete
+        buckets:
+          - host: "*"
+            name: "*"
+
+storage:
+  auth:
+    - name: root
+      basic:
+        accessKey: root
+        secretKey: rootroot
+
+  endpoints:
+    - name: s3
+      host: s3
+      port: 9000
+      protocol: http
+
+  buckets:
+    - endpoint: s3
+      region: us-east-1
+      name: djobi
+      auth: root

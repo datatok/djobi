@@ -4,63 +4,69 @@ import io.datatok.djobi.engine.check.CheckResult;
 import io.datatok.djobi.engine.stage.Stage;
 import io.datatok.djobi.engine.stage.livecycle.ActionPreChecker;
 import io.datatok.djobi.utils.PropertiesUtils;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.KafkaException;
-import org.apache.kafka.common.PartitionInfo;
-import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.clients.admin.Admin;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.log4j.Logger;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 public class KafkaPreChecker implements ActionPreChecker {
 
-    private static Logger logger = Logger.getLogger(KafkaPreChecker.class);
+    private static final Logger logger = Logger.getLogger(KafkaPreChecker.class);
 
-    static public final String REASON_OK_NO_TOPIC = "connection ok, no topic test";
+    static public final String REASON_OK_TOPIC_CREATED = "endpoint ok, topic created";
 
-    static public final String REASON_OK_TOPIC_FOUND = "topic found";
+    static public final String REASON_OK_TOPIC_FOUND = "endpoint ok, topic exist";
 
-    static public final String REASON_ERROR_TOPIC_NOT_FOUND = "topic not found";
+    static public final String REASON_ERROR_NO_ENDPOINT = "endpoint issue";
+
+    static public final String REASON_ERROR_TOPIC_NOT_FOUND = "endpoint ok, topic not found";
 
     @Override
     public CheckResult preCheck(Stage stage) {
         final KafkaOutputConfig config = (KafkaOutputConfig) stage.getParameters();
 
-        logger.debug(String.format("Checking Kafka server at %s", config.servers.toString()));
+        logger.debug(String.format("Checking Kafka server at %s", config.endpoints.toString()));
 
         Properties props = PropertiesUtils.build(
-                "bootstrap.servers", config.servers,
-                "fetch.max.wait.ms", 1000,
-                "heartbeat.interval.ms", 1500,
-                "session.timeout.ms", 2000,
-                "request.timeout.ms", 3000,
-                "key.deserializer", StringDeserializer.class.getName(),
-                "value.deserializer", StringDeserializer.class.getName()
+            "bootstrap.servers", config.endpoints,
+            "fetch.max.wait.ms", 1000,
+            "heartbeat.interval.ms", 1500,
+            "session.timeout.ms", 2000,
+            "request.timeout.ms", 3000
         );
 
-        Map<String, List<PartitionInfo>> topics;
+        try (Admin kafkaAdminClient = Admin.create(props)) {
+            final Set<String> existingTopics = kafkaAdminClient.listTopics().names().get();
 
-        try {
-            KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-            topics = consumer.listTopics();
+            final boolean topicExists = existingTopics.contains(config.topic.name);
 
-            //Object m = consumer.metrics();
+            logger.debug(String.format("Found %d topic(s)", existingTopics.size()));
 
-            //consumer.subscribe(Collections.singletonList("djobi"));
+            if (topicExists) {
+                logger.debug(String.format("Topic [%s] exists", config.topic.name));
+                return CheckResult.ok(CheckResult.REASON, REASON_OK_TOPIC_FOUND);
+            }
 
-            consumer.close();
-        } catch (KafkaException e) {
+            logger.debug(String.format("Topic [%s] does not exist", config.topic.name));
+
+            if (config.topic.create) {
+                logger.debug(String.format("Creating topic [%s]", config.topic.name));
+
+                NewTopic newTopic = new NewTopic(config.topic.name, config.topic.partitions, config.topic.replicationFactor);
+
+                kafkaAdminClient.createTopics(List.of(newTopic));
+
+                logger.debug(String.format("Topic [%s] created", config.topic.name));
+
+                return CheckResult.ok(CheckResult.REASON, REASON_OK_TOPIC_CREATED);
+            }
+
+        } catch (ExecutionException | InterruptedException e) {
             return CheckResult.error(e.getMessage());
-        }
-
-        if (config.topic == null || config.topic.isEmpty()) {
-            return CheckResult.ok(CheckResult.REASON, REASON_OK_NO_TOPIC);
-        }
-
-        if (topics.containsKey(config.topic)) {
-            return CheckResult.ok(CheckResult.REASON, REASON_OK_TOPIC_FOUND);
         }
 
         return CheckResult.error(REASON_ERROR_TOPIC_NOT_FOUND);

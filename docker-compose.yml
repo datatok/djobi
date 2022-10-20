@@ -13,15 +13,11 @@ services:
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.es.address=:9200"
-      - "--entrypoints.minio_api.address=:9000"
-      - "--entrypoints.minio_console.address=:9001"
+      - "--entrypoints.web.address=:80"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - "9200:9200"
-      - "9000:9000"
-      - "9001:9001"
+      - "80:80"
 
   ##
   # compile java
@@ -41,9 +37,9 @@ services:
       - GRGIT_PASS=${CI_JOB_TOKEN}
     depends_on:
       - elasticsearch
-      - kafka1
+      - kafka
       - sftp
-      - minio
+      - s3
     volumes:
       - .:/app
       - .gradle:/home/gradle/.gradle
@@ -74,7 +70,7 @@ services:
       projectRoot: /opt
     depends_on:
     - elasticsearch
-    - minio
+    - s3
     ports:
     - "4040:4040"
     volumes:

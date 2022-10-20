@@ -1,5 +1,6 @@
 package io.datatok.djobi.engine.stages.elasticsearch.output;
 
+import io.datatok.djobi.configuration.Configuration;
 import io.datatok.djobi.engine.stage.livecycle.ActionRunResult;
 import io.datatok.djobi.exceptions.StageException;
 import io.datatok.djobi.spark.actions.generator.SparkGeneratorRunner;
@@ -13,6 +14,7 @@ import org.apache.spark.sql.Row;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -25,11 +27,12 @@ class ESOutputRunnerTest extends ActionTest {
     @Inject
     private ElasticsearchUtils elasticsearchUtils;
 
-    private String elasticsearchUrl = "elasticsearch:9200";
+    @Inject
+    private Configuration configuration;
 
     @BeforeEach
     void resetES() throws IOException {
-        elasticsearchUtils.deleteIndex("http://" + elasticsearchUrl, "test");
+        elasticsearchUtils.deleteIndex(configuration.getString("elasticsearch"), "test");
     }
 
 /*
@@ -58,49 +61,49 @@ class ESOutputRunnerTest extends ActionTest {
         Assertions.assertFalse(check);
     }
 */
-
-    @ParameterizedTest
-    @ValueSource(strings = {"elasticsearch:9200"})
-    void runWithoutData(String elasticsearchUrl) throws Exception {
+    @Test
+    void runWithoutData() throws Exception {
         Assertions.assertThrows(StageException.class, () -> stageTestUtils.run(ESOutputType.TYPE, new Bag(
-                        "host", "http://" + elasticsearchUrl,
+                        "host", configuration.getString("elasticsearch"),
                         "clean_query", "* OR 1=1"
                 ))
         );
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"elasticsearch:9200"})
-    void testWithoutCleaning(String elasticsearchUrl) throws Exception {
+    @Test
+    void testWithoutCleaning() throws Exception {
         run(null);
 
-        Assertions.assertEquals(10, elasticsearchUtils.searchCount("http://" + elasticsearchUrl, "test", null));
+        Assertions.assertEquals(10, elasticsearchUtils.searchCount(configuration.getString("elasticsearch"), "test", null));
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"elasticsearch:9200"})
-    void testCleanExistingData(String elasticsearchUrl) throws Exception {
+    @Test
+    void testCleanExistingData() throws Exception {
+        final String esURL = configuration.getString("elasticsearch");
+
         run(null);
 
-        Assertions.assertEquals(10, elasticsearchUtils.searchCount("http://" + elasticsearchUrl, "test", null));
+        Assertions.assertEquals(10, elasticsearchUtils.searchCount(esURL, "test", null));
 
         // Run again, no cleaning
         run(null);
 
-        Assertions.assertEquals(20, elasticsearchUtils.searchCount("http://" + elasticsearchUrl, "test", null));
+        Assertions.assertEquals(20, elasticsearchUtils.searchCount(esURL, "test", null));
 
         // Run again, with cleaning
         run("*");
 
-        Assertions.assertEquals(10, elasticsearchUtils.searchCount("http://" + elasticsearchUrl, "test", null));
+        Assertions.assertEquals(10, elasticsearchUtils.searchCount(esURL, "test", null));
 
         // Run again, with half-cleaning
         run("sexe:F");
 
-        Assertions.assertEquals(15, elasticsearchUtils.searchCount("http://" + elasticsearchUrl, "test", null));
+        Assertions.assertEquals(15, elasticsearchUtils.searchCount(esURL, "test", null));
     }
 
     private ActionRunResult run(String cleanQuery) throws Exception {
+        final String esURL = configuration.getString("elasticsearch");
+
         SparkExecutor executor = getSparkExecutor();
 
         executor.connect();
@@ -113,13 +116,13 @@ class ESOutputRunnerTest extends ActionTest {
                 .builder()
                     .addStageType(ESOutputType.TYPE)
                     .configure(new Bag(
-                        "host", "http://" + elasticsearchUrl,
+                        "host", esURL,
                         "clean_query", cleanQuery,
                         "index", "test/doc"
                     ))
                     .run(dfData);
 
-        elasticsearchUtils.refresh("http://" + elasticsearchUrl, "test");
+        elasticsearchUtils.refresh(esURL, "test");
 
         return runResult;
     }

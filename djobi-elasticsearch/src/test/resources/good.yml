@@ -32,28 +32,28 @@ jobs:
         pd: context_b
         file: not_found
     stages:
-      setup_file:
-        kind: fs-input
-        spec:
-          path: "./json_1"
-          format: json
-      as_table:
-        kind: org.spark.mutate
-        spec:
-          alias_table: my_json_1
-      input:
-        kind: sql
-        check: false
-        spec:
-          query: "queries/{{pd}}.sql"
-      filter:
-        kind: "org.spark.mutate"
-        spec:
-          adds:
-            day: "{{day}}\\/{{month}}\\/{{year}}"
-      output:
-        kind: org.elasticsearch.output
-        spec:
-          host: "{{env.elasticsearch}}"
-          index: "out-{{pd}}/all"
-          clean_query: "day:{{day}}\\/{{month}}\\/{{year}}"
+    - name: setup_file
+      kind: fs-input
+      spec:
+        path: "./json_1"
+        format: json
+    - name: as_table
+      kind: org.spark.mutate
+      spec:
+        alias_table: my_json_1
+    - name: input
+      kind: sql
+      check: false
+      spec:
+        query: "queries/{{pd}}.sql"
+    - name: filter
+      kind: "org.spark.mutate"
+      spec:
+        adds:
+          day: "{{day}}\\/{{month}}\\/{{year}}"
+    - name: output
+      kind: org.elasticsearch.output
+      spec:
+        host: "{{env.elasticsearch}}"
+        index: "out-{{pd}}/all"
+        clean_query: "day:{{day}}\\/{{month}}\\/{{year}}"

@@ -38,6 +38,24 @@ abstract public class ActionConfiguration {
         this.job = job;
     }
 
+    /**
+     * Render from a bag.
+     * @since v5.0.0
+     */
+    protected String render(final Bag from, final String key, final String def) {
+        if (from.containsKey(key)) {
+            final String value = from.getString(key);
+
+            return renderValue(value);
+        }
+
+        return def;
+    }
+
+    /**
+     * Render from root
+     * @since v2.0.0
+     */
     protected String render(final String key, final String def) {
         if (stageConfiguration != null && stageConfiguration.containsKey(key)) {
             final String value = stageConfiguration.getString(key);

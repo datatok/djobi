@@ -69,6 +69,9 @@ public class SparkActionProvider extends ActionProvider {
         registerConfigurator(SparkMutateType.TYPE, SparkMutateConfigurator.class);
         registerRunner(SparkMutateType.TYPE, SparkMutateRunner.class);
 
+        registerConfigurator(SparkMutateType.TYPE_2, SparkMutateConfigurator.class);
+        registerRunner(SparkMutateType.TYPE_2, SparkMutateRunner.class);
+
         registerConfigurator(SparkSchemaFlatrType.TYPE, SparkSchemaFlatrConfigurator.class);
         registerRunner(SparkSchemaFlatrType.TYPE, SparkSchemaFlatrRunner.class);
 

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MyMapUtils {
 
@@ -130,5 +131,10 @@ public class MyMapUtils {
             }
         }
         return res;
+    }
+
+    public static Map<String, String> valuesToString(Map<String, Object> source) {
+        return source.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> (String)e.getValue()));
     }
 }

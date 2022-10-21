@@ -1,9 +1,10 @@
-package io.datatok.djobi.plugins.logging.resources;
+package io.datatok.djobi.plugins.logging.feeders;
 
 import io.datatok.djobi.application.ApplicationData;
 import io.datatok.djobi.utils.MyMapUtils;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
@@ -13,24 +14,15 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 @Singleton
-public class DriverLogResource {
+public class DriverLogFeeder {
 
     @Inject
     private ApplicationData runData;
 
-    private String getHost() {
-        String host;
+    @Inject
+    private Provider<DriverMetricsResource> driverMetricsResourceProvider;
 
-        try {
-            host = InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            host = "__UnknownHostException__";
-        }
-
-        return host;
-    }
-
-    public final void fillEventData(final Map<String, Object> eventData) {
+    public final void append(final Map<String, Object> eventData) {
         final RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
 
         eventData.put("process", MyMapUtils.map(
@@ -57,6 +49,20 @@ public class DriverLogResource {
             "version", runtimeMXBean.getVmVersion(),
             "vendor", runtimeMXBean.getVmVendor()
         ));
+
+        eventData.put("metrics", MyMapUtils.map("metrics", driverMetricsResourceProvider.get().getMap()));
+    }
+
+    private String getHost() {
+        String host;
+
+        try {
+            host = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            host = "__UnknownHostException__";
+        }
+
+        return host;
     }
 
 }

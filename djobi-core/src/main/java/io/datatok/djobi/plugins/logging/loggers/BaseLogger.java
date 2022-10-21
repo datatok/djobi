@@ -25,29 +25,6 @@ abstract public class BaseLogger {
         return this.sink;
     }
 
-    /**
-     * Fill agent (djobi).
-     *
-     * @param eventData Map<String, Object>
-     */
-    protected void fillAgentData(final Map<String, Object> eventData) {
-        eventData.put("agent", MyMapUtils.mapString(
-           "name", "djobi",
-                "version",  runData.getVersion(),
-                "type", "application"
-        ));
-    }
-
-    /**
-     * Fill ECS.
-     *
-     * @param eventData Map<String, Object>
-     */
-    protected void fillECSData(final Map<String, Object> eventData) {
-        eventData.put("ecs", MyMapUtils.mapString(
-                "version",  "1.0.0"
-        ));
-    }
 
     /**
      * Fill error fields.

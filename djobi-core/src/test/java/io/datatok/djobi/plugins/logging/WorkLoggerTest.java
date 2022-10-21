@@ -7,13 +7,12 @@ import io.datatok.djobi.application.ApplicationBuilder;
 import io.datatok.djobi.application.Djobi;
 import io.datatok.djobi.engine.Engine;
 import io.datatok.djobi.engine.Parameter;
-import io.datatok.djobi.engine.Pipeline;
-import io.datatok.djobi.engine.PipelineExecutionRequest;
+import io.datatok.djobi.engine.Workflow;
+import io.datatok.djobi.engine.ExecutionRequest;
 import io.datatok.djobi.engine.parameters.DateParameter;
 import io.datatok.djobi.loaders.yaml.YAMLWorkflowLoader;
 import io.datatok.djobi.plugins.logging.sink.elasticsearch.ElasticsearchLogSink;
-import io.datatok.djobi.plugins.logging.subcribers.JobRunFinishSubscriber;
-import io.datatok.djobi.plugins.logging.subcribers.JobRunStartSubscriber;
+import io.datatok.djobi.plugins.logging.subcribers.JobRunSubscriber;
 import io.datatok.djobi.plugins.logging.subcribers.StageRunSubscriber;
 import io.datatok.djobi.plugins.report.Reporter;
 import io.datatok.djobi.plugins.stages.DefaultActionsPlugin;
@@ -145,8 +144,7 @@ class WorkLoggerTest {
             ;
 
         final Injector injector = application.getInjector();
-        final JobRunStartSubscriber jobRunStartSubscriber = injector.getInstance(JobRunStartSubscriber.class);
-        final JobRunFinishSubscriber jobRunFinishSubscriber = injector.getInstance(JobRunFinishSubscriber.class);
+        final JobRunSubscriber jobRunStartSubscriber = injector.getInstance(JobRunSubscriber.class);
         final StageRunSubscriber stageLogger = injector.getInstance(StageRunSubscriber.class);
         final ElasticsearchLogSink esSink = (ElasticsearchLogSink) jobRunStartSubscriber.getSink();
         final ElasticsearchLogSink stageSink = (ElasticsearchLogSink) stageLogger.getSink();
@@ -157,12 +155,12 @@ class WorkLoggerTest {
         elasticsearchUtils.deleteIndex(esSink.getSettingUrl(), esSink.getSettingIndex());
         elasticsearchUtils.deleteIndex(stageSink.getSettingUrl(), stageSink.getSettingIndex());
 
-        final Pipeline pipeline =  pipelineLoader.get(
-                PipelineExecutionRequest.build("./src/test/resources/pipelines/good_dummy2.yml")
+        final Workflow workflow =  pipelineLoader.get(
+                ExecutionRequest.build("./src/test/resources/pipelines/good_dummy2.yml")
                         .addArgument("date", "yesterday")
         );
 
-        engine.run(pipeline);
+        engine.run(workflow);
 
         elasticsearchUtils.refresh(esSink.getSettingUrl(), esSink.getSettingIndex());
         elasticsearchUtils.refresh(stageSink.getSettingUrl(), stageSink.getSettingIndex());
@@ -171,11 +169,11 @@ class WorkLoggerTest {
 
         Assertions.assertEquals(1, c);
 
-        assertJobLog(elasticsearchUtils, esSink, pipeline);
+        assertJobLog(elasticsearchUtils, esSink, workflow);
     }
 
-    private void assertJobLog(ElasticsearchUtils elasticsearchUtils, ElasticsearchLogSink esSink, Pipeline pipeline) throws Exception {
-        Map<String, Object> doc = elasticsearchUtils.query(esSink.getSettingUrl(), esSink.getSettingIndex(), pipeline.getJob(0).getUid());
+    private void assertJobLog(ElasticsearchUtils elasticsearchUtils, ElasticsearchLogSink esSink, Workflow workflow) throws Exception {
+        Map<String, Object> doc = elasticsearchUtils.query(esSink.getSettingUrl(), esSink.getSettingIndex(), workflow.getJob(0).getUid());
 
         doc = (Map<String, Object>) MyMapUtils.browse(doc, "_source");
 

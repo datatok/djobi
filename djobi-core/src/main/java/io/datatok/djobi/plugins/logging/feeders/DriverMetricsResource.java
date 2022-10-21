@@ -1,4 +1,4 @@
-package io.datatok.djobi.plugins.logging.resources;
+package io.datatok.djobi.plugins.logging.feeders;
 
 import io.datatok.djobi.utils.MyMapUtils;
 

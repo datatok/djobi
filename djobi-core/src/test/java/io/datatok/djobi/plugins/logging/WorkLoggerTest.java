@@ -10,7 +10,7 @@ import io.datatok.djobi.engine.Parameter;
 import io.datatok.djobi.engine.Pipeline;
 import io.datatok.djobi.engine.PipelineExecutionRequest;
 import io.datatok.djobi.engine.parameters.DateParameter;
-import io.datatok.djobi.loaders.yaml.YAMLPipelineLoader;
+import io.datatok.djobi.loaders.yaml.YAMLWorkflowLoader;
 import io.datatok.djobi.plugins.logging.sink.elasticsearch.ElasticsearchLogSink;
 import io.datatok.djobi.plugins.logging.subcribers.JobRunFinishSubscriber;
 import io.datatok.djobi.plugins.logging.subcribers.JobRunStartSubscriber;
@@ -151,7 +151,7 @@ class WorkLoggerTest {
         final ElasticsearchLogSink esSink = (ElasticsearchLogSink) jobRunStartSubscriber.getSink();
         final ElasticsearchLogSink stageSink = (ElasticsearchLogSink) stageLogger.getSink();
         final ElasticsearchUtils elasticsearchUtils = injector.getInstance(ElasticsearchUtils.class);
-        final YAMLPipelineLoader pipelineLoader = injector.getInstance(YAMLPipelineLoader.class);
+        final YAMLWorkflowLoader pipelineLoader = injector.getInstance(YAMLWorkflowLoader.class);
         final Engine engine = injector.getInstance(Engine.class);
 
         elasticsearchUtils.deleteIndex(esSink.getSettingUrl(), esSink.getSettingIndex());

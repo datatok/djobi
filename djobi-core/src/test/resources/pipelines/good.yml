@@ -19,14 +19,14 @@ labels:
   io.datatok.djobi/org-team: datahub
   io.datatok.djobi/org-author: t.decaux
 jobs:
-  job1:
+  - name: job1
     labels:
       level: low
     parameters:
       p1: p1
       p2: p2
       pd: job
-    contexts:
+    matrix:
       a:
         pjc1: a
         pd: context_a

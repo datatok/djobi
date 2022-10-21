@@ -7,7 +7,7 @@ import io.datatok.djobi.engine.Pipeline;
 import io.datatok.djobi.engine.phases.ActionPhases;
 import io.datatok.djobi.engine.phases.StagePhaseMetaData;
 import io.datatok.djobi.engine.stage.ActionFactory;
-import io.datatok.djobi.loaders.yaml.YAMLPipelineLoader;
+import io.datatok.djobi.loaders.yaml.YAMLWorkflowLoader;
 import io.datatok.djobi.plugins.report.Reporter;
 import io.datatok.djobi.utils.JSONUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +21,7 @@ import java.util.Map;
 public class DumpPipelineCommand implements Runnable {
 
     @Inject
-    YAMLPipelineLoader pipelineLoader;
+    YAMLWorkflowLoader pipelineLoader;
 
     @Inject
     Reporter reporter;

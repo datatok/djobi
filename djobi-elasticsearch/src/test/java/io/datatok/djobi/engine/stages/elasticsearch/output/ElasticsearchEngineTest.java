@@ -5,7 +5,7 @@ import io.datatok.djobi.engine.Engine;
 import io.datatok.djobi.engine.Job;
 import io.datatok.djobi.engine.Pipeline;
 import io.datatok.djobi.engine.PipelineExecutionRequest;
-import io.datatok.djobi.loaders.yaml.YAMLPipelineLoader;
+import io.datatok.djobi.loaders.yaml.YAMLWorkflowLoader;
 import io.datatok.djobi.test.MyTestRunner;
 import io.datatok.djobi.utils.elasticsearch.ElasticsearchUtils;
 import org.junit.jupiter.api.Assertions;
@@ -24,7 +24,7 @@ public class ElasticsearchEngineTest {
     private Engine engine;
 
     @Inject
-    private YAMLPipelineLoader yamlPipelineLoader;
+    private YAMLWorkflowLoader yamlPipelineLoader;
 
     @Inject
     private ElasticsearchUtils elasticsearchUtils;

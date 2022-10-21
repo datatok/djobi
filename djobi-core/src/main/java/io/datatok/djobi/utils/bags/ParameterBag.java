@@ -7,6 +7,14 @@ import java.util.Map;
 
 public class ParameterBag  extends HashMap<String, Parameter>
 {
+    static public ParameterBag fromMap(Map<String, Parameter> source) {
+        ParameterBag bag = new ParameterBag();
+
+        bag.putAll(source);
+
+        return bag;
+    }
+
     public ParameterBag() {
 
     }

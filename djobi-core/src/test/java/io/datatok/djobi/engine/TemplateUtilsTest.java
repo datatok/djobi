@@ -1,7 +1,7 @@
 package io.datatok.djobi.engine;
 
 import io.datatok.djobi.engine.parameters.DateParameter;
-import io.datatok.djobi.loaders.yaml.YAMLPipelineLoader;
+import io.datatok.djobi.loaders.yaml.YAMLWorkflowLoader;
 import io.datatok.djobi.test.MyTestRunner;
 import io.datatok.djobi.utils.MyMapUtils;
 import io.datatok.djobi.utils.bags.ParameterBag;
@@ -22,7 +22,7 @@ class TemplateUtilsTest {
     private TemplateUtils templateUtils;
 
     @Inject
-    private YAMLPipelineLoader yamlPipelineLoader;
+    private YAMLWorkflowLoader yamlPipelineLoader;
 
     @Test void stringTest() {
         Assertions.assertEquals("Hello, env is test", templateUtils.renderTemplate("Hello, env is {{env._meta_.config}}"));

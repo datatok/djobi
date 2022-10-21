@@ -1,8 +1,8 @@
 executor:
   type: local
 jobs:
-  test:
-    contexts:
+  - name: test
+    matrix:
       a:
         country: "fr"
       b:

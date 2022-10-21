@@ -2,7 +2,7 @@ package io.datatok.djobi.loaders.yaml.pojo;
 
 import io.datatok.djobi.engine.Job;
 import io.datatok.djobi.engine.Pipeline;
-import io.datatok.djobi.loaders.JobMaterializer;
+import io.datatok.djobi.loaders.matrix.MatrixGenerator;
 import io.datatok.djobi.utils.bags.ParameterBag;
 
 import java.util.List;
@@ -30,8 +30,16 @@ public class JobDefinition {
     /**
      * Define a matrix to execute job as variant.
      */
-    public Map<String, Map<String, Object>> contexts;
+    public Map<String, Map<String, Object>> matrix;
 
+    /**
+     * Raw name from YAML
+     */
+    public String name;
+
+    /**
+     * Real name template
+     */
     public String id;
 
     public final String uid;
@@ -42,13 +50,13 @@ public class JobDefinition {
         this.uid = UUID.randomUUID().toString();
     }
 
-    public Job getJob(final Pipeline pipeline, final ParameterBag run)
+    public Job toJobImpl(final Pipeline pipeline, final ParameterBag run)
     {
         final Job job = new Job();
         final String id = (String) run.get("_job_id").getValue();
 
         job
-            .setName(id + "?" + JobMaterializer.toID(run.values()))
+            .setName(id + "?" + MatrixGenerator.toUUID(run.values()))
             .setId(id)
             .setPipeline(pipeline)
             .setOrder(order)

@@ -8,15 +8,11 @@ import io.datatok.djobi.engine.Pipeline;
 import io.datatok.djobi.engine.PipelineExecutionRequest;
 import io.datatok.djobi.engine.events.ErrorEvent;
 import io.datatok.djobi.event.EventBus;
-import io.datatok.djobi.loaders.yaml.YAMLPipelineLoader;
+import io.datatok.djobi.loaders.yaml.YAMLWorkflowLoader;
 import io.datatok.djobi.plugins.report.OutVerbosity;
-import io.datatok.djobi.plugins.report.VerbosityLevel;
-import io.datatok.djobi.utils.MetaUtils;
-import io.datatok.djobi.utils.MyMapUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Map;
 
 @CommandLine.Command(name = "run", description = "run a pipeline")
@@ -26,7 +22,7 @@ public class RunPipelineCommand implements Runnable {
     PipelineRequestFactory pipelineRequestFactory;
 
     @Inject
-    YAMLPipelineLoader pipelineLoader;
+    YAMLWorkflowLoader pipelineLoader;
 
     @Inject
     Engine pipelineRunner;

@@ -12,7 +12,7 @@ import io.datatok.djobi.engine.phases.ConfigurePhase;
 import io.datatok.djobi.engine.phases.PreCheckJobPhase;
 import io.datatok.djobi.event.EventBus;
 import io.datatok.djobi.event.Subscriber;
-import io.datatok.djobi.loaders.yaml.YAMLPipelineLoader;
+import io.datatok.djobi.loaders.yaml.YAMLWorkflowLoader;
 import io.datatok.djobi.test.MyTestRunner;
 import io.datatok.djobi.test.executor.DummyExecutor;
 import io.datatok.djobi.utils.MyMapUtils;
@@ -39,7 +39,7 @@ class EngineTest {
     private EventBus eventBus;
 
     @Inject
-    private YAMLPipelineLoader yamlPipelineLoader;
+    private YAMLWorkflowLoader yamlPipelineLoader;
 
     @Inject
     private Configuration configuration;

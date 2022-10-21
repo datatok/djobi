@@ -2,7 +2,7 @@ executor:
   type: local
 jobs:
   test:
-    contexts:
+    matrix:
       a:
         country: "fr"
       b:

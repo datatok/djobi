@@ -8,12 +8,14 @@ import io.datatok.djobi.engine.Pipeline;
 import io.datatok.djobi.engine.PipelineExecutionRequest;
 import io.datatok.djobi.executors.Executor;
 import io.datatok.djobi.executors.ExecutorPool;
-import io.datatok.djobi.loaders.JobMaterializer;
+import io.datatok.djobi.loaders.matrix.MatrixGenerator;
 import io.datatok.djobi.loaders.yaml.pojo.JobDefinition;
-import io.datatok.djobi.loaders.yaml.pojo.PipelineDefinition;
+import io.datatok.djobi.loaders.yaml.pojo.WorkflowDefinition;
 import io.datatok.djobi.utils.ActionArgFactory;
-import io.datatok.djobi.utils.PipelineUtils;
+import io.datatok.djobi.utils.MyMapUtils;
+import io.datatok.djobi.loaders.utils.WKJobFilter;
 import io.datatok.djobi.utils.bags.ParameterBag;
+import io.datatok.djobi.utils.templating.TemplateUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.yaml.snakeyaml.TypeDescription;
@@ -30,17 +32,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Singleton
-public class YAMLPipelineLoader {
+public class YAMLWorkflowLoader {
 
+    static public final String JOB_DEFAULT_ID_TEMPLATE = "{{ name }}-{{ matrix._context_ }}";
     static public final String DEFAULT_CONTEXT = "_default_";
 
-    private static final Logger logger = Logger.getLogger(YAMLPipelineLoader.class);
+    private static final Logger logger = Logger.getLogger(YAMLWorkflowLoader.class);
 
     private static final Set<String> fileNameCandidates = Set.of("pipeline.yml", "pipeline.yaml", "djobi.yml", "djobi.yaml");
     private static final Set<String> extensionCandidates = Set.of("yml", "yaml");
 
     @Inject
-    private JobMaterializer materializer;
+    private MatrixGenerator materializer;
 
     @Inject
     private ActionArgFactory actionArgFactory;
@@ -48,15 +51,35 @@ public class YAMLPipelineLoader {
     @Inject
     private ExecutorPool executorPool;
 
+    @Inject
+    private TemplateUtils templateUtils;
+
     public Pipeline get(final PipelineExecutionRequest pipelineRequest) throws IOException {
-        final PipelineDefinition pipelineDefinition = getDefinition(pipelineRequest);
+        final WorkflowDefinition pipelineDefinition = getDefinition(pipelineRequest);
 
         return getImplementation(pipelineRequest, pipelineDefinition);
     }
 
-    static public String resolveJobId(final String job, final ParameterBag run) {
+    /**
+     * Return the real job ID, based on job name + current matrix elements.
+     */
+    public String resolveJobId(final JobDefinition definition, final ParameterBag run) {
         final String context = run.get("_context_").getValueAsString();
-        return context.equals(DEFAULT_CONTEXT) ? job : String.format("%s_%s", job, context);
+
+        if (context.equals(DEFAULT_CONTEXT)) {
+            return definition.name;
+        }
+
+        String template = JOB_DEFAULT_ID_TEMPLATE;
+
+        if (definition.id != null && !definition.id.isEmpty()) {
+            template = definition.id;
+        }
+
+        return templateUtils.renderTemplate(template, MyMapUtils.map(
+           "name", definition.name,
+           "matrix", run
+        ));
     }
 
     /**
@@ -66,10 +89,10 @@ public class YAMLPipelineLoader {
      *
      * @return PipelineDefinition
      */
-    private PipelineDefinition getDefinition(final PipelineExecutionRequest pipelineRequest) throws IOException {
-        final Constructor constructor = new Constructor(PipelineDefinition.class);
+    private WorkflowDefinition getDefinition(final PipelineExecutionRequest pipelineRequest) throws IOException {
+        final Constructor constructor = new Constructor(WorkflowDefinition.class);
 
-        final TypeDescription parameterDescription = new TypeDescription(PipelineDefinition.class);
+        final TypeDescription parameterDescription = new TypeDescription(WorkflowDefinition.class);
 
         parameterDescription.addPropertyParameters("parameters", Parameter.class);
 
@@ -106,11 +129,20 @@ public class YAMLPipelineLoader {
 
         yamlContent = new String(Files.readAllBytes(definitionFile.toPath()));
 
-        final PipelineDefinition pipeline = yaml.loadAs(yamlContent, PipelineDefinition.class);
+        final WorkflowDefinition workflow = yaml.loadAs(yamlContent, WorkflowDefinition.class);
 
-        pipeline.definitionFile = definitionFile;
+        workflow.definitionFile = definitionFile;
 
-        return pipeline;
+        /** Not mandatory field?
+        for (JobDefinition jobDefinition : workflow.jobs) {
+            if (jobDefinition.matrix.keySet().size() > 0 && (
+                    jobDefinition.id == null || jobDefinition.id.isEmpty()
+            )) {
+                throw new IOException(String.format("job [%s] is missing a [id] field ", jobDefinition.name));
+            }
+        }*/
+
+        return workflow;
     }
 
     /**
@@ -135,7 +167,7 @@ public class YAMLPipelineLoader {
         return null;
     }
 
-    private Pipeline getImplementation(final PipelineExecutionRequest pipelineRequest, final PipelineDefinition definition) throws IOException {
+    private Pipeline getImplementation(final PipelineExecutionRequest pipelineRequest, final WorkflowDefinition definition) throws IOException {
 
         final Pipeline pipeline = new Pipeline();
         final List<Job> jobs;
@@ -147,23 +179,21 @@ public class YAMLPipelineLoader {
         if (definition.jobs != null && definition.jobs.size() > 0) {
             jobs = definition
                     .jobs
-                    .entrySet()
                     .stream()
                     //.filter(jobId -> PipelineUtils.acceptJob(pipelineRequest, jobId.getKey()))
-                    .flatMap(entry -> {
-                        final JobDefinition jobDefinition = entry.getValue();
+                    .flatMap(jobDefinition -> {
                         final List<ParameterBag> jobsToRunParameters;
                         final ParameterBag jobParameters = actionArgFactory.resolve(jobDefinition.parameters, pipelineRequest);
                         final Map<String, ParameterBag> jobContextParameters = new HashMap<>();
 
-                        if (jobDefinition.contexts == null) {
+                        if (jobDefinition.matrix == null) {
                             jobContextParameters.put(DEFAULT_CONTEXT, jobParameters);
                         } else {
-                            for (String c :  jobDefinition.contexts.keySet()) {
+                            for (String c :  jobDefinition.matrix.keySet()) {
                                 jobContextParameters.put(c, ParameterBag.merge(
                                     jobParameters,
                                     actionArgFactory.resolve(
-                                        jobDefinition.contexts.get(c),
+                                        jobDefinition.matrix.get(c),
                                         pipelineRequest
                                     )
                                 ));
@@ -171,14 +201,14 @@ public class YAMLPipelineLoader {
                         }
 
                         try {
-                            jobsToRunParameters = materializer.materialize(pipelineParameters, jobContextParameters);
+                            jobsToRunParameters = materializer.generate(pipelineParameters, jobContextParameters);
                         } catch (Exception e) {
                             e.printStackTrace();
                             logger.error("JobTaskExpandable", e);
                             return Arrays.stream(new Job[]{});
                         }
 
-                        return resolveJobs(pipelineRequest, pipeline, jobDefinition, entry.getKey(), jobsToRunParameters);
+                        return resolveJobs(pipelineRequest, pipeline, jobDefinition, jobsToRunParameters);
                     })
                     .collect(Collectors.toList());
         } else {
@@ -214,24 +244,15 @@ public class YAMLPipelineLoader {
 
     /**
      * Transform job-definitions + parameters matrix into "jobs" to execute.
-     *
-     * @param pipelineRequest
-     * @param pipeline
-     * @param jobDefinition
-     * @param jobId
-     * @param jobsToRunParameters
-     * @return
      */
-    private Stream<Job> resolveJobs(final PipelineExecutionRequest pipelineRequest, final Pipeline pipeline, final JobDefinition jobDefinition, final String jobId, final List<ParameterBag> jobsToRunParameters) {
+    private Stream<Job> resolveJobs(final PipelineExecutionRequest pipelineRequest, final Pipeline pipeline, final JobDefinition definition, final List<ParameterBag> jobsToRunParameters) {
         return
             jobsToRunParameters
                 .stream()
-                .filter(run -> PipelineUtils.acceptJob(pipelineRequest, resolveJobId(jobId, run)))
-                .map(run -> run.add("_job_id", resolveJobId(jobId, run)))
-                .map(run -> jobDefinition.getJob(pipeline, run))
+                .map(run -> run.add("_job_id", resolveJobId(definition, run)))
+                .map(run -> definition.toJobImpl(pipeline, run))
+                .filter(job -> WKJobFilter.accept(pipelineRequest, job))
             ;
     }
-
-
 
 }

@@ -6,8 +6,10 @@ import io.datatok.djobi.engine.Pipeline;
 import io.datatok.djobi.engine.PipelineExecutionRequest;
 import io.datatok.djobi.engine.check.CheckStatus;
 import io.datatok.djobi.executors.LocalExecutor;
+import io.datatok.djobi.loaders.yaml.pojo.JobDefinition;
 import io.datatok.djobi.spark.executor.SparkExecutor;
 import io.datatok.djobi.test.executor.DummyExecutor;
+import io.datatok.djobi.utils.bags.ParameterBag;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.yaml.snakeyaml.error.YAMLException;
@@ -15,10 +17,10 @@ import org.yaml.snakeyaml.error.YAMLException;
 import java.io.IOException;
 import java.util.Arrays;
 
-class YAMLPipelineLoaderTest {
+class YAMLWorkflowLoaderTest {
 
     @Inject
-    private YAMLPipelineLoader yamlPipelineLoader;
+    private YAMLWorkflowLoader loader;
 
     @Test void testGetDefinitionWrongFile() {
         Assertions.assertThrows(IOException.class, () -> load("toto"));
@@ -61,7 +63,7 @@ class YAMLPipelineLoaderTest {
         final Job job1  = p.getJobs().get(0);
 
         Assertions.assertNotNull(job1.getId());
-        Assertions.assertEquals("job1_a", job1.getId());
+        Assertions.assertEquals("job1-a", job1.getId());
         Assertions.assertEquals(5, job1.getStages().size());
         Assertions.assertEquals("org.spark.mutate", job1.getStages().get(1).getKind());
         Assertions.assertEquals("fs-output", job1.getStages().get(4).getKind());
@@ -70,12 +72,45 @@ class YAMLPipelineLoaderTest {
         Assertions.assertEquals(CheckStatus.TODO, job1.getStages().get(1).getPreCheck().getStatus());
     }
 
+
+    private JobDefinition jobDefinitionIDName(String id, String name) {
+        JobDefinition j = new JobDefinition();
+
+        j.id = id;
+        j.name = name;
+
+        return j;
+    }
+
+    @Test
+    void shouldGenerateGoodIDs() {
+        Assertions.assertEquals(
+            loader.resolveJobId(jobDefinitionIDName("", "no-id"), new ParameterBag("_context_", YAMLWorkflowLoader.DEFAULT_CONTEXT)),
+            "no-id"
+        );
+
+        Assertions.assertEquals(
+            loader.resolveJobId(jobDefinitionIDName("", "no-id"), new ParameterBag("_context_", "hello")),
+        "no-id-hello"
+        );
+
+        Assertions.assertEquals(
+            loader.resolveJobId(jobDefinitionIDName("my-{{ name }}-{{ matrix._context_ }}", "no-id"), new ParameterBag("_context_", "hello")),
+            "my-no-id-hello"
+        );
+
+        Assertions.assertEquals(
+            loader.resolveJobId(jobDefinitionIDName("hello-{{ matrix.field }}", "no-id"), new ParameterBag("_context_", "hello", "field", "world")),
+            "hello-world"
+        );
+    }
+
     @Test()
     void testWithFilter() throws Exception {
-        Assertions.assertEquals(2, load("good.yml", "job1_(a|b)").getJobs().size());
-        Assertions.assertEquals(2, load("good.yml", "job1_a,job1_b").getJobs().size());
-        Assertions.assertEquals(2, load("good.yml", "job1_(.*)").getJobs().size());
-        Assertions.assertEquals(1, load("good.yml", "job1_a").getJobs().size());
+        Assertions.assertEquals(2, load("good.yml", "job1-(a|b)").getJobs().size());
+        Assertions.assertEquals(2, load("good.yml", "job1-a,job1-b").getJobs().size());
+        Assertions.assertEquals(2, load("good.yml", "job1-(.*)").getJobs().size());
+        Assertions.assertEquals(1, load("good.yml", "job1-a").getJobs().size());
         Assertions.assertEquals(0, load("good.yml", "not_existing").getJobs().size());
     }
 
@@ -111,10 +146,10 @@ class YAMLPipelineLoaderTest {
     }
 
     private Pipeline load(final String pipeline, final String jobFilter) throws Exception {
-        return yamlPipelineLoader.get(
-                PipelineExecutionRequest.build( "./src/test/resources/pipelines/" + pipeline)
-                        .setJobsFilter(Arrays.asList(jobFilter.split(",")))
-                        .addArgument("date", "yesterday")
+        return loader.get(
+            PipelineExecutionRequest.build( "./src/test/resources/pipelines/" + pipeline)
+                .setJobsFilter(Arrays.asList(jobFilter.split(",")))
+                .addArgument("date", "yesterday")
         );
     }
 }

@@ -23,8 +23,8 @@ services:
   # compile java
   ##
   gradle:
-    image: gradle:7.3.3-jdk11
-    command: gradle djobiAssemble testReport
+    image: gradle:7.5-jdk17
+    command: gradle -x :djobi-core:signArchives -x :djobi-tests:signArchives --no-parallel --rerun-tasks djobiAssemble testReport
     working_dir: /app
     environment:
       #- GRADLE_OPTS="-Dorg.gradle.daemon=false"

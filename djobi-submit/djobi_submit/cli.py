@@ -1,8 +1,6 @@
 from email.policy import default
 import click, os, subprocess
 
-from djobi_submit import __app_name__, __version__
-
 @click.group()
 def cli():
     pass

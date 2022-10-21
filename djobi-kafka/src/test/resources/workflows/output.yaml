@@ -1,7 +1,7 @@
 parameters:
   topic: djobi
 jobs:
-  job1:
+  - name: job1
     stages:
       - name: data
         kind: random_generator

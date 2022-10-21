@@ -1,5 +1,5 @@
 jobs:
-  campaigns:
+  - name: campaigns
     parameters:
       label_field: title
       query: csv_limit

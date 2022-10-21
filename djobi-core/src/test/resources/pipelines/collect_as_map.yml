@@ -1,5 +1,5 @@
 jobs:
-  campaigns:
+  - name: campaigns
     stages:
       - name: setup_file
         kind: "fs-input"

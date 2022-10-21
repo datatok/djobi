@@ -2,11 +2,11 @@ package io.datatok.djobi.engine.stages.kafka;
 
 import io.datatok.djobi.configuration.Configuration;
 import io.datatok.djobi.engine.Engine;
+import io.datatok.djobi.engine.ExecutionRequest;
 import io.datatok.djobi.engine.Job;
-import io.datatok.djobi.engine.Pipeline;
-import io.datatok.djobi.engine.PipelineExecutionRequest;
+import io.datatok.djobi.engine.Workflow;
 import io.datatok.djobi.engine.check.CheckStatus;
-import io.datatok.djobi.loaders.yaml.YAMLPipelineLoader;
+import io.datatok.djobi.loaders.yaml.YAMLWorkflowLoader;
 import io.datatok.djobi.test.MyTestRunner;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ public class KafkaTest {
     private Engine engine;
 
     @Inject
-    private YAMLPipelineLoader yamlPipelineLoader;
+    private YAMLWorkflowLoader yamlPipelineLoader;
 
 
     @Inject
@@ -39,9 +39,9 @@ public class KafkaTest {
         Assertions.assertEquals(job.getPreCheckStatus(), CheckStatus.DONE_OK);
     }
 
-    private Pipeline getWorkflow(final String workflow) throws Exception {
+    private Workflow getWorkflow(final String workflow) throws Exception {
         return yamlPipelineLoader.get(
-            PipelineExecutionRequest.build( "./src/test/resources/workflows/" + workflow)
+            ExecutionRequest.build( "./src/test/resources/workflows/" + workflow)
         );
     }
 }

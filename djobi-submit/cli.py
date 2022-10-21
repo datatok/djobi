@@ -1,7 +1,5 @@
 from email.policy import default
-import click, os, subprocess
-
-from djobi_submit import __app_name__, __version__
+import click, os
 
 @click.group()
 def cli():
@@ -34,7 +32,7 @@ def cli():
 def run(
     ctx,
     name,
-    pipeline_path: str,
+    workflow_path: str,
     apm_server_url: str,
     support_kafka: bool,
     support_elasticsearch: bool,

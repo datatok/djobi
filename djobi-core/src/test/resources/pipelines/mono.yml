@@ -2,7 +2,7 @@ executor:
   type: io.datatok.djobi.test.executor.DummyExecutor
 
 jobs:
-  campaigns:
+  - name: campaigns
     parameters:
       country: fr
     stages:

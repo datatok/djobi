@@ -5,7 +5,8 @@ plugins {
 
 ext {
     variants = [
-        [name: "kafka2"]
+        [name: "kafka2"],
+        [name: "kafka3"]
     ]
 }
 

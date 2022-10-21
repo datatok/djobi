@@ -57,7 +57,7 @@ class EngineTest {
     private ExecutionContext executionContext;
 
     @Test void testPreCheck() throws Exception {
-        final Workflow workflow = getPipeline("good_dummy.yml");
+        final Workflow workflow = getWorkflow("good_dummy.yml");
 
         workflow.setExecutor(new DummyExecutor());
 
@@ -72,7 +72,7 @@ class EngineTest {
     }
 
     @Test void testDummyExecutor() throws Exception {
-        final Workflow workflow = getPipeline("good_dummy2.yml");
+        final Workflow workflow = getWorkflow("good_dummy2.yml");
 //        final List<String> expectedEvents = Arrays.asList("pipeline-run-start,job-run-start,job-phase-start,job-phase-finish,job-phase-start,job-phase-finish,job-phase-start,stage-run-start,stage-run-finish,stage-run-start,stage-run-finish,stage-run-start,stage-run-finish,job-phase-finish,job-phase-start,stage-postcheck-done,stage-postcheck-done,stage-postcheck-start,stage-postcheck-done,job-phase-finish,job-run-finish,pipeline-run-finish".split(","));
 
         final List<String> expectedEvents = Arrays.asList("pipeline-run-start,job-run-start,job-phase-start,job-phase-finish,job-phase-start,stage-precheck-start,stage-precheck-done,job-phase-finish,job-phase-start,stage-run-start,stage-run-finish,stage-run-start,stage-run-finish,stage-run-start,stage-run-finish,job-phase-finish,job-phase-start,stage-postcheck-done,stage-postcheck-done,stage-postcheck-start,stage-postcheck-done,job-phase-finish,job-run-finish,pipeline-run-finish".split(","));
@@ -97,7 +97,7 @@ class EngineTest {
     }
 
     @Test void testCondition() throws Exception {
-        final Workflow workflow = getPipeline("good_2.yml");
+        final Workflow workflow = getWorkflow("good_2.yml");
 
         Assertions.assertEquals("true", workflow.getJob(0).getStages().get(0).getCondition());
 
@@ -107,7 +107,7 @@ class EngineTest {
     }
 
     @Test void testRunJob() throws Exception {
-        final Workflow workflow = getPipeline("good.yml");
+        final Workflow workflow = getWorkflow("good.yml");
 
         Method method = Engine.class.getDeclaredMethod("run", Job.class);
         method.setAccessible(true);
@@ -124,9 +124,11 @@ class EngineTest {
     }
 
     @Test void runMonoPipeline() throws Exception {
-        final Workflow workflow = getPipeline("mono.yml");
+        final Workflow workflow = getWorkflow("mono.yml");
 
         Assertions.assertEquals(1, workflow.getJobs().size());
+
+
 
         engine.run(workflow);
 
@@ -166,7 +168,7 @@ class EngineTest {
     }*/
 
     @Test void testCollectAsJSONPipeline() throws Exception {
-        final Workflow workflow = getPipeline("mono_sql.yml");
+        final Workflow workflow = getWorkflow("mono_sql.yml");
 
         Assertions.assertEquals(1, workflow.getJobs().size());
 
@@ -180,7 +182,7 @@ class EngineTest {
     }
 
     @Test void testCollectAsMapPipeline() throws Exception {
-        final Workflow workflow = getPipeline("collect_as_map.yml");
+        final Workflow workflow = getWorkflow("collect_as_map.yml");
 
         engine.run(workflow);
 
@@ -196,16 +198,16 @@ class EngineTest {
     }
 
     @Test void testRunPipeline() throws Exception {
-        final Workflow workflow = getPipeline("good.yml");
+        final Workflow workflow = getWorkflow("good.yml");
 
         engine.run(workflow);
 
         Assertions.assertTrue(Files.exists(Paths.get("/tmp/djobi_test_engine")));
     }
 
-    private Workflow getPipeline(final String pipeline) throws Exception {
+    private Workflow getWorkflow(final String workflow) throws Exception {
         return yamlPipelineLoader.get(
-                ExecutionRequest.build( "./src/test/resources/pipelines/" + pipeline)
+                ExecutionRequest.build( "./src/test/resources/pipelines/" + workflow)
                         .addArgument("date", "yesterday")
         );
     }

@@ -1,13 +1,13 @@
 package io.datatok.djobi.loaders.utils;
 
 import io.datatok.djobi.engine.Job;
-import io.datatok.djobi.engine.PipelineExecutionRequest;
+import io.datatok.djobi.engine.ExecutionRequest;
 
 import java.util.regex.Pattern;
 
 public class WKJobFilter {
 
-    static public boolean accept(final PipelineExecutionRequest pipelineRequest, final Job job) {
+    static public boolean accept(final ExecutionRequest pipelineRequest, final Job job) {
         if (pipelineRequest.getJobsFilter() == null || pipelineRequest.getJobsFilter().size() == 0) {
             return true;
         }

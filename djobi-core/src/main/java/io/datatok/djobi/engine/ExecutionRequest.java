@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represent which pipeline and how, djobi must run.
+ * Execution request object of a Workflow, with workflow file path, parameters etc...
  */
-public class PipelineExecutionRequest {
+public class ExecutionRequest {
 
     static public final String PHASES_FILTER_DEFAULT = "configuration,pre_check,run,post_check";
 
@@ -50,25 +50,25 @@ public class PipelineExecutionRequest {
      */
     private List<String> jobPhases;
 
-    public static PipelineExecutionRequest build(final String pipelineDefinitionPath) {
-        return new PipelineExecutionRequest(pipelineDefinitionPath);
+    public static ExecutionRequest build(final String wkDefinitionPath) {
+        return new ExecutionRequest(wkDefinitionPath);
     }
 
-    public static PipelineExecutionRequest build(final String pipelineDefinitionPath, final Map<String, String> args) {
-        return new PipelineExecutionRequest(args).setDefinitionURI(pipelineDefinitionPath);
+    public static ExecutionRequest build(final String wkDefinitionPath, final Map<String, String> args) {
+        return new ExecutionRequest(args).setDefinitionURI(wkDefinitionPath);
     }
 
-    public PipelineExecutionRequest() {
+    public ExecutionRequest() {
         this.arguments = new HashMap<>();
     }
 
-    public PipelineExecutionRequest(final String definitionURI) {
+    public ExecutionRequest(final String definitionURI) {
         this();
 
         this.definitionURI = definitionURI;
     }
 
-    public PipelineExecutionRequest(final Map<String, String> arguments) {
+    public ExecutionRequest(final Map<String, String> arguments) {
         this();
 
         if (arguments != null) {
@@ -78,7 +78,7 @@ public class PipelineExecutionRequest {
         this.debug = this.arguments.containsKey("debug");
     }
 
-    public PipelineExecutionRequest setJobsFilter(List<String> jobsFilter) {
+    public ExecutionRequest setJobsFilter(List<String> jobsFilter) {
         this.jobsFilter = jobsFilter;
         return this;
     }
@@ -91,12 +91,12 @@ public class PipelineExecutionRequest {
         return arguments;
     }
 
-    public PipelineExecutionRequest setArguments(Map<String, String> p) {
+    public ExecutionRequest setArguments(Map<String, String> p) {
         this.arguments.putAll(p);
         return this;
     }
 
-    public PipelineExecutionRequest addArgument(final String k, final String v) {
+    public ExecutionRequest addArgument(final String k, final String v) {
         this.arguments.put(k, v);
         return this;
     }
@@ -105,7 +105,7 @@ public class PipelineExecutionRequest {
         return this.arguments.get(key);
     }
 
-    public PipelineExecutionRequest setDefinitionURI(String definitionURI) {
+    public ExecutionRequest setDefinitionURI(String definitionURI) {
         this.definitionURI = definitionURI;
         return this;
     }
@@ -122,7 +122,7 @@ public class PipelineExecutionRequest {
         return metaDataLabels.get(key);
     }
 
-    public PipelineExecutionRequest setMetaDataLabels(Map<String, String> metaDataLabels) {
+    public ExecutionRequest setMetaDataLabels(Map<String, String> metaDataLabels) {
         this.metaDataLabels = metaDataLabels;
 
         return this;
@@ -145,7 +145,7 @@ public class PipelineExecutionRequest {
         return jobPhases;
     }
 
-    public PipelineExecutionRequest setJobPhases(List<String> jobPhases) {
+    public ExecutionRequest setJobPhases(List<String> jobPhases) {
         this.jobPhases = jobPhases;
         return this;
     }

@@ -93,7 +93,7 @@ abstract public class ActionConfiguration {
         }
 
         if (path.startsWith(".")) {
-            path = job.getPipeline().resolvePath(path);
+            path = job.getWorkflow().resolvePath(path);
         }
 
         return path;

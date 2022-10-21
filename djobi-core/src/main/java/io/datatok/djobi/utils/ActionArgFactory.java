@@ -1,7 +1,7 @@
 package io.datatok.djobi.utils;
 
 import io.datatok.djobi.engine.Parameter;
-import io.datatok.djobi.engine.PipelineExecutionRequest;
+import io.datatok.djobi.engine.ExecutionRequest;
 import io.datatok.djobi.utils.bags.ParameterBag;
 import org.apache.log4j.Logger;
 
@@ -14,7 +14,7 @@ public class ActionArgFactory {
 
     private static final Logger logger = Logger.getLogger(ActionArgFactory.class);
 
-    public ParameterBag resolve(final Map<String, Object> definitionBag, final PipelineExecutionRequest pipelineRequest) {
+    public ParameterBag resolve(final Map<String, Object> definitionBag, final ExecutionRequest pipelineRequest) {
         final Map<String, String> jobRequestArgs = pipelineRequest.getArguments();
         final ParameterBag bag = new ParameterBag();
 

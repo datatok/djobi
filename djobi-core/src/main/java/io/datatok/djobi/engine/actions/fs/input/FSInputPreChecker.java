@@ -24,7 +24,7 @@ public class FSInputPreChecker implements ActionPreChecker {
         }
 
         final String argFilePath = configuration.path;
-        final FileSystem hdfs = (FileSystem) stage.getJob().getPipeline().getExecutor().get("hdfs");
+        final FileSystem hdfs = (FileSystem) stage.getJob().getWorkflow().getExecutor().get("hdfs");
 
         if (hdfs.exists(new Path(argFilePath))) {
             logger.info("[check] File at '" + argFilePath + "' exists!");

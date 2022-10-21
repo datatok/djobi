@@ -1,7 +1,7 @@
 package io.datatok.djobi.plugins.report.subscribers;
 
 import com.google.inject.Inject;
-import io.datatok.djobi.engine.Pipeline;
+import io.datatok.djobi.engine.Workflow;
 import io.datatok.djobi.engine.events.PipelineAwareEvent;
 import io.datatok.djobi.event.Event;
 import io.datatok.djobi.event.Subscriber;
@@ -20,10 +20,10 @@ public class PipelineRunStartSubscriber implements Subscriber {
     @Override
     public void call(Event event) {
         if (QwObjects.nonNull(outVerbosity, reporter) && outVerbosity.isNotQuiet()) {
-            final Pipeline pipeline = ((PipelineAwareEvent) event).getPipeline();
+            final Workflow workflow = ((PipelineAwareEvent) event).getPipeline();
 
             if (QwObjects.nonNull(outVerbosity, reporter) && outVerbosity.isNotQuiet()) {
-                reporter.output("\n\n@|bold,green,underline Running pipeline %s, %d jobs|@\n", pipeline.getName(), pipeline.getJobs().size());
+                reporter.output("\n\n@|bold,green,underline Running pipeline %s, %d jobs|@\n", workflow.getName(), workflow.getJobs().size());
             }
         }
     }

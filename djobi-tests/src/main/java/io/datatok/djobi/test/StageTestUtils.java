@@ -3,7 +3,7 @@ package io.datatok.djobi.test;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.datatok.djobi.engine.Job;
-import io.datatok.djobi.engine.Pipeline;
+import io.datatok.djobi.engine.Workflow;
 import io.datatok.djobi.engine.data.StageData;
 import io.datatok.djobi.engine.flow.ExecutionContext;
 import io.datatok.djobi.engine.stage.ActionFactory;
@@ -88,9 +88,9 @@ public class StageTestUtils {
     static public Stage getNewStage() {
         Stage stage = new Stage();
         Job job = new Job();
-        Pipeline pipeline = new Pipeline();
+        Workflow workflow = new Workflow();
 
-        job.setPipeline(pipeline);
+        job.setWorkflow(workflow);
         stage.setJob(job);
 
         return stage;
@@ -99,9 +99,9 @@ public class StageTestUtils {
     static public Stage getNewStage(String kind, Bag spec) {
         Stage stage = new Stage();
         Job job = new Job();
-        Pipeline pipeline = new Pipeline();
+        Workflow workflow = new Workflow();
 
-        job.setPipeline(pipeline);
+        job.setWorkflow(workflow);
 
         return stage
             .setJob(job)

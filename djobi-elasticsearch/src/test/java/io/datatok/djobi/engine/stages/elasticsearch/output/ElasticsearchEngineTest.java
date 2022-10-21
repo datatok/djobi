@@ -3,8 +3,8 @@ package io.datatok.djobi.engine.stages.elasticsearch.output;
 import io.datatok.djobi.configuration.Configuration;
 import io.datatok.djobi.engine.Engine;
 import io.datatok.djobi.engine.Job;
-import io.datatok.djobi.engine.Pipeline;
-import io.datatok.djobi.engine.PipelineExecutionRequest;
+import io.datatok.djobi.engine.Workflow;
+import io.datatok.djobi.engine.ExecutionRequest;
 import io.datatok.djobi.loaders.yaml.YAMLWorkflowLoader;
 import io.datatok.djobi.test.MyTestRunner;
 import io.datatok.djobi.utils.elasticsearch.ElasticsearchUtils;
@@ -36,12 +36,12 @@ public class ElasticsearchEngineTest {
     void testRunJob() throws Exception {
         elasticsearchUtils.deleteIndex(configuration.getString("elasticsearch"), "out-context_a");
 
-        final Pipeline pipeline = getPipeline("good.yml");
+        final Workflow workflow = getPipeline("good.yml");
 
         Method method = Engine.class.getDeclaredMethod("run", Job.class);
         method.setAccessible(true);
 
-        method.invoke(engine, pipeline.getJob(0));
+        method.invoke(engine, workflow.getJob(0));
 
         int c = elasticsearchUtils.searchCount(configuration.getString("elasticsearch"), "out-context_a");
 
@@ -58,9 +58,9 @@ public class ElasticsearchEngineTest {
  */
     }
 
-    private Pipeline getPipeline(final String pipeline) throws Exception {
+    private Workflow getPipeline(final String pipeline) throws Exception {
         return yamlPipelineLoader.get(
-                PipelineExecutionRequest.build( "./src/test/resources/" + pipeline)
+                ExecutionRequest.build( "./src/test/resources/" + pipeline)
                         .addArgument("date", "yesterday")
         );
     }

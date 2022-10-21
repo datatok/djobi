@@ -31,7 +31,7 @@ public class TemplateRenderActionRunner implements ActionRunner {
 
         templateName = templateUtils.render(templateName, job);
 
-        content = templateUtils.render(job.getPipeline().getResources(templateName), job);
+        content = templateUtils.render(job.getWorkflow().getResources(templateName), job);
 
         return ActionRunResult.success(new StageDataString(content));
     }

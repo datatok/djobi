@@ -1,8 +1,8 @@
 package io.datatok.djobi.test;
 
 import io.datatok.djobi.engine.Engine;
-import io.datatok.djobi.engine.Pipeline;
-import io.datatok.djobi.engine.PipelineExecutionRequest;
+import io.datatok.djobi.engine.Workflow;
+import io.datatok.djobi.engine.ExecutionRequest;
 import io.datatok.djobi.executors.ExecutorPool;
 import io.datatok.djobi.loaders.yaml.YAMLWorkflowLoader;
 import io.datatok.djobi.spark.executor.SparkExecutor;
@@ -80,9 +80,9 @@ public class ActionTest {
         }
     }
 
-    protected Pipeline getPipeline(final String pipeline) throws Exception {
+    protected Workflow getPipeline(final String pipeline) throws Exception {
         return yamlPipelineLoader.get(
-                PipelineExecutionRequest.build( "./src/test/resources/pipelines/" + pipeline)
+                ExecutionRequest.build( "./src/test/resources/pipelines/" + pipeline)
                         .addArgument("date", "yesterday")
         );
     }

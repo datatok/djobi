@@ -15,7 +15,7 @@ import java.io.PrintStream;
 import java.util.HashMap;
 
 @ExtendWith(CLITestRunner.class)
-class DumpPipelineCommandTest {
+class DumpWorkflowCommandTest {
 
     @Inject
     private CommandKernel commandKernel;

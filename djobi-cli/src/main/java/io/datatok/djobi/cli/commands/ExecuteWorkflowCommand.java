@@ -1,11 +1,11 @@
 package io.datatok.djobi.cli.commands;
 
 import com.google.inject.Inject;
-import io.datatok.djobi.cli.utils.PipelineRequestFactory;
+import io.datatok.djobi.cli.utils.WorkflowRequestFactory;
 import io.datatok.djobi.cli.utils.CLIUtils;
 import io.datatok.djobi.engine.Engine;
-import io.datatok.djobi.engine.Pipeline;
-import io.datatok.djobi.engine.PipelineExecutionRequest;
+import io.datatok.djobi.engine.Workflow;
+import io.datatok.djobi.engine.ExecutionRequest;
 import io.datatok.djobi.engine.events.ErrorEvent;
 import io.datatok.djobi.event.EventBus;
 import io.datatok.djobi.loaders.yaml.YAMLWorkflowLoader;
@@ -16,16 +16,16 @@ import java.io.IOException;
 import java.util.Map;
 
 @CommandLine.Command(name = "run", description = "run a pipeline")
-public class RunPipelineCommand implements Runnable {
+public class ExecuteWorkflowCommand implements Runnable {
 
     @Inject
-    PipelineRequestFactory pipelineRequestFactory;
+    WorkflowRequestFactory workflowRequestFactory;
 
     @Inject
-    YAMLWorkflowLoader pipelineLoader;
+    YAMLWorkflowLoader loader;
 
     @Inject
-    Engine pipelineRunner;
+    Engine engine;
 
     @Inject
     OutVerbosity outVerbosity;
@@ -49,12 +49,12 @@ public class RunPipelineCommand implements Runnable {
             paramLabel = "phases",
             names = {"--phases"},
             description = "job phases (default \"configuration,pre_check,run,post_check\")",
-            defaultValue = PipelineExecutionRequest.PHASES_FILTER_DEFAULT
+            defaultValue = ExecutionRequest.PHASES_FILTER_DEFAULT
     )
     String phases;
 
-    @CommandLine.Parameters(paramLabel = "pipeline", defaultValue = "${DJOBI_PIPELINE}" ,arity = "1..*", description = "the pipeline directory path")
-    String pipelinePath;
+    @CommandLine.Parameters(paramLabel = "workflow", defaultValue = "${DJOBI_PIPELINE}" ,arity = "1..*", description = "workflow definition URL (ex: YAML file path)")
+    String workflowDefinitionURL;
 
     @CommandLine.Option(names = { "-v", "--verbose" }, description = "Verbose mode. Helpful for troubleshooting. " +
             "Multiple -v options increase the verbosity.")
@@ -62,26 +62,26 @@ public class RunPipelineCommand implements Runnable {
 
     @Override
     public void run() {
-        Pipeline pipeline = null;
+        Workflow workflow = null;
 
-        if (pipelinePath == null || pipelinePath.isEmpty()) {
+        if (workflowDefinitionURL == null || workflowDefinitionURL.isEmpty()) {
             cliUtils.printError("pipeline is missing!");
             return ;
         }
 
-        final PipelineExecutionRequest pipelineRequest = pipelineRequestFactory.build(pipelinePath, args, runMetas, jobs, phases, verbosityOption);
+        final ExecutionRequest pipelineRequest = workflowRequestFactory.build(workflowDefinitionURL, args, runMetas, jobs, phases, verbosityOption);
 
         outVerbosity.setVerbosityLevel(pipelineRequest.getVerbosity());
 
         try {
-            pipeline = pipelineLoader.get(pipelineRequest);
+            workflow = loader.get(pipelineRequest);
         } catch (IOException e) {
             eventBus.trigger(new ErrorEvent(e, e.getMessage()));
         }
 
-        if (pipeline != null) {
+        if (workflow != null) {
             try {
-                pipelineRunner.run(pipeline);
+                engine.run(workflow);
             } catch (Exception e) {
                 eventBus.trigger(new ErrorEvent(e, e.getMessage()));
             }

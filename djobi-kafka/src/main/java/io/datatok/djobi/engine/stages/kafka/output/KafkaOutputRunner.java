@@ -63,7 +63,7 @@ public class KafkaOutputRunner implements ActionRunner {
 
         if (contextData.getKind().getType().equals(SparkDataKind.TYPE_DATASET))
         {
-            final SparkContext sparkContext = ((SparkExecutor)job.getPipeline().getExecutor()).getSparkContext();
+            final SparkContext sparkContext = ((SparkExecutor)job.getWorkflow().getExecutor()).getSparkContext();
             final LongAccumulator messages = sparkContext.longAccumulator("messages");
 
             logger.info("DataFrame detected, running producer for each partition");

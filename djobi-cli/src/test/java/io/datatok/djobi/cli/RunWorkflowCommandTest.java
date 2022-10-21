@@ -1,8 +1,8 @@
 package io.datatok.djobi.cli;
 
 import com.google.inject.Inject;
-import io.datatok.djobi.cli.utils.PipelineRequestFactory;
-import io.datatok.djobi.engine.PipelineExecutionRequest;
+import io.datatok.djobi.cli.utils.WorkflowRequestFactory;
+import io.datatok.djobi.engine.ExecutionRequest;
 import io.datatok.djobi.plugins.report.OutVerbosity;
 import io.datatok.djobi.plugins.report.VerbosityLevel;
 import org.junit.jupiter.api.Assertions;
@@ -16,7 +16,7 @@ import java.io.PrintStream;
 import static com.github.stefanbirkner.systemlambda.SystemLambda.*;
 
 @ExtendWith(CLITestRunner.class)
-public class RunPipelineCommandTest {
+public class RunWorkflowCommandTest {
 
     @Inject
     private CommandKernel commandKernel;
@@ -25,7 +25,7 @@ public class RunPipelineCommandTest {
     private OutVerbosity outVerbosity;
 
     @Inject
-    PipelineRequestFactory pipelineRequestFactory;
+    WorkflowRequestFactory workflowRequestFactory;
 
     private final ByteArrayOutputStream myOut = new ByteArrayOutputStream();
 
@@ -47,7 +47,7 @@ public class RunPipelineCommandTest {
     void runWithMetaAndArgument() {
         commandKernel.run("run", "-a", "date=yesterday", "./src/test/resources/pipelines/mono.yml");
 
-        PipelineExecutionRequest lastObj = pipelineRequestFactory.getLastObjectBuilt();
+        ExecutionRequest lastObj = workflowRequestFactory.getLastObjectBuilt();
 
         Assertions.assertEquals(outVerbosity.getVerbosityLevel(), VerbosityLevel.NORMAL);
         Assertions.assertTrue(outVerbosity.isNotQuiet());
@@ -62,7 +62,7 @@ public class RunPipelineCommandTest {
             .execute(() -> {
                 commandKernel.run("run");
 
-                PipelineExecutionRequest lastObj = pipelineRequestFactory.getLastObjectBuilt();
+                ExecutionRequest lastObj = workflowRequestFactory.getLastObjectBuilt();
 
                 Assertions.assertEquals("./src/test/resources/pipelines/mono.yml", lastObj.getDefinitionURI());
             });

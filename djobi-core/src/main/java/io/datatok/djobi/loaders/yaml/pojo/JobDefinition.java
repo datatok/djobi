@@ -1,7 +1,7 @@
 package io.datatok.djobi.loaders.yaml.pojo;
 
 import io.datatok.djobi.engine.Job;
-import io.datatok.djobi.engine.Pipeline;
+import io.datatok.djobi.engine.Workflow;
 import io.datatok.djobi.loaders.matrix.MatrixGenerator;
 import io.datatok.djobi.utils.bags.ParameterBag;
 
@@ -50,7 +50,7 @@ public class JobDefinition {
         this.uid = UUID.randomUUID().toString();
     }
 
-    public Job toJobImpl(final Pipeline pipeline, final ParameterBag run)
+    public Job toJobImpl(final Workflow workflow, final ParameterBag run)
     {
         final Job job = new Job();
         final String id = (String) run.get("_job_id").getValue();
@@ -58,7 +58,7 @@ public class JobDefinition {
         job
             .setName(id + "?" + MatrixGenerator.toUUID(run.values()))
             .setId(id)
-            .setPipeline(pipeline)
+            .setWorkflow(workflow)
             .setOrder(order)
             .setContextKey(run.get("_context_").getValueAsString())
             .setParameters(run)

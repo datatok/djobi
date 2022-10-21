@@ -29,7 +29,7 @@ public class ESSparkInputRunner implements ActionRunner {
         final Job job = stage.getJob();
         final ESSparkInputConfig config = (ESSparkInputConfig) stage.getParameters();
 
-        final Executor executor = job.getPipeline().getExecutor();
+        final Executor executor = job.getWorkflow().getExecutor();
 
         final Map<String, String> options = MyMapUtils.map(
                 "es.nodes", config.url,
@@ -38,7 +38,7 @@ public class ESSparkInputRunner implements ActionRunner {
 
         if (config.query != null && !config.query.isEmpty()) {
             if (config.query.startsWith("file://")) {
-                final String buffer = job.getPipeline().getResources(config.query.replace("file://", ""));
+                final String buffer = job.getWorkflow().getResources(config.query.replace("file://", ""));
 
                 options.put("es.query", buffer);
             } else {

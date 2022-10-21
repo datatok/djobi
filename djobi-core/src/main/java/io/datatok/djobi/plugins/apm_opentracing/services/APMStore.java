@@ -3,7 +3,7 @@ package io.datatok.djobi.plugins.apm_opentracing.services;
 import co.elastic.apm.api.ElasticApm;
 import co.elastic.apm.api.Transaction;
 import io.datatok.djobi.engine.Job;
-import io.datatok.djobi.engine.Pipeline;
+import io.datatok.djobi.engine.Workflow;
 
 import javax.inject.Singleton;
 import java.util.HashMap;
@@ -19,18 +19,18 @@ public class APMStore {
     /**
      * Hold job transaction.
      *
-     * @param pipeline Pipeline
+     * @param workflow Pipeline
      * @return Transaction
      */
-    public Transaction getTransactionByPipeline(final Pipeline pipeline) {
-        final String k = "pipeline-" + pipeline.getUid();
+    public Transaction getTransactionByPipeline(final Workflow workflow) {
+        final String k = "pipeline-" + workflow.getUid();
 
         if (!this.transactions.containsKey(k)) {
             final Transaction t = ElasticApm
                     .startTransaction()
-                    .setName(pipeline.getName())
-                    .setLabel("pipeline_name", pipeline.getName())
-                    .setLabel("pipeline_uid", pipeline.getUid())
+                    .setName(workflow.getName())
+                    .setLabel("pipeline_name", workflow.getName())
+                    .setLabel("pipeline_uid", workflow.getUid())
             ;
 
             t.setLabel("id", t.getId());
@@ -57,8 +57,8 @@ public class APMStore {
 
             final Transaction t = ElasticApm
                     .startTransaction()
-                        .setName(job.getPipeline().getName() + " - " + job.getId())
-                        .setLabel("pipeline", job.getPipeline().getName())
+                        .setName(job.getWorkflow().getName() + " - " + job.getId())
+                        .setLabel("pipeline", job.getWorkflow().getName())
                         .setLabel("uid", job.getUid())
             ;
 

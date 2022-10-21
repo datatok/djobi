@@ -1,11 +1,6 @@
 package io.datatok.djobi.cli.commands;
 
-import io.datatok.djobi.application.ApplicationData;
-import io.datatok.djobi.cli.CommandFactory;
-import io.datatok.djobi.plugins.report.Reporter;
 import picocli.CommandLine;
-
-import javax.inject.Inject;
 
 @CommandLine.Command(
     name = "djobi",
@@ -25,7 +20,7 @@ import javax.inject.Inject;
             "",
             "@|cyan This project was created by Thomas Decaux (@ebuildy) |@",
             ""},
-    subcommands = {DumpCommand.class, RunPipelineCommand.class}
+    subcommands = {DumpCommand.class, ExecuteWorkflowCommand.class}
 )
 public class RootCommand implements Runnable {
 

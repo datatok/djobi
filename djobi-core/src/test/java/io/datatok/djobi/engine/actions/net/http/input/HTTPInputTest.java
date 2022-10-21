@@ -1,8 +1,8 @@
 package io.datatok.djobi.engine.actions.net.http.input;
 
 import io.datatok.djobi.engine.Job;
-import io.datatok.djobi.engine.Pipeline;
-import io.datatok.djobi.engine.PipelineExecutionRequest;
+import io.datatok.djobi.engine.Workflow;
+import io.datatok.djobi.engine.ExecutionRequest;
 import io.datatok.djobi.engine.data.StageData;
 import io.datatok.djobi.engine.stage.Stage;
 import io.datatok.djobi.engine.stage.livecycle.ActionRunResult;
@@ -59,12 +59,12 @@ public class HTTPInputTest extends ActionTest {
 
     @Test
     public void testQueryBuilder() throws Exception {
-        final Pipeline pipeline = yamlPipelineLoader.get(
-                PipelineExecutionRequest.build("./src/test/resources/pipelines/http_input.yml")
+        final Workflow workflow = yamlPipelineLoader.get(
+                ExecutionRequest.build("./src/test/resources/pipelines/http_input.yml")
                         .addArgument("date", "05/02/2017")
         );
 
-        final Job job = pipeline.getJob(0);
+        final Job job = workflow.getJob(0);
         final Stage httpInputStage = job.getStages().get(0);
         final HTTPInputConfig config = new HTTPInputConfig(httpInputStage.getSpec(), job, templateUtils);
 

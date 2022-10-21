@@ -10,7 +10,7 @@ A small python ``spark-submit`` wrapper to run djobi as spark application.
 * cli with ``click`` lib
 * build a shell script ``exec spark-submit ...``
 * packaged within Docker image
-* todo: Read pipeline.yml to read spark-submit options (executors, memory ...)
+* todo: Read workflow.yml to read spark-submit options (executors, memory ...)
 
 ## Usage
 

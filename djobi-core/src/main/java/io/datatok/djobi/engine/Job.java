@@ -25,7 +25,7 @@ public class Job implements Dumpable, Labelized {
 
     private ParameterBag parameters;
 
-    private Pipeline pipeline;
+    private Workflow workflow;
 
     private String id;
 
@@ -95,12 +95,12 @@ public class Job implements Dumpable, Labelized {
         return uid;
     }
 
-    public Pipeline getPipeline() {
-        return pipeline;
+    public Workflow getWorkflow() {
+        return workflow;
     }
 
-    public Job setPipeline(Pipeline pipelineDefinition) {
-        this.pipeline = pipelineDefinition;
+    public Job setWorkflow(Workflow workflowDefinition) {
+        this.workflow = workflowDefinition;
 
         return this;
     }
@@ -274,6 +274,6 @@ public class Job implements Dumpable, Labelized {
      * @return Executor
      */
     public Executor getExecutor() {
-        return this.pipeline != null ? this.pipeline.getExecutor() : null;
+        return this.workflow != null ? this.workflow.getExecutor() : null;
     }
 }

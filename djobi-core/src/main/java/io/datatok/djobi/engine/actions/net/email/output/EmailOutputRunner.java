@@ -41,7 +41,7 @@ public class EmailOutputRunner implements ActionRunner {
         final Job job = stage.getJob();
         final Bag stageConfiguration = stage.getSpec();
 
-        final String messageContentRaw = job.getPipeline().getResources(stageConfiguration.getString("template"));
+        final String messageContentRaw = job.getWorkflow().getResources(stageConfiguration.getString("template"));
 
         final String messageContent = templateUtils.render(messageContentRaw, job);
         final String messageSubject = templateUtils.render(stageConfiguration.getString("title"), job);

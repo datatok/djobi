@@ -2,8 +2,8 @@ package io.datatok.djobi.loaders.yaml;
 
 import com.google.inject.Inject;
 import io.datatok.djobi.engine.Job;
-import io.datatok.djobi.engine.Pipeline;
-import io.datatok.djobi.engine.PipelineExecutionRequest;
+import io.datatok.djobi.engine.Workflow;
+import io.datatok.djobi.engine.ExecutionRequest;
 import io.datatok.djobi.engine.check.CheckStatus;
 import io.datatok.djobi.executors.LocalExecutor;
 import io.datatok.djobi.loaders.yaml.pojo.JobDefinition;
@@ -35,7 +35,7 @@ class YAMLWorkflowLoaderTest {
     }
 
     @Test void testWithoutContext() throws Exception {
-        final Pipeline p = load("good_1.yml");
+        final Workflow p = load("good_1.yml");
 
         Assertions.assertNotNull(p);
 
@@ -46,7 +46,7 @@ class YAMLWorkflowLoaderTest {
 
     @Test()
     void testWithContexts() throws Exception {
-        final Pipeline p = load("good.yml");
+        final Workflow p = load("good.yml");
 
         Assertions.assertNotNull(p);
 
@@ -116,7 +116,7 @@ class YAMLWorkflowLoaderTest {
 
     @Test()
     void testName() throws Exception {
-        final Pipeline p = load("good.yml");
+        final Workflow p = load("good.yml");
 
         Assertions.assertNotNull(p);
 
@@ -128,7 +128,7 @@ class YAMLWorkflowLoaderTest {
 
     @Test()
     void testLabels() throws Exception {
-        final Pipeline p = load("good.yml");
+        final Workflow p = load("good.yml");
 
         Assertions.assertNotNull(p);
 
@@ -141,13 +141,13 @@ class YAMLWorkflowLoaderTest {
         Assertions.assertEquals("input", job1.getStages().get(0).getLabel("io.datatok.djobi/stage-type"));
     }
 
-    private Pipeline load(final String pipeline) throws Exception {
+    private Workflow load(final String pipeline) throws Exception {
         return load(pipeline, "");
     }
 
-    private Pipeline load(final String pipeline, final String jobFilter) throws Exception {
+    private Workflow load(final String pipeline, final String jobFilter) throws Exception {
         return loader.get(
-            PipelineExecutionRequest.build( "./src/test/resources/pipelines/" + pipeline)
+            ExecutionRequest.build( "./src/test/resources/pipelines/" + pipeline)
                 .setJobsFilter(Arrays.asList(jobFilter.split(",")))
                 .addArgument("date", "yesterday")
         );

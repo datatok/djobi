@@ -4,8 +4,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.datatok.djobi.engine.Job;
 import io.datatok.djobi.engine.Parameter;
-import io.datatok.djobi.engine.Pipeline;
-import io.datatok.djobi.engine.PipelineExecutionRequest;
+import io.datatok.djobi.engine.Workflow;
+import io.datatok.djobi.engine.ExecutionRequest;
 import io.datatok.djobi.executors.Executor;
 import io.datatok.djobi.executors.ExecutorPool;
 import io.datatok.djobi.loaders.matrix.MatrixGenerator;
@@ -54,7 +54,7 @@ public class YAMLWorkflowLoader {
     @Inject
     private TemplateUtils templateUtils;
 
-    public Pipeline get(final PipelineExecutionRequest pipelineRequest) throws IOException {
+    public Workflow get(final ExecutionRequest pipelineRequest) throws IOException {
         final WorkflowDefinition pipelineDefinition = getDefinition(pipelineRequest);
 
         return getImplementation(pipelineRequest, pipelineDefinition);
@@ -89,7 +89,7 @@ public class YAMLWorkflowLoader {
      *
      * @return PipelineDefinition
      */
-    private WorkflowDefinition getDefinition(final PipelineExecutionRequest pipelineRequest) throws IOException {
+    private WorkflowDefinition getDefinition(final ExecutionRequest pipelineRequest) throws IOException {
         final Constructor constructor = new Constructor(WorkflowDefinition.class);
 
         final TypeDescription parameterDescription = new TypeDescription(WorkflowDefinition.class);
@@ -167,14 +167,14 @@ public class YAMLWorkflowLoader {
         return null;
     }
 
-    private Pipeline getImplementation(final PipelineExecutionRequest pipelineRequest, final WorkflowDefinition definition) throws IOException {
+    private Workflow getImplementation(final ExecutionRequest pipelineRequest, final WorkflowDefinition definition) throws IOException {
 
-        final Pipeline pipeline = new Pipeline();
+        final Workflow workflow = new Workflow();
         final List<Job> jobs;
 
         final ParameterBag pipelineParameters = actionArgFactory.resolve(definition.parameters, pipelineRequest);
 
-        pipeline.setUid(UUID.randomUUID().toString());
+        workflow.setUid(UUID.randomUUID().toString());
 
         if (definition.jobs != null && definition.jobs.size() > 0) {
             jobs = definition
@@ -208,7 +208,7 @@ public class YAMLWorkflowLoader {
                             return Arrays.stream(new Job[]{});
                         }
 
-                        return resolveJobs(pipelineRequest, pipeline, jobDefinition, jobsToRunParameters);
+                        return resolveJobs(pipelineRequest, workflow, jobDefinition, jobsToRunParameters);
                     })
                     .collect(Collectors.toList());
         } else {
@@ -231,26 +231,26 @@ public class YAMLWorkflowLoader {
             executor.configure(definition.executor.spec);
         }
 
-        pipeline
-            .setPipelineRequest(pipelineRequest)
+        workflow
+            .setExecutionRequest(pipelineRequest)
             .setResourcesDir(definition.definitionFile.getParentFile())
             .setLabels(definition.labels)
             .setExecutor(executor)
             .setJobs(jobs)
         ;
 
-        return pipeline;
+        return workflow;
     }
 
     /**
      * Transform job-definitions + parameters matrix into "jobs" to execute.
      */
-    private Stream<Job> resolveJobs(final PipelineExecutionRequest pipelineRequest, final Pipeline pipeline, final JobDefinition definition, final List<ParameterBag> jobsToRunParameters) {
+    private Stream<Job> resolveJobs(final ExecutionRequest pipelineRequest, final Workflow workflow, final JobDefinition definition, final List<ParameterBag> jobsToRunParameters) {
         return
             jobsToRunParameters
                 .stream()
                 .map(run -> run.add("_job_id", resolveJobId(definition, run)))
-                .map(run -> definition.toJobImpl(pipeline, run))
+                .map(run -> definition.toJobImpl(workflow, run))
                 .filter(job -> WKJobFilter.accept(pipelineRequest, job))
             ;
     }

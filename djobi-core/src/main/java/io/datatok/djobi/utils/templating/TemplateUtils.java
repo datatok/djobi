@@ -7,8 +7,6 @@ import io.datatok.djobi.utils.MyMapUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.*;
 
 @Singleton
@@ -48,7 +46,7 @@ public class TemplateUtils {
         }
 
         templateData.putAll(MyMapUtils.map(
-            "pipeline", job.getPipeline(),
+            "pipeline", job.getWorkflow(),
             "job", job,
             "data", job.getData(),
             "parameters", job.getParameters(),

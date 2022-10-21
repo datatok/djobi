@@ -30,7 +30,7 @@ public class SparkSQLRunner implements ActionRunner {
         final SQLConfig configuration = (SQLConfig) stage.getParameters();
 
         final String argQuery = configuration.query; // @todo remove DOUBLE RENDER ?? templateUtils.render(configuration.query, job);
-        final SQLContext sqlContext = (SQLContext) job.getPipeline().getExecutor().get("sql_context");
+        final SQLContext sqlContext = (SQLContext) job.getWorkflow().getExecutor().get("sql_context");
 
         final String sqlQuery = getQuery(argQuery, job);
 
@@ -60,7 +60,7 @@ public class SparkSQLRunner implements ActionRunner {
 
     private String getQuery(final String queryOrPath, final Job job) throws IOException {
         if (queryOrPath.endsWith(".sql")) {
-            final String sqlQuery = job.getPipeline().getResources(queryOrPath);
+            final String sqlQuery = job.getWorkflow().getResources(queryOrPath);
 
             return templateUtils.render(sqlQuery, job);
         } else {

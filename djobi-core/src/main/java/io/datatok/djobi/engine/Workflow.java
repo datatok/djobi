@@ -15,11 +15,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class Pipeline implements Dumpable, Labelized {
+public class Workflow implements Dumpable, Labelized {
 
     private String uid;
 
-    private PipelineExecutionRequest pipelineRequest;
+    private ExecutionRequest executionRequest;
 
     private List<Job> jobs;
 
@@ -34,14 +34,14 @@ public class Pipeline implements Dumpable, Labelized {
      */
     public Map<String, String> labels;
 
-    public Pipeline setPipelineRequest(PipelineExecutionRequest pipelineRequest) {
-        this.pipelineRequest = pipelineRequest;
+    public Workflow setExecutionRequest(ExecutionRequest executionRequest) {
+        this.executionRequest = executionRequest;
 
         return this;
     }
 
-    public PipelineExecutionRequest getPipelineRequest() {
-        return pipelineRequest;
+    public ExecutionRequest getExecutionRequest() {
+        return executionRequest;
     }
 
     public List<Job> getJobs() {
@@ -56,7 +56,7 @@ public class Pipeline implements Dumpable, Labelized {
         return jobsById;
     }
 
-    public Pipeline setJobs(List<Job> jobs) {
+    public Workflow setJobs(List<Job> jobs) {
         this.jobs = jobs;
 
         jobsById = new HashMap<>();
@@ -72,7 +72,7 @@ public class Pipeline implements Dumpable, Labelized {
         return resourcesDir;
     }
 
-    public Pipeline setResourcesDir(File resourcesDir) {
+    public Workflow setResourcesDir(File resourcesDir) {
         this.resourcesDir = resourcesDir;
 
         return this;
@@ -102,7 +102,7 @@ public class Pipeline implements Dumpable, Labelized {
     }
 
     public String getName() {
-        final String path = getPipelineRequest().getDefinitionURI();
+        final String path = getExecutionRequest().getDefinitionURI();
 
         return StringUtils.strip(Arrays.stream(path.split("/")).reduce("", (a, b) -> {
             if (b.equals("pipelines")) {
@@ -119,7 +119,7 @@ public class Pipeline implements Dumpable, Labelized {
         return executor;
     }
 
-    public Pipeline setExecutor(Executor executor) {
+    public Workflow setExecutor(Executor executor) {
         this.executor = executor;
 
         return this;
@@ -129,7 +129,7 @@ public class Pipeline implements Dumpable, Labelized {
         return uid;
     }
 
-    public Pipeline setUid(String uid) {
+    public Workflow setUid(String uid) {
         this.uid = uid;
 
         return this;
@@ -144,7 +144,7 @@ public class Pipeline implements Dumpable, Labelized {
         return labels.get(key);
     }
 
-    public Pipeline setLabels(Map<String, String> labels) {
+    public Workflow setLabels(Map<String, String> labels) {
         this.labels = labels;
         return this;
     }

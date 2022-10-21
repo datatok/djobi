@@ -2,7 +2,7 @@ package io.datatok.djobi.cli.utils;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import io.datatok.djobi.engine.PipelineExecutionRequest;
+import io.datatok.djobi.engine.ExecutionRequest;
 import io.datatok.djobi.plugins.report.VerbosityLevel;
 import io.datatok.djobi.utils.EnvProvider;
 import io.datatok.djobi.utils.MetaUtils;
@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 @Singleton
-public class PipelineRequestFactory {
+public class WorkflowRequestFactory {
 
     static public final String ENV_PREFIX_META = "META";
 
@@ -27,21 +27,21 @@ public class PipelineRequestFactory {
     /**
      * For dev, test purposes
      */
-    private PipelineExecutionRequest lastObjectBuilt;
+    private ExecutionRequest lastObjectBuilt;
 
-    public PipelineExecutionRequest build(final String pipelineDefinitionPath) {
-        return lastObjectBuilt =  new PipelineExecutionRequest(pipelineDefinitionPath);
+    public ExecutionRequest build(final String url) {
+        return lastObjectBuilt =  new ExecutionRequest(url);
     }
 
-    public PipelineExecutionRequest build(
-            final String inPipelinePath,
+    public ExecutionRequest build(
+            final String definitionURL,
             final Map<String, String> inArgumentMap,
             final Map<String, String> inMetaMap,
             final String inJobsFilter,
             final String inPhasesFilter,
             final boolean[] verbosity
     ) {
-        final PipelineExecutionRequest pipelineRequest = new PipelineExecutionRequest();
+        final ExecutionRequest pipelineRequest = new ExecutionRequest();
 
         final Map<String, String> argsMap = MyMapUtils.merge(envProvider.getScopedStartsWith(ENV_PREFIX_ARG), inArgumentMap);
         final Map<String, String> metasMap =
@@ -50,7 +50,7 @@ public class PipelineRequestFactory {
                 );
 
         pipelineRequest
-            .setDefinitionURI(inPipelinePath)
+            .setDefinitionURI(definitionURL)
             .setArguments(argsMap)
             .setJobsFilter(Arrays.asList(inJobsFilter.split(",")))
             .setJobPhases(Arrays.asList(inPhasesFilter.split(",")))
@@ -65,7 +65,7 @@ public class PipelineRequestFactory {
      * For dev, test purposes
      * @return PipelineExecutionRequest
      */
-    public PipelineExecutionRequest getLastObjectBuilt() {
+    public ExecutionRequest getLastObjectBuilt() {
         return lastObjectBuilt;
     }
 

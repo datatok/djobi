@@ -5,7 +5,7 @@ import com.google.inject.Singleton;
 import io.datatok.djobi.cli.utils.CLIOutUtils;
 import io.datatok.djobi.cli.utils.CLIUtils;
 import io.datatok.djobi.engine.Job;
-import io.datatok.djobi.engine.Pipeline;
+import io.datatok.djobi.engine.Workflow;
 import io.datatok.djobi.engine.phases.StagePhaseMetaData;
 import io.datatok.djobi.engine.stage.Stage;
 import io.datatok.djobi.plugins.report.Reporter;
@@ -58,12 +58,12 @@ public class StdoutReporter implements Reporter {
     }
 
     @Override
-    public void printSummary(final Pipeline pipeline) {
-        print( ansi().eraseScreen().render("@|red %s|@", pipeline.getName()).toString() );
+    public void printSummary(final Workflow workflow) {
+        print( ansi().eraseScreen().render("@|red %s|@", workflow.getName()).toString() );
         print(StringUtils.rightPad("", 100, "="));
 
-        print( ansi().render("%10s: %10s [%s]", "jobs", pipeline.getJobs().size(), pipeline.getJobs().stream().map(Job::getName).collect(Collectors.joining( "," ))).toString() );
-        print( ansi().render("%10s: %10s", "path", pipeline.getResourcesDir().getAbsolutePath()).toString() );
+        print( ansi().render("%10s: %10s [%s]", "jobs", workflow.getJobs().size(), workflow.getJobs().stream().map(Job::getName).collect(Collectors.joining( "," ))).toString() );
+        print( ansi().render("%10s: %10s", "path", workflow.getResourcesDir().getAbsolutePath()).toString() );
 
         print();
     }

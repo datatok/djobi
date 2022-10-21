@@ -1,7 +1,7 @@
 package io.datatok.djobi.plugins.report;
 
 import io.datatok.djobi.engine.Job;
-import io.datatok.djobi.engine.Pipeline;
+import io.datatok.djobi.engine.Workflow;
 
 import java.io.PrintStream;
 
@@ -15,7 +15,7 @@ public interface Reporter {
 
     void error(Throwable exception);
 
-    void printSummary(final Pipeline pipeline);
+    void printSummary(final Workflow workflow);
 
     void printSummary(final Job job);
 

@@ -100,7 +100,7 @@ public class KafkaOutputRunnerTest {
         stage.setParameters(new KafkaOutputConfig(args, null, templateUtils));
 
         if (sparkExecutor.isConnected()) {
-            stage.getJob().getPipeline().setExecutor(sparkExecutor);
+            stage.getJob().getWorkflow().setExecutor(sparkExecutor);
         }
 
         runnerProvider.get().run(stage, stageData, sparkExecutor);

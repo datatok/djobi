@@ -105,8 +105,8 @@ public class SparkExecutor implements Executor {
 
         if (this.sparkContext != null) {
             this.sparkContext.setJobGroup(
-                String.format("%s-%s-%s", stage.getJob().getPipeline().getName(), stage.getJob().getId(), stage.getName()),
-                String.format("%s-%s-%s", stage.getJob().getPipeline().getName(), stage.getJob().getName(), stage.getName()),
+                String.format("%s-%s-%s", stage.getJob().getWorkflow().getName(), stage.getJob().getId(), stage.getName()),
+                String.format("%s-%s-%s", stage.getJob().getWorkflow().getName(), stage.getJob().getName(), stage.getName()),
 true
             );
         }

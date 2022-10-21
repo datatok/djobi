@@ -21,7 +21,7 @@ public class SparkHiveOutputPostCheckerTest extends ActionTest {
     void testWrong() throws Exception {
         final Stage stage = StageTestUtils.getNewStage();
 
-        stage.getJob().getPipeline().setExecutor(getSparkExecutor());
+        stage.getJob().getWorkflow().setExecutor(getSparkExecutor());
 
         stage
             .setParameters(ActionConfiguration.get(SparkHiveOutputConfig.class, new Bag("table", "_not_exists"), stage, templateUtils))
@@ -41,7 +41,7 @@ public class SparkHiveOutputPostCheckerTest extends ActionTest {
 
         executor.getSQLContext().read().json("./src/test/resources/data/json_1/json.txt").createOrReplaceTempView("sample");
 
-        stage.getJob().getPipeline().setExecutor(executor);
+        stage.getJob().getWorkflow().setExecutor(executor);
 
         stage
             .setParameters(ActionConfiguration.get(SparkHiveOutputConfig.class, new Bag("table", "sample", "check_query", "SELECT COUNT(*) FROM sample WHERE title = \"Tom\""), stage, templateUtils))

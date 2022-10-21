@@ -29,7 +29,7 @@ public class UserAgentParserRunner implements ActionRunner {
         final UserAgentParserConfig config = (UserAgentParserConfig) stage.getParameters();
 
         final Dataset<Row> df = ((SparkDataframe) contextData).getData();
-        final SQLContext sqlContext = (SQLContext) stage.getJob().getPipeline().getExecutor().get("sql_context");
+        final SQLContext sqlContext = (SQLContext) stage.getJob().getWorkflow().getExecutor().get("sql_context");
 
         if (sqlContext == null) {
             throw new StageException(stage, "Cannot get sql context from executor!");

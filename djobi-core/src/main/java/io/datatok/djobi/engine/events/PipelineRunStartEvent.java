@@ -1,13 +1,13 @@
 package io.datatok.djobi.engine.events;
 
-import io.datatok.djobi.engine.Pipeline;
+import io.datatok.djobi.engine.Workflow;
 
 public class PipelineRunStartEvent extends PipelineAwareEvent {
 
     static final public String NAME = "pipeline-run-start";
 
-    public PipelineRunStartEvent(Pipeline pipeline) {
-        super(pipeline);
+    public PipelineRunStartEvent(Workflow workflow) {
+        super(workflow);
     }
 
     @Override

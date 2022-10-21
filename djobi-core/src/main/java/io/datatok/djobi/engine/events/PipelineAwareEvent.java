@@ -1,17 +1,17 @@
 package io.datatok.djobi.engine.events;
 
-import io.datatok.djobi.engine.Pipeline;
+import io.datatok.djobi.engine.Workflow;
 import io.datatok.djobi.event.Event;
 
 public abstract class PipelineAwareEvent extends Event {
 
-    private Pipeline pipeline;
+    private Workflow workflow;
 
-    public PipelineAwareEvent(Pipeline pipeline) {
-        this.pipeline = pipeline;
+    public PipelineAwareEvent(Workflow workflow) {
+        this.workflow = workflow;
     }
 
-    public Pipeline getPipeline() {
-        return pipeline;
+    public Workflow getPipeline() {
+        return workflow;
     }
 }

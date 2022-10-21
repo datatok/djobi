@@ -71,8 +71,8 @@ class TemplateUtilsTest {
     }
 
     @Test void testWithPipelineData() throws IOException {
-        final Pipeline pipeline = yamlPipelineLoader.get(
-                PipelineExecutionRequest.build("./src/test/resources/pipelines/good.yml")
+        final Workflow workflow = yamlPipelineLoader.get(
+                ExecutionRequest.build("./src/test/resources/pipelines/good.yml")
                     .addArgument("date", "yesterday")
                 );
 
@@ -80,8 +80,8 @@ class TemplateUtilsTest {
 
         yesterday.add(Calendar.DAY_OF_MONTH, -1);
 
-        Assertions.assertEquals(String.format("Hello %d-%02d-%02d", yesterday.get(Calendar.YEAR), yesterday.get(Calendar.MONTH) + 1, yesterday.get(Calendar.DAY_OF_MONTH)), templateUtils.render("Hello {{date}}", pipeline.getJob(0)));
+        Assertions.assertEquals(String.format("Hello %d-%02d-%02d", yesterday.get(Calendar.YEAR), yesterday.get(Calendar.MONTH) + 1, yesterday.get(Calendar.DAY_OF_MONTH)), templateUtils.render("Hello {{date}}", workflow.getJob(0)));
 
-        Assertions.assertEquals("p1 = p1", templateUtils.render("p1 = {{p1}}", pipeline.getJob(0)));
+        Assertions.assertEquals("p1 = p1", templateUtils.render("p1 = {{p1}}", workflow.getJob(0)));
     }
 }

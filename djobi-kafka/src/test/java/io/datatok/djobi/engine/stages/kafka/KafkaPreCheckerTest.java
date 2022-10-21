@@ -1,5 +1,6 @@
 package io.datatok.djobi.engine.stages.kafka;
 
+import io.datatok.djobi.configuration.Configuration;
 import io.datatok.djobi.engine.check.CheckResult;
 import io.datatok.djobi.engine.check.CheckStatus;
 import io.datatok.djobi.engine.stage.Stage;
@@ -21,7 +22,7 @@ import javax.inject.Provider;
 
 @ExtendWith(MyTestRunner.class)
 @Tag("IntegrationTest")
-public class KafkaPreCheckerStage {
+public class KafkaPreCheckerTest {
 
     @Inject
     Provider<KafkaPreChecker> preCheckerProvider;
@@ -29,50 +30,57 @@ public class KafkaPreCheckerStage {
     @Inject
     private TemplateUtils templateUtils;
 
+    @Inject
+    private Configuration configuration;
+
     private String kafkaServer = null;
 
     @BeforeEach void init() {
         if (kafkaServer == null) {
-            kafkaServer = "kafka1:9092";
+            kafkaServer = configuration.getString("kafka");
         }
     }
 
     @Test void testWrongServer() throws Exception {
         CheckResult r = check(
         "topic", "djobi",
-                "servers", "localhost:9091"
+                "endpoints", "toto:9092"
         );
 
         Assertions.assertEquals(CheckStatus.DONE_ERROR, r.getStatus());
     }
 
-    @Test void testGoodServerWithoutTopic() throws Exception {
-        CheckResult r = check(
-                "servers", kafkaServer
-        );
-
-        Assertions.assertEquals(CheckStatus.DONE_OK, r.getStatus());
-        Assertions.assertEquals(KafkaPreChecker.REASON_OK_NO_TOPIC, r.getMeta(CheckResult.REASON));
-    }
-
     @Test void testGoodServerWithWrongTopic() throws Exception {
         CheckResult r = check(
                 "topic", "djoba",
-                "servers", kafkaServer
+                "endpoints", kafkaServer
         );
 
         Assertions.assertEquals(CheckStatus.DONE_ERROR, r.getStatus());
         Assertions.assertEquals(KafkaPreChecker.REASON_ERROR_TOPIC_NOT_FOUND, r.getMeta(CheckResult.REASON));
     }
 
-    @Test void testGoodServerWithGoodTopic() throws Exception {
+    @Test void testGoodServerWithGoodExistingTopic() throws Exception {
         CheckResult r = check(
                 "topic", "djobi",
-                "servers", kafkaServer
+                "endpoints", kafkaServer
         );
 
         Assertions.assertEquals(CheckStatus.DONE_OK, r.getStatus());
         Assertions.assertEquals(KafkaPreChecker.REASON_OK_TOPIC_FOUND, r.getMeta(CheckResult.REASON));
+    }
+
+    @Test void testGoodServerWithGoodCreateTopic() throws Exception {
+        CheckResult r = check(
+        "topic", new Bag(
+             "name", "djobi-to-create",
+                    "create", "true"
+                ),
+                "endpoints", kafkaServer
+        );
+
+        Assertions.assertEquals(CheckStatus.DONE_OK, r.getStatus());
+        Assertions.assertEquals(KafkaPreChecker.REASON_OK_TOPIC_CREATED, r.getMeta(CheckResult.REASON));
     }
 
     private CheckResult check(Object... args) throws Exception {

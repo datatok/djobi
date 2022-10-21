@@ -1,0 +1,27 @@
+parameters:
+  topic: djobi
+jobs:
+  job1:
+    stages:
+      - name: data
+        kind: random_generator
+        spec:
+          count: 1000
+      - name: to-table
+        kind: org.apache.spark/mutate
+        spec:
+          alias_table: my_data
+      - name: transform
+        kind: sql
+        check: false
+        spec:
+          query: |
+            select concat(firstName, '-', lastName) as key, to_json(struct(*)) as value
+            from my_data
+      - name: output
+        kind: org.apache.kafka/output
+        spec:
+          endpoints: "kafka:9092"
+          topic:
+            name: "{{ topic }}"
+            create: true

@@ -1,5 +1,6 @@
 package io.datatok.djobi.engine.stages.kafka;
 
+import io.datatok.djobi.configuration.Configuration;
 import io.datatok.djobi.engine.check.CheckStatus;
 import io.datatok.djobi.engine.data.StageData;
 import io.datatok.djobi.engine.data.StageDataString;
@@ -36,36 +37,21 @@ public class KafkaOutputRunnerTest {
     @Inject
     private SparkExecutor sparkExecutor;
 
+    @Inject
+    private Configuration configuration;
+
     private String kafkaServer = null;
 
     @BeforeEach
     void init() {
         if (kafkaServer == null) {
-            kafkaServer = "kafka1:9092";
+            kafkaServer = configuration.getString("kafka");
         }
     }
 
     @BeforeAll
     static void beforeAll() {
         Logger.getLogger(KafkaProducer.class).setLevel(Level.toLevel("TRACE"));
-    }
-
-    @Test void testWithSingleStringMessage() throws Exception {
-        run(
-            new StageDataString("Hello, il fait super beau, allons vite à la plage boire du rosé !"),
-            new Bag(
-                "topic", "djobi",
-                "kafka", new Bag(
-            "max.block.ms", 2000,
-                    "buffer.memory", 1024,
-                    "batch.size", 0,
-                    "linger.ms", 5,
-                    "metadata.fetch.timeout.ms", 100,
-                    "acks", "1"
-                ),
-                "servers", kafkaServer
-            )
-        );
     }
 
     @Test void testWithSparkDataFrame() throws Exception {
@@ -75,19 +61,19 @@ public class KafkaOutputRunnerTest {
         final Dataset<Row> df = sparkExecutor.getSQLContext().read().json("./src/test/resources/json_1");
 
         Stage stage = run(
-                new SparkDataframe(df),
-                new Bag(
-                        "topic", "djobi",
-                        "kafka", new Bag(
-                        "max.block.ms", 2000,
-                        "buffer.memory", 1024,
-                        "batch.size", 0,
-                        "linger.ms", 5,
-                        "metadata.fetch.timeout.ms", 100,
-                        "acks", "1"
-                ),
-                        "servers", kafkaServer
-                )
+            new SparkDataframe(df),
+            new Bag(
+                "topic", "djobi",
+                "kafka", new Bag(
+                "max.block.ms", 2000,
+                "buffer.memory", 1024,
+                "batch.size", 0,
+                "linger.ms", 5,
+                "metadata.fetch.timeout.ms", 100,
+                "acks", "1"
+            ),
+                "endpoints", kafkaServer
+            )
         );
 
         Assertions.assertEquals(CheckStatus.DONE_OK, stage.getPostCheck().getStatus());

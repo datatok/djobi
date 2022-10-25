@@ -43,6 +43,7 @@ run/simple:
 	python3 djobi-submit/djobi_submit run  \
         --driver-cores 1 \
         --executor-instances 1 \
+        --support-elasticsearch 7 \
         ~/dev/datatok/djobi/dev/workflows/es2fs --arg date=yesterday > run.sh
 
 	cat run.sh

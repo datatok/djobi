@@ -1,7 +1,7 @@
 package io.datatok.djobi.plugins.logging;
 
 import io.datatok.djobi.engine.Job;
-import io.datatok.djobi.engine.Pipeline;
+import io.datatok.djobi.engine.Workflow;
 import io.datatok.djobi.engine.stage.Stage;
 
 import javax.inject.Singleton;
@@ -9,18 +9,18 @@ import javax.inject.Singleton;
 @Singleton
 public class LookupContext {
 
-    private Pipeline currentPipeline;
+    private Workflow currentWorkflow;
 
     private Job currentJob;
 
     private Stage currentStage;
 
-    public Pipeline getCurrentPipeline() {
-        return currentPipeline;
+    public Workflow getCurrentPipeline() {
+        return currentWorkflow;
     }
 
-    public void setCurrentPipeline(Pipeline currentPipeline) {
-        this.currentPipeline = currentPipeline;
+    public void setCurrentPipeline(Workflow currentWorkflow) {
+        this.currentWorkflow = currentWorkflow;
     }
 
     public Job getCurrentJob() {

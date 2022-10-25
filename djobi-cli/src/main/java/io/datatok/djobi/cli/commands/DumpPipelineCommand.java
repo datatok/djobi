@@ -1,13 +1,13 @@
 package io.datatok.djobi.cli.commands;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.datatok.djobi.cli.utils.PipelineRequestFactory;
+import io.datatok.djobi.cli.utils.WorkflowRequestFactory;
 import io.datatok.djobi.engine.Job;
-import io.datatok.djobi.engine.Pipeline;
+import io.datatok.djobi.engine.Workflow;
 import io.datatok.djobi.engine.phases.ActionPhases;
 import io.datatok.djobi.engine.phases.StagePhaseMetaData;
 import io.datatok.djobi.engine.stage.ActionFactory;
-import io.datatok.djobi.loaders.yaml.YAMLPipelineLoader;
+import io.datatok.djobi.loaders.yaml.YAMLWorkflowLoader;
 import io.datatok.djobi.plugins.report.Reporter;
 import io.datatok.djobi.utils.JSONUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +21,7 @@ import java.util.Map;
 public class DumpPipelineCommand implements Runnable {
 
     @Inject
-    YAMLPipelineLoader pipelineLoader;
+    YAMLWorkflowLoader pipelineLoader;
 
     @Inject
     Reporter reporter;
@@ -30,7 +30,7 @@ public class DumpPipelineCommand implements Runnable {
     ActionFactory actionFactory;
 
     @Inject
-    PipelineRequestFactory pipelineRequestFactory;
+    WorkflowRequestFactory workflowRequestFactory;
 
     @CommandLine.ParentCommand
     DumpCommand dumpCommand;
@@ -46,20 +46,20 @@ public class DumpPipelineCommand implements Runnable {
 
     @Override
     public void run() {
-        Pipeline pipeline = null;
+        Workflow workflow = null;
 
         try {
-            pipeline = pipelineLoader.get(
-                    pipelineRequestFactory.build(pipelinePath, args, null, jobs, "", null)
+            workflow = pipelineLoader.get(
+                    workflowRequestFactory.build(pipelinePath, args, null, jobs, "", null)
             );
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        if (pipeline == null) {
+        if (workflow == null) {
             System.err.println("pipeline not found!");
         } else {
-            final Map<String, ?> res = pipeline.toHash();
+            final Map<String, ?> res = workflow.toHash();
 
             if (dumpCommand.format.equals("json")) {
                 try {
@@ -68,9 +68,9 @@ public class DumpPipelineCommand implements Runnable {
                     e.printStackTrace();
                 }
             } else {
-                reporter.printSummary(pipeline);
+                reporter.printSummary(workflow);
 
-                for (final Job job : pipeline.getJobs()) {
+                for (final Job job : workflow.getJobs()) {
                     // Find stage -> action
                     job.getStages().forEach(stage -> {
                         stage.addPhase(new StagePhaseMetaData(ActionPhases.CONFIGURE, actionFactory.getConfigurator(stage)));

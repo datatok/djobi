@@ -10,10 +10,11 @@ import java.util.stream.Collectors;
 
 public class MyMapUtils {
 
+    @SafeVarargs
     static public <K, V> Map<K, V> merge(final Map<K, V>... args) {
         final Map<K, V> buffer = new HashMap<>();
 
-        for (final Map m : args) {
+        for (final Map<K, V> m : args) {
             if (m != null) {
                 buffer.putAll(m);
             }
@@ -110,24 +111,25 @@ public class MyMapUtils {
         return buffer;
     }
 
-    public static <V> Map<String, V> flattenKeys(Map<String, V> input) {
+    public static <V> Map<String, V> flattenKeys(Map<String, Object> input) {
         return flattenKeys(input, ".", "");
     }
 
-    public static <V> Map<String, V> flattenKeys(Map<String, V> input, String separator) {
+    public static <V> Map<String, V> flattenKeys(Map<String, Object> input, String separator) {
         return flattenKeys(input, separator, "");
     }
 
-    public static <V> Map<String, V> flattenKeys(Map<String, V> input, String separator, String key) {
+    @SuppressWarnings("unchecked")
+    public static <V> Map<String, V> flattenKeys(Map<String, Object> input, String separator, String key) {
         final Map<String, V> res = new HashMap<>();
 
-        for (Map.Entry<String, V> e : input.entrySet()) {
+        for (Map.Entry<String, Object> e : input.entrySet()) {
             final String newKey = key.trim().isEmpty() ? e.getKey() : (key + separator + e.getKey());
 
             if (e.getValue() instanceof Map) {
-                res.putAll(flattenKeys((Map) e.getValue(), separator, newKey));  // recursive call
+                res.putAll(flattenKeys((Map<String, Object>) e.getValue(), separator, newKey));  // recursive call
             } else {
-                res.put(newKey, e.getValue());
+                res.put(newKey, (V) e.getValue());
             }
         }
         return res;
@@ -135,6 +137,6 @@ public class MyMapUtils {
 
     public static Map<String, String> valuesToString(Map<String, Object> source) {
         return source.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> (String)e.getValue()));
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
     }
 }

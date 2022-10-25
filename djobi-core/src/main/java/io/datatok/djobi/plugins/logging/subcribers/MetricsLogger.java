@@ -35,7 +35,7 @@ public class MetricsLogger extends BaseLogger implements Subscriber {
             metrics.put("_meta_", MyMapUtils.map(
                     "stage", stage.getUid(),
                     "job", stage.getJob().getUid(),
-                    "pipeline", stage.getJob().getPipeline().getName(),
+                    "pipeline", stage.getJob().getWorkflow().getName(),
                     "date", Calendar.getInstance().getTime()
             ));
         } else {

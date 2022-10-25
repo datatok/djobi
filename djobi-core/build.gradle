@@ -44,7 +44,7 @@ dependencies {
     }
 
     sparkAWS(
-        [group: 'org.apache.hadoop', name: 'hadoop-aws', version: '3.2.4']
+        [group: 'org.apache.hadoop', name: 'hadoop-aws', version: '3.3.2']
     )
 
     // Spark libs, as compileOnly, exclude guice (as we use the v4)

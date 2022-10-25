@@ -1,5 +1,5 @@
 jobs:
-  raw:
+  - name: raw
     stages:
       - name: setup_file
         kind: "fs-input"
@@ -10,7 +10,7 @@ jobs:
         kind: "org.spark.collect"
       - name: stdout
         kind: stdout
-  as_json:
+  - name: as_json
     stages:
       - name: setup_file
         kind: "fs-input"

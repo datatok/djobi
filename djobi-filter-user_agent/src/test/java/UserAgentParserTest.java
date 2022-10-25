@@ -62,7 +62,7 @@ public class UserAgentParserTest {
 
         Stage stage = StageTestUtils.getNewStage();
 
-        stage.getJob().getPipeline().setExecutor(sparkExecutor);
+        stage.getJob().getWorkflow().setExecutor(sparkExecutor);
 
         stage.setParameters(ActionConfiguration.get(UserAgentParserConfig.class, new Bag("source", "client.user_agent", "target", "client_browser", "fields", "fullname,os,major"), stage, templateUtils));
 

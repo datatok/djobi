@@ -2,12 +2,12 @@ parameters:
   pp: pp
   pd: pipeline
 jobs:
-  job1:
+  - name: job1
     parameters:
       p1: p1
       p2: p2
       pd: job
-    contexts:
+    matrix:
       c1:
         name: c1
       c2:

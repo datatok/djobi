@@ -1,9 +1,6 @@
 package io.datatok.djobi.utils;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 public class Bag extends HashMap<String, Object> {
 
@@ -53,6 +50,14 @@ public class Bag extends HashMap<String, Object> {
     }
 
     public static Bag fromLinkedHashMap(LinkedHashMap<String, Object> source) {
+        final Bag b = new Bag();
+
+        b.putAll(source);
+
+        return b;
+    }
+
+    public static Bag fromMap(Map<String, Object> source) {
         final Bag b = new Bag();
 
         b.putAll(source);

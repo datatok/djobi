@@ -29,7 +29,7 @@ public class SparkMutateRunner implements ActionRunner {
     public ActionRunResult run(final Stage stage, StageData<?> contextData, Executor contextExecutor) throws Exception {
         final Job job = stage.getJob();
         final SparkMutateConfig config = (SparkMutateConfig) stage.getParameters();
-        final JavaSparkContext javaSparkContext = (JavaSparkContext) job.getPipeline().getExecutor().get("java_context");
+        final JavaSparkContext javaSparkContext = (JavaSparkContext) job.getWorkflow().getExecutor().get("java_context");
 
         if (config.dataframe_class != null && !config.dataframe_class.isEmpty()) {
 
@@ -40,7 +40,7 @@ public class SparkMutateRunner implements ActionRunner {
             final LongAccumulator counterErrors  = javaSparkContext.sc().longAccumulator("mutate_errors");
 
             if (contextData.getData() instanceof JavaRDD) {
-                final SQLContext sqlContext = (SQLContext) job.getPipeline().getExecutor().get("sql_context");
+                final SQLContext sqlContext = (SQLContext) job.getWorkflow().getExecutor().get("sql_context");
                 final JavaRDD<DataFrameBean> rdds = ((JavaRDD<Object>) contextData.getData()).map(rddData -> {
                     final DataFrameBean bean = clazz.getDeclaredConstructor().newInstance();
 

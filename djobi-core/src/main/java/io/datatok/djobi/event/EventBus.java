@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * EventBus (lite) implementation. This allows plugins to listen engine events, such as logger.
+ */
 @Singleton
 public class EventBus {
 
@@ -49,12 +52,12 @@ public class EventBus {
     }
 
     /**
-     * Stop listen all avents.
+     * Stop listen all events.
      *
      * @param provider Provider
      */
     public void unsubscribe(final Provider<? extends Subscriber> provider) {
-        final Class prototype = provider.get().getClass();
+        final Class<? extends Subscriber> prototype = provider.get().getClass();
 
         if (this.subscribers.containsKey(NAME_ALL)) {
             this.subscribers.put(NAME_ALL,

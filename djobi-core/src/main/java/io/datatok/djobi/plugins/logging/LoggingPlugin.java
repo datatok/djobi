@@ -31,8 +31,8 @@ public class LoggingPlugin extends Plugin implements PluginBootstrap {
         final LoggingConfig config = configFactory.build();
 
         if (config.getJobSink().isEnabled()) {
-            eventBus.subscribe(JobRunStartEvent.NAME, providerFactory.get(JobRunStartSubscriber.class));
-            eventBus.subscribe(JobRunFinishEvent.NAME, providerFactory.get(JobRunFinishSubscriber.class));
+            eventBus.subscribe(JobRunStartEvent.NAME, providerFactory.get(JobRunSubscriber.class));
+            eventBus.subscribe(JobRunFinishEvent.NAME, providerFactory.get(JobRunSubscriber.class));
         }
 
         if (config.getMetricSink().isEnabled()) {

@@ -2,7 +2,7 @@ package io.datatok.djobi.engine.stages;
 
 import com.google.inject.Inject;
 import io.datatok.djobi.engine.Job;
-import io.datatok.djobi.engine.Pipeline;
+import io.datatok.djobi.engine.Workflow;
 import io.datatok.djobi.engine.data.BasicDataKind;
 import io.datatok.djobi.engine.stage.livecycle.ActionRunResult;
 import io.datatok.djobi.executors.Executor;
@@ -47,13 +47,13 @@ class TransformToCSVTest {
 
     private Job getJob() throws Exception {
         final Job job = new Job();
-        final Pipeline pipeline = new Pipeline();
+        final Workflow workflow = new Workflow();
 
         job
-            .setPipeline(pipeline)
+            .setWorkflow(workflow)
         ;
 
-        pipeline
+        workflow
             .setExecutor(sparkExecutor)
             .setResourcesDir(new File("./src/test/resources"))
         ;

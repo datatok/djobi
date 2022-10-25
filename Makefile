@@ -17,15 +17,36 @@ dev/test:
 build/release:
 	gradle -Prelease.useLastTag=true clean djobiAssemble -x test
 
-gradle/deps:
-    ./gradlew djobi-core:dependencies > dep.html
+.PHONY: build
+build:
+	gradle -x :djobi-core:signArchives -x :djobi-tests:signArchives --no-parallel --rerun-tasks djobiAssemble testReport
 
+.PHONY: test/ci
+test/ci:
+	gradle -x :djobi-core:signArchives -x :djobi-tests:signArchives --no-parallel --rerun-tasks test -DincludeIntegrationTests
+
+.PHONY: test/integration
+test/integration:
+	gradle -x :djobi-core:signArchives -x :djobi-tests:signArchives --no-parallel --rerun-tasks test -DincludeIntegrationTests
+
+.PHONY: code/dependencies
+code/dependencies:
+	gradle :djobi-core:dependencies > dep.html
+	open dep.html
+
+.PHONY: run/simple
 run/simple:
-	SPARK_HOME=~/Documents/spark-3.2.1-bin-hadoop3.2 \
+	SPARK_HOME=~/Documents/spark-3.3.0-bin-hadoop3 \
 	DJOBI_HOME=~/dev/datatok/djobi/build/release/  \
-	DJOBI_VERSION=2 \
 	DJOBI_CONF=~/dev/datatok/djobi/dev/default.conf \
-	python -m djobi_submit run  \
+	\
+	python3 djobi-submit/djobi_submit run  \
         --driver-cores 1 \
         --executor-instances 1 \
-        ~/dev/datatok/djobi/dev/pipelines/es2fs
+        --support-elasticsearch 7 \
+        ~/dev/datatok/djobi/dev/workflows/es2fs --arg date=yesterday > run.sh
+
+	cat run.sh
+
+	projectRoot=$(shell pwd) \
+		sh run.sh

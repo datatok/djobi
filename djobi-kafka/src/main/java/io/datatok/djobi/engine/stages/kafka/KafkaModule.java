@@ -11,7 +11,7 @@ import io.datatok.djobi.engine.utils.StageCandidate;
 
 public class KafkaModule extends ActionProvider {
 
-    static public final String NAME = "org.kafka";
+    static public final String NAME = "org.apache.kafka";
 
     @Override
     public void configure() {

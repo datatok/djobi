@@ -12,7 +12,7 @@ import io.datatok.djobi.engine.phases.ConfigurePhase;
 import io.datatok.djobi.engine.phases.PreCheckJobPhase;
 import io.datatok.djobi.event.EventBus;
 import io.datatok.djobi.event.Subscriber;
-import io.datatok.djobi.loaders.yaml.YAMLPipelineLoader;
+import io.datatok.djobi.loaders.yaml.YAMLWorkflowLoader;
 import io.datatok.djobi.test.MyTestRunner;
 import io.datatok.djobi.test.executor.DummyExecutor;
 import io.datatok.djobi.utils.MyMapUtils;
@@ -39,7 +39,7 @@ class EngineTest {
     private EventBus eventBus;
 
     @Inject
-    private YAMLPipelineLoader yamlPipelineLoader;
+    private YAMLWorkflowLoader yamlPipelineLoader;
 
     @Inject
     private Configuration configuration;
@@ -57,38 +57,38 @@ class EngineTest {
     private ExecutionContext executionContext;
 
     @Test void testPreCheck() throws Exception {
-        final Pipeline pipeline = getPipeline("good_dummy.yml");
+        final Workflow workflow = getWorkflow("good_dummy.yml");
 
-        pipeline.setExecutor(new DummyExecutor());
+        workflow.setExecutor(new DummyExecutor());
 
-        configurePhase.execute(pipeline.getJob(0));
-        configurePhase.execute(pipeline.getJob(1));
+        configurePhase.execute(workflow.getJob(0));
+        configurePhase.execute(workflow.getJob(1));
 
-        preCheckJobPhase.execute(pipeline.getJob(0));
-        preCheckJobPhase.execute(pipeline.getJob(1));
+        preCheckJobPhase.execute(workflow.getJob(0));
+        preCheckJobPhase.execute(workflow.getJob(1));
 
-        Assertions.assertEquals(CheckStatus.DONE_OK, pipeline.getJob(0).getPreCheckStatus());
-        Assertions.assertEquals(CheckStatus.DONE_ERROR, pipeline.getJob(1).getPreCheckStatus());
+        Assertions.assertEquals(CheckStatus.DONE_OK, workflow.getJob(0).getPreCheckStatus());
+        Assertions.assertEquals(CheckStatus.DONE_ERROR, workflow.getJob(1).getPreCheckStatus());
     }
 
     @Test void testDummyExecutor() throws Exception {
-        final Pipeline pipeline = getPipeline("good_dummy2.yml");
+        final Workflow workflow = getWorkflow("good_dummy2.yml");
 //        final List<String> expectedEvents = Arrays.asList("pipeline-run-start,job-run-start,job-phase-start,job-phase-finish,job-phase-start,job-phase-finish,job-phase-start,stage-run-start,stage-run-finish,stage-run-start,stage-run-finish,stage-run-start,stage-run-finish,job-phase-finish,job-phase-start,stage-postcheck-done,stage-postcheck-done,stage-postcheck-start,stage-postcheck-done,job-phase-finish,job-run-finish,pipeline-run-finish".split(","));
 
         final List<String> expectedEvents = Arrays.asList("pipeline-run-start,job-run-start,job-phase-start,job-phase-finish,job-phase-start,stage-precheck-start,stage-precheck-done,job-phase-finish,job-phase-start,stage-run-start,stage-run-finish,stage-run-start,stage-run-finish,stage-run-start,stage-run-finish,job-phase-finish,job-phase-start,stage-postcheck-done,stage-postcheck-done,stage-postcheck-start,stage-postcheck-done,job-phase-finish,job-run-finish,pipeline-run-finish".split(","));
 
-        pipeline.setExecutor(new DummyExecutor());
+        workflow.setExecutor(new DummyExecutor());
 
         final List<String> eventsCaught = new ArrayList<>();
         final Provider<Subscriber> provider = () -> event -> eventsCaught.add(event.getName());
 
         this.eventBus.subscribe(provider);
 
-        engine.run(pipeline);
+        engine.run(workflow);
 
         this.eventBus.unsubscribe();
 
-        final Job job0 = pipeline.getJob(0);
+        final Job job0 = workflow.getJob(0);
 
         Assertions.assertEquals(ExecutionStatus.DONE_OK, job0.getExecutionStatus());
         Assertions.assertEquals(CheckStatus.DONE_OK, job0.getPostCheckStatus());
@@ -97,22 +97,22 @@ class EngineTest {
     }
 
     @Test void testCondition() throws Exception {
-        final Pipeline pipeline = getPipeline("good_2.yml");
+        final Workflow workflow = getWorkflow("good_2.yml");
 
-        Assertions.assertEquals("true", pipeline.getJob(0).getStages().get(0).getCondition());
+        Assertions.assertEquals("true", workflow.getJob(0).getStages().get(0).getCondition());
 
-        Assertions.assertTrue(conditionFlow.test(pipeline.getJob(0).getStages().get(0)));
-        Assertions.assertTrue(conditionFlow.test(pipeline.getJob(0).getStages().get(2)));
-        Assertions.assertFalse(conditionFlow.test(pipeline.getJob(1).getStages().get(2)));
+        Assertions.assertTrue(conditionFlow.test(workflow.getJob(0).getStages().get(0)));
+        Assertions.assertTrue(conditionFlow.test(workflow.getJob(0).getStages().get(2)));
+        Assertions.assertFalse(conditionFlow.test(workflow.getJob(1).getStages().get(2)));
     }
 
     @Test void testRunJob() throws Exception {
-        final Pipeline pipeline = getPipeline("good.yml");
+        final Workflow workflow = getWorkflow("good.yml");
 
         Method method = Engine.class.getDeclaredMethod("run", Job.class);
         method.setAccessible(true);
 
-        final Job job0 = pipeline.getJob(0);
+        final Job job0 = workflow.getJob(0);
 
         method.invoke(engine, job0);
 
@@ -124,13 +124,15 @@ class EngineTest {
     }
 
     @Test void runMonoPipeline() throws Exception {
-        final Pipeline pipeline = getPipeline("mono.yml");
+        final Workflow workflow = getWorkflow("mono.yml");
 
-        Assertions.assertEquals(1, pipeline.getJobs().size());
+        Assertions.assertEquals(1, workflow.getJobs().size());
 
-        engine.run(pipeline);
 
-        Assertions.assertEquals(1, pipeline.getJobs().size());
+
+        engine.run(workflow);
+
+        Assertions.assertEquals(1, workflow.getJobs().size());
         Assertions.assertTrue(executionContext.getData() instanceof StageDataListString);
         Assertions.assertEquals("FRENCH", ( (StageDataListString) executionContext.getData()).getData().get(0) );
     }
@@ -166,13 +168,13 @@ class EngineTest {
     }*/
 
     @Test void testCollectAsJSONPipeline() throws Exception {
-        final Pipeline pipeline = getPipeline("mono_sql.yml");
+        final Workflow workflow = getWorkflow("mono_sql.yml");
 
-        Assertions.assertEquals(1, pipeline.getJobs().size());
+        Assertions.assertEquals(1, workflow.getJobs().size());
 
-        engine.run(pipeline);
+        engine.run(workflow);
 
-        Assertions.assertEquals(1, pipeline.getJobs().size());
+        Assertions.assertEquals(1, workflow.getJobs().size());
 
         List<String> data = executionContext.getData().asListOfString();
 
@@ -180,11 +182,11 @@ class EngineTest {
     }
 
     @Test void testCollectAsMapPipeline() throws Exception {
-        final Pipeline pipeline = getPipeline("collect_as_map.yml");
+        final Workflow workflow = getWorkflow("collect_as_map.yml");
 
-        engine.run(pipeline);
+        engine.run(workflow);
 
-        Assertions.assertEquals(1, pipeline.getJobs().size());
+        Assertions.assertEquals(1, workflow.getJobs().size());
 
         StageData<?> data = executionContext.getData();
 
@@ -196,16 +198,16 @@ class EngineTest {
     }
 
     @Test void testRunPipeline() throws Exception {
-        final Pipeline pipeline = getPipeline("good.yml");
+        final Workflow workflow = getWorkflow("good.yml");
 
-        engine.run(pipeline);
+        engine.run(workflow);
 
         Assertions.assertTrue(Files.exists(Paths.get("/tmp/djobi_test_engine")));
     }
 
-    private Pipeline getPipeline(final String pipeline) throws Exception {
+    private Workflow getWorkflow(final String workflow) throws Exception {
         return yamlPipelineLoader.get(
-                PipelineExecutionRequest.build( "./src/test/resources/pipelines/" + pipeline)
+                ExecutionRequest.build( "./src/test/resources/pipelines/" + workflow)
                         .addArgument("date", "yesterday")
         );
     }

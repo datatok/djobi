@@ -64,7 +64,7 @@ public class SparkToDataFrameTest extends ActionTest {
         stage.setParameters(new SparkToDataFrame.Config(args, null, templateUtils));
 
         if (getSparkExecutor().isConnected()) {
-            stage.getJob().getPipeline().setExecutor(getSparkExecutor());
+            stage.getJob().getWorkflow().setExecutor(getSparkExecutor());
         }
 
         return runnerProvider.get().run(stage, data, getSparkExecutor());

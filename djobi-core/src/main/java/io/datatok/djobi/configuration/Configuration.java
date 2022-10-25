@@ -10,12 +10,25 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Hold all application configuration.
+ * This is a proxy to typesafe config object.
+ */
 public class Configuration implements Config {
 
     private Config config;
 
     public Configuration(Config config) {
         Configuration.this.config = config;
+    }
+
+    public Config getConfig() {
+        return config;
+    }
+
+    public Configuration setConfig(Config config) {
+        this.config = config;
+        return this;
     }
 
     /**

@@ -1,0 +1,11 @@
+jobs:
+  - name: job-simple-1
+    id: joby
+  - name: job-2
+    id: "custom-{{ name }}-{{ context.id }}"
+    matrix:
+      clicks: {}
+  - name: job-3
+    matrix:
+      clicks:
+        id: clickID

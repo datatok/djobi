@@ -1,6 +1,6 @@
 package io.datatok.djobi.engine.actions;
 
-import io.datatok.djobi.engine.Pipeline;
+import io.datatok.djobi.engine.Workflow;
 import io.datatok.djobi.plugins.report.Reporter;
 import io.datatok.djobi.test.ActionTest;
 import org.junit.jupiter.api.Assertions;
@@ -19,16 +19,16 @@ public class StdoutRunnerTest extends ActionTest {
 
     @Test
     public void testRunner() throws Exception {
-        final Pipeline pipeline = getPipeline("stdout.yml");
+        final Workflow workflow = getPipeline("stdout.yml");
 
-        Assertions.assertEquals(3, pipeline.getJobs().get(0).getStages().size());
+        Assertions.assertEquals(3, workflow.getJobs().get(0).getStages().size());
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final PrintStream out = new PrintStream(baos);
 
         reporter.setPrintStream(out);
 
-        engine.run(pipeline, "raw");
+        engine.run(workflow, "raw");
 
         Assertions.assertEquals(
     "{id=1, title=Tom}\n{id=2, title=Alicia}\n{id=3, title=Joseph}\n",
@@ -37,7 +37,7 @@ public class StdoutRunnerTest extends ActionTest {
 
         baos.reset();
 
-        engine.run(pipeline, "as_json");
+        engine.run(workflow, "as_json");
 
         Assertions.assertEquals(
                 "{\"id\":1,\"title\":\"Tom\"}\n" +

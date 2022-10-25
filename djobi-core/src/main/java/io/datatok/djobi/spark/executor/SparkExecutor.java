@@ -1,9 +1,11 @@
 package io.datatok.djobi.spark.executor;
 
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigValue;
 import io.datatok.djobi.engine.stage.Stage;
 import io.datatok.djobi.executors.Executor;
+import io.datatok.djobi.spark.executor.config.SparkExecutorConfig;
+import io.datatok.djobi.spark.executor.config.SparkExecutorConfigFactory;
+import io.datatok.djobi.spark.executor.config.SparkExecutorDataSourceConfig;
 import io.datatok.djobi.utils.Bag;
 import io.datatok.djobi.utils.MyMapUtils;
 import io.datatok.djobi.utils.http.Http;
@@ -16,7 +18,6 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.functions;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -29,10 +30,9 @@ public class SparkExecutor implements Executor {
 
     final static public String TYPE = "spark";
 
-    private static Logger logger = Logger.getLogger(SparkExecutor.class);
+    private static final Logger logger = Logger.getLogger(SparkExecutor.class);
 
-    @Inject
-    private SparkExecutorConfig configuration;
+    private final SparkExecutorConfig configuration;
 
     @Inject
     private Http http;
@@ -50,9 +50,9 @@ public class SparkExecutor implements Executor {
 
     protected boolean connected = false;
 
-    static public Dataset<Row> asDataset(Object buffer)
-    {
-        return (Dataset<Row>) buffer;
+    @Inject
+    public SparkExecutor(SparkExecutorConfigFactory configFactory) {
+        this.configuration = configFactory.create();
     }
 
     @Override
@@ -105,8 +105,8 @@ public class SparkExecutor implements Executor {
 
         if (this.sparkContext != null) {
             this.sparkContext.setJobGroup(
-                String.format("%s-%s-%s", stage.getJob().getPipeline().getName(), stage.getJob().getId(), stage.getName()),
-                String.format("%s-%s-%s", stage.getJob().getPipeline().getName(), stage.getJob().getName(), stage.getName()),
+                String.format("%s-%s-%s", stage.getJob().getWorkflow().getName(), stage.getJob().getId(), stage.getName()),
+                String.format("%s-%s-%s", stage.getJob().getWorkflow().getName(), stage.getJob().getName(), stage.getName()),
 true
             );
         }
@@ -188,41 +188,18 @@ true
 
     protected void sparkConfigure(final SparkConf conf) {
 
-        if (configuration.getRaw() != null) {
-            Config config = configuration.getRaw();
+        if (configuration.getMaster() != null && !configuration.getMaster().isEmpty()) {
+            conf.setMaster(configuration.getMaster());
+        }
 
-            // if you must configure the master or djobi is running via spark-submit
-            if (config.hasPath("master")) {
-                conf.setMaster(config.getString("master"));
-                conf.setAppName("djobi");
+        conf.setAppName(configuration.getAppName());
 
-                copyConf(config, conf, MyMapUtils.mapString(
-                        "executor.memory", "executor.memory",
-                        "executor.cores", "executor.cores",
-                        "executor.instances", "executor.instances",
-                        "executor.java.options", "executor.extraJavaOptions"
-                ));
+        final Map<String, String> flattenConfig = configuration.getConfFlatten();
 
-                if (config.getString("master").equals("yarn-client")) {
-                    copyConf(config, conf, MyMapUtils.mapString(
-                            "driver.memory", "yarn.am.memory",
-                            "driver.cores", "yarn.am.cores",
-                            "java.options", "yarn.am.extraJavaOptions"
-                    ));
-                } else {
-                    copyConf(config, conf, MyMapUtils.mapString(
-                            "driver.memory", "driver.memory",
-                            "driver.cores", "driver.cores",
-                            "java.options", "driver.extraJavaOptions"
-                    ));
-                }
-            }
-
-            if (config.hasPath("conf")) {
-                for (Map.Entry<String, Object> entry : MyMapUtils.flattenKeys(config.getObject("conf").unwrapped()).entrySet()) {
-                    logger.debug(String.format("configure Spark executor %s = %s", entry.getKey(), entry.getValue().toString()));
-                    conf.set(entry.getKey(), entry.getValue().toString());
-                }
+        if (flattenConfig != null) {
+            for (Map.Entry<String, String> entry : flattenConfig.entrySet()) {
+                logger.debug(String.format("configure Spark executor %s = %s", entry.getKey(), entry.getValue()));
+                conf.set(entry.getKey(), entry.getValue());
             }
         }
 
@@ -279,31 +256,25 @@ true
     }
 
     private void setupData() {
-        for (String entry : configuration.getData().root().keySet()) {
-            Config dataItem = configuration.getData().getConfig(entry);
+        for (SparkExecutorDataSourceConfig dsConfig : configuration.getExtraDataSources()) {
+            logger.info(String.format("Setup table %s", dsConfig.getName()));
 
-            logger.info(String.format("Setup table %s", entry));
-
-            switch (dataItem.getString("type")) {
-                case "table":
+            switch (dsConfig.getType()) {
+                case "table" -> {
                     Dataset<Row> df = sqlContext
-                            .read()
-                            .format(dataItem.getString("format"))
-                            .load(dataItem.getString("path"))
-                        ;
-
+                        .read()
+                        .format(dsConfig.getFormat())
+                        .load(dsConfig.getPath());
+                    /*
                     if (dataItem.hasPath("columns")) {
                         for (Map.Entry<String, ConfigValue> column : dataItem.getObject("columns").entrySet()) {
                             df = df.withColumn(column.getKey(), functions.lit(column.getValue().render()));
                         }
-                    }
-
-                        df.createOrReplaceTempView(entry);
-                    break;
-                case "sql":
-                    sqlContext
-                            .sql(dataItem.getString("sql"));
-                    break;
+                    }*/
+                    df.createOrReplaceTempView(dsConfig.getName());
+                }
+                case "sql" -> sqlContext
+                    .sql(dsConfig.getSql());
             }
         }
     }

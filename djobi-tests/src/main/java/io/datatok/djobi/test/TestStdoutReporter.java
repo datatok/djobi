@@ -1,7 +1,7 @@
 package io.datatok.djobi.test;
 
 import io.datatok.djobi.engine.Job;
-import io.datatok.djobi.engine.Pipeline;
+import io.datatok.djobi.engine.Workflow;
 import io.datatok.djobi.plugins.report.Reporter;
 
 import javax.inject.Singleton;
@@ -37,7 +37,7 @@ public class TestStdoutReporter implements Reporter {
     }
 
     @Override
-    public void printSummary(Pipeline pipeline) {
+    public void printSummary(Workflow workflow) {
 
     }
 

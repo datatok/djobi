@@ -1,7 +1,5 @@
 from email.policy import default
-import click, os, subprocess
-
-from djobi_submit import __app_name__, __version__
+import click, os
 
 @click.group()
 def cli():
@@ -29,12 +27,12 @@ def cli():
 @click.option("--executor-cores", default=1, help="Spark executor cores.")
 @click.option("--spark-conf", multiple=True, type=(str, str), help="Extra Spark conf")
 
-@click.argument("pipeline-path")
+@click.argument("workflow-path")
 @click.pass_context
 def run(
     ctx,
     name,
-    pipeline_path: str,
+    workflow_path: str,
     apm_server_url: str,
     support_kafka: bool,
     support_elasticsearch: bool,

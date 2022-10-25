@@ -15,30 +15,58 @@ services:
     image: atmoz/sftp:alpine
     command: foo:pass:999
 
-  minio:
+  s3:
     image: bitnami/minio:2022.9.7
     labels:
     - "traefik.enable=true"
-    - "traefik.http.routers.minio.rule=Host(`minio`)"
-    - "traefik.http.routers.minio.entrypoints=minio_api"
+    - "traefik.http.routers.s3.rule=Host(`s3-${DJOBI_HOST}`)"
+    - "traefik.http.routers.s3.entrypoints=web"
+    - "traefik.http.routers.s3.service=s3"
+    - "traefik.http.services.s3.loadbalancer.server.port=9000"
+    - "traefik.http.routers.s3-console.rule=Host(`s3-console-${DJOBI_HOST}`)"
+    - "traefik.http.routers.s3-console.entrypoints=web"
+    - "traefik.http.routers.s3-console.service=s3-console"
+    - "traefik.http.services.s3-console.loadbalancer.server.port=9001"
     volumes:
       - minio_data:/data
     environment:
+      - HOSTNAME=s3
       - MINIO_ROOT_USER=root
       - MINIO_ROOT_PASSWORD=rootroot
       - MINIO_ACCESS_KEY=root
       - MINIO_SECRET_KEY=rootroot
       - MINIO_DEFAULT_BUCKETS=djobi
       - BITNAMI_DEBUG=true
+      - MINIO_SERVER_URL=http://s3-${DJOBI_HOST}
+      - MINIO_BROWSER_REDIRECT_URL=http://s3-console-${DJOBI_HOST}
 
+  gui:
+    image: ghcr.io/datatok/gui:v0.1.1
+    labels:
+    - "traefik.enable=true"
+    - "traefik.http.routers.gui.rule=Host(`s3-ui-${DJOBI_HOST}`)"
+    - "traefik.http.routers.gui.entrypoints=web"
+    - "traefik.http.services.gui.loadbalancer.server.port=8080"
+    volumes:
+    - ./dev/gui/config.yaml:/home/node/config.yaml
+    environment:
+    - GUI_PORT=8080
+    - GUI_PUBLIC_DIR=/home/node/public
+    - GUI_CONFIG_FILE=/home/node/config.yaml
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.1
     labels:
     - "traefik.enable=true"
-    - "traefik.http.routers.elasticsearch.rule=Host(`elasticsearch`)"
-    - "traefik.http.routers.elasticsearch.entrypoints=es"
+    - "traefik.http.routers.elasticsearch.rule=Host(`elasticsearch-${DJOBI_HOST}`)"
+    - "traefik.http.routers.elasticsearch.entrypoints=web"
     environment:
+      - node.roles=master,data
+      - xpack.security.enabled=false
+      - xpack.monitoring.collection.enabled=false
+      - xpack.monitoring.enabled=false
+      - xpack.ml.enabled=false
+      - ingest.geoip.downloader.enabled=false
       - bootstrap.memory_lock=true
       - discovery.type=single-node
       - http.cors.enabled=true

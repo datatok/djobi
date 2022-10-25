@@ -1,7 +1,7 @@
 package io.datatok.djobi.plugins.report.subscribers;
 
 import com.google.inject.Inject;
-import io.datatok.djobi.engine.Pipeline;
+import io.datatok.djobi.engine.Workflow;
 import io.datatok.djobi.engine.events.PipelineAwareEvent;
 import io.datatok.djobi.event.Event;
 import io.datatok.djobi.event.Subscriber;
@@ -20,7 +20,7 @@ public class PipelineRunFinishSubscriber implements Subscriber {
     @Override
     public void call(Event event) {
         if (QwObjects.nonNull(outVerbosity, reporter) && outVerbosity.isNotQuiet()) {
-            final Pipeline pipeline = ((PipelineAwareEvent) event).getPipeline();
+            final Workflow workflow = ((PipelineAwareEvent) event).getPipeline();
 
             reporter.output("@|bold,green Léla!|@");
         }

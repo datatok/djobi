@@ -46,7 +46,7 @@ public class APIYarnCleanRunner implements ActionRunner {
              final String appId = (String) app.get("id");
 
              // Kill not whitelisted apps
-             if (!appId.equals(( (SparkContext) stage.getJob().getPipeline().getExecutor().get("context")).applicationId()) &&
+             if (!appId.equals(( (SparkContext) stage.getJob().getWorkflow().getExecutor().get("context")).applicationId()) &&
                  !config.whitelistApps.contains(appName)) {
                  logger.info(String.format("[YARN] Found not whitelisted application %s (%s)", appName, appId));
                  killApp(appId);

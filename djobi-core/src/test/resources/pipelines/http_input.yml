@@ -2,7 +2,7 @@ parameters:
   date:
     type: daily_date
 jobs:
-  get_data:
+  - name: get_data
     stages:
       - name: download
         kind: "http.input"

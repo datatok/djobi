@@ -34,22 +34,22 @@ public class Engine {
     private boolean clearJobAfterExecution = true;
 
     /**
-     * Run the pipline.
+     * Run the workflow.
      *
-     * @param pipeline Pipeline
+     * @param workflow workflow to run
      */
-    public void run(final Pipeline pipeline) throws Exception {
-        run(pipeline, null);
+    public void run(final Workflow workflow) throws Exception {
+        run(workflow, null);
     }
 
-    public void run(final Pipeline pipeline, String jobIdFilter) throws Exception {
-        lookupContext.setCurrentPipeline(pipeline);
+    public void run(final Workflow workflow, String jobIdFilter) throws Exception {
+        lookupContext.setCurrentPipeline(workflow);
 
-        logger.info(String.format("Run pipeline with %d jobs", pipeline.getJobs().size()));
+        logger.info(String.format("Run pipeline with %d jobs", workflow.getJobs().size()));
 
-        this.eventBus.trigger(new PipelineRunStartEvent(pipeline));
+        this.eventBus.trigger(new PipelineRunStartEvent(workflow));
 
-        for (Job job : pipeline.getJobs()) {
+        for (Job job : workflow.getJobs()) {
             if (jobIdFilter == null || job.getId().equals(jobIdFilter)) {
                 run(job);
 
@@ -62,16 +62,16 @@ public class Engine {
             }
         }
 
-        this.eventBus.trigger(new PipelineRunFinishEvent(pipeline));
+        this.eventBus.trigger(new PipelineRunFinishEvent(workflow));
     }
 
     public void run(final Job job) throws Exception {
         lookupContext.setCurrentJob(job);
 
-        final Pipeline pipeline = job.getPipeline();
+        final Workflow workflow = job.getWorkflow();
 
-        if (pipeline.getExecutor() != null) {
-            pipeline.getExecutor().connect();
+        if (workflow.getExecutor() != null) {
+            workflow.getExecutor().connect();
         }
 
         this.eventBus.trigger(new JobRunStartEvent(job));
@@ -80,7 +80,7 @@ public class Engine {
 
         logger.info(String.format("Executing job [%s]", job.getId()));
 
-        final List<String> phasesFilter = pipeline.getPipelineRequest().getJobPhases();
+        final List<String> phasesFilter = workflow.getExecutionRequest().getJobPhases();
 
         this.runJobPhase(job, ActionPhases.CONFIGURE);
 

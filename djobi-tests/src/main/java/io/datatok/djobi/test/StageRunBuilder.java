@@ -1,7 +1,7 @@
 package io.datatok.djobi.test;
 
 import io.datatok.djobi.engine.Job;
-import io.datatok.djobi.engine.Pipeline;
+import io.datatok.djobi.engine.Workflow;
 import io.datatok.djobi.engine.data.StageData;
 import io.datatok.djobi.engine.flow.ExecutionContext;
 import io.datatok.djobi.engine.stage.ActionFactory;
@@ -60,20 +60,20 @@ public class StageRunBuilder {
         return this;
     }
 
-    public StageRunBuilder attachPipeline(final Pipeline pipeline) {
+    public StageRunBuilder attachPipeline(final Workflow workflow) {
         if (stage.getJob() == null) {
             attachJob(new Job());
         }
-        stage.getJob().setPipeline(pipeline);
+        stage.getJob().setWorkflow(workflow);
 
         return this;
     }
 
     public StageRunBuilder attachExecutor(final Executor executor) {
-        if (stage.getJob() == null || stage.getJob().getPipeline() == null) {
-            attachPipeline(new Pipeline());
+        if (stage.getJob() == null || stage.getJob().getWorkflow() == null) {
+            attachPipeline(new Workflow());
         }
-        stage.getJob().getPipeline().setExecutor(executor);
+        stage.getJob().getWorkflow().setExecutor(executor);
 
         executionContext.setExecutor(executor);
 

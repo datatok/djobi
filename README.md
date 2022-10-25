@@ -57,3 +57,8 @@ Based on the following guidelines:
 ### create release
 
 ``gradle -Prelease.version=$(cat VERSION) clean djobi_assemble -x test``
+
+## Java 17 issues
+
+* https://stackoverflow.com/questions/73465937/apache-spark-3-3-0-breaks-on-java-17-with-cannot-access-class-sun-nio-ch-direct
+* 

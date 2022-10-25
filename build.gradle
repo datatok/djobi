@@ -63,8 +63,8 @@ subprojects {
             options.encoding = 'UTF-8'
             options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
 
-            sourceCompatibility = JavaVersion.VERSION_11
-            targetCompatibility = JavaVersion.VERSION_11
+            sourceCompatibility = JavaVersion.VERSION_17
+            targetCompatibility = JavaVersion.VERSION_17
         }
         compileTestJava {
             options.encoding = 'UTF-8'
@@ -176,17 +176,33 @@ subprojects {
     }
 
     test {
-        useJUnitPlatform {
-            excludeTags("IntegrationTest", "NeedDocker")
+        if (System.getProperty("includeIntegrationTests") == null) {
+            useJUnitPlatform {
+                excludeTags("IntegrationTest", "NeedDocker")
+            }
         }
 
         environment "projectRoot", System.getProperty("user.dir")
         environment "SPARK_LOCAL_IP", "127.0.0.1"
 
         jvmArgs (
-                '-Dconfig.file=./src/test/resources/env.conf',
-                '-Dlog4j.configuration=log4j.properties',
-                '-Djunit.jupiter.extensions.autodetection.enabled=true'
+            '-Dconfig.file=./src/test/resources/env.conf',
+            '-Dlog4j.configuration=log4j.properties',
+            '-Djunit.jupiter.extensions.autodetection.enabled=true',
+            '--add-opens=java.base/java.lang=ALL-UNNAMED',
+            '--add-opens=java.base/java.lang.invoke=ALL-UNNAMED',
+            '--add-opens=java.base/java.lang.reflect=ALL-UNNAMED',
+            '--add-opens=java.base/java.io=ALL-UNNAMED',
+            '--add-opens=java.base/java.net=ALL-UNNAMED',
+            '--add-opens=java.base/java.nio=ALL-UNNAMED',
+            '--add-opens=java.base/java.util=ALL-UNNAMED',
+            '--add-opens=java.base/java.util.concurrent=ALL-UNNAMED',
+            '--add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED',
+            '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
+            '--add-opens=java.base/sun.nio.cs=ALL-UNNAMED',
+            '--add-opens=java.base/sun.security.action=ALL-UNNAMED',
+            '--add-opens=java.base/sun.util.calendar=ALL-UNNAMED',
+            '--add-opens=java.security.jgss/sun.security.krb5=ALL-UNNAMED'
         )
 
         testLogging {
@@ -200,6 +216,7 @@ subprojects {
 
         failFast = false
         testLogging.showStandardStreams = true
+        maxParallelForks = 1
         //reports.html.enabled = false
     };
 };

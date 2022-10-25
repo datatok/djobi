@@ -21,9 +21,18 @@ build/release:
 build:
 	gradle -x :djobi-core:signArchives -x :djobi-tests:signArchives --no-parallel --rerun-tasks djobiAssemble testReport
 
-.PHONY: gradle/deps
-gradle/deps:
-    ./gradlew djobi-core:dependencies > dep.html
+.PHONY: test/ci
+test/ci:
+	gradle -x :djobi-core:signArchives -x :djobi-tests:signArchives --no-parallel --rerun-tasks test -DincludeIntegrationTests
+
+.PHONY: test/integration
+test/integration:
+	gradle -x :djobi-core:signArchives -x :djobi-tests:signArchives --no-parallel --rerun-tasks test -DincludeIntegrationTests
+
+.PHONY: code/dependencies
+code/dependencies:
+	gradle :djobi-core:dependencies > dep.html
+	open dep.html
 
 .PHONY: run/simple
 run/simple:

@@ -176,8 +176,10 @@ subprojects {
     }
 
     test {
-        useJUnitPlatform {
-            excludeTags("IntegrationTest", "NeedDocker")
+        if (System.getProperty("includeIntegrationTests") == null) {
+            useJUnitPlatform {
+                excludeTags("IntegrationTest", "NeedDocker")
+            }
         }
 
         environment "projectRoot", System.getProperty("user.dir")

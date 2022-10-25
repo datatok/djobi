@@ -9,6 +9,7 @@ import io.datatok.djobi.engine.check.CheckStatus;
 import io.datatok.djobi.loaders.yaml.YAMLWorkflowLoader;
 import io.datatok.djobi.test.MyTestRunner;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -16,6 +17,7 @@ import javax.inject.Inject;
 import java.lang.reflect.Method;
 
 @ExtendWith(MyTestRunner.class)
+@Tag("IntegrationTest")
 public class KafkaTest {
     @Inject
     private Engine engine;
@@ -36,7 +38,7 @@ public class KafkaTest {
 
         method.invoke(engine, job);
 
-        Assertions.assertEquals(job.getPreCheckStatus(), CheckStatus.DONE_OK);
+        Assertions.assertEquals(CheckStatus.DONE_OK, job.getPreCheckStatus());
     }
 
     private Workflow getWorkflow(final String workflow) throws Exception {

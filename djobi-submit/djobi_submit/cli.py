@@ -11,8 +11,8 @@ def cli():
 ))
 @click.option("--name", default="djobi", help="The job name", envvar="DJOBI_NAME")
 @click.option("--apm-server-url", help="APM server URL, to use APM agent.", envvar="DJOBI_APM_SERVER_URL")
-@click.option("--support-kafka", is_flag=True, help="Add kafka library.", envvar="DJOBI_SUPPORT_KAFKA")
-@click.option("--support-elasticsearch", is_flag=True, help="Add elasticsearch library.", envvar="DJOBI_SUPPORT_ELASTICSEARCH")
+@click.option("--support-kafka", help="Use kafka library version X.", envvar="DJOBI_SUPPORT_KAFKA")
+@click.option("--support-elasticsearch", help="Use elasticsearch library version X.", envvar="DJOBI_SUPPORT_ELASTICSEARCH")
 @click.option("--support-user-agent-parser", is_flag=True, help="Add user-agent parser filter.", envvar="DJOBI_SUPPORT_UA_PARSER")
 @click.option("--config-file", help="", envvar="DJOBI_CONF")
 @click.option("--djobi-conf", multiple=True, type=(str, str), help="Override Djobi config")
@@ -32,8 +32,8 @@ def run(
     ctx,
     name,
     apm_server_url: str,
-    support_kafka: bool,
-    support_elasticsearch: bool,
+    support_kafka: int,
+    support_elasticsearch: int,
     support_user_agent_parser: bool,
     config_file: str,
     djobi_conf: tuple,
@@ -80,10 +80,10 @@ def run(
     spark_jars.append(f"{djobi_home}/libs/djobi-core-{djobi_version}.jar")
     
     if support_kafka:
-        spark_jars.append(f"{djobi_home}/libs/djobi-kafka-kafka1-{djobi_version}.jar")
+        spark_jars.append(f"{djobi_home}/libs/djobi-kafka-kafka{support_kafka}-{djobi_version}.jar")
         
     if support_elasticsearch:
-        spark_jars.append(f"{djobi_home}/libs/djobi-elasticsearch-es7-{djobi_version}.jar")
+        spark_jars.append(f"{djobi_home}/libs/djobi-elasticsearch-es{support_elasticsearch}-{djobi_version}.jar")
 
     if support_user_agent_parser:
         spark_jars.append(f"{djobi_home}/libs/djobi-filter-user_agent-bitwalker-{djobi_version}.jar")

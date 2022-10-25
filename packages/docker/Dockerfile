@@ -1,4 +1,4 @@
-ARG java_image_tag=11-jre
+ARG java_image_tag=17-jre
 
 ##
 # Stage base (tooling)
@@ -17,8 +17,8 @@ RUN apk add --update --no-cache wget curl
 ##
 FROM base AS spark-base
 
-ARG SPARK_VERSION=3.2.2
-ARG HADOOP_VERSION=3.2
+ARG SPARK_VERSION=3.3.0
+ARG HADOOP_VERSION=3
 ARG SPARK_CDN=https://dlcdn.apache.org/spark
 
 RUN wget --quiet ${SPARK_CDN}/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
@@ -31,7 +31,7 @@ RUN wget --quiet ${SPARK_CDN}/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-
 ##
 FROM base AS elastic-apm
 
-ARG ELASTIC_APM_VERSION=1.34.0
+ARG ELASTIC_APM_VERSION=1.34.1
 
 RUN mkdir -p /opt/elastic && \
     curl -sL https://search.maven.org/remotecontent?filepath=co/elastic/apm/elastic-apm-agent/${ELASTIC_APM_VERSION}/elastic-apm-agent-${ELASTIC_APM_VERSION}.jar -o /opt/elastic/elastic-apm-agent-${ELASTIC_APM_VERSION}.jar && \
@@ -72,7 +72,7 @@ ENV LANG=en_US.UTF-8 \
     LC_ALL=en_US.UTF-8 \
     PYTHONPATH="/opt/spark/python/:$PYTHONPATH" \
     SPARK_WORK_DIR="${SPARK_HOME}/work" \
-    JAVA_HOME="/usr/lib/jvm/java-11-openjdk"
+    JAVA_HOME="/usr/lib/jvm/java-17-openjdk"
 
 ENV PATH="${JAVA_HOME}/bin:${SPARK_HOME}/bin:${SPARK_HOME}/sbin:${DJOBI_HOME}/submit/venv/bin:$PATH"
 

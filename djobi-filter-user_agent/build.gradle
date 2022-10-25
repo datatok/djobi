@@ -28,4 +28,9 @@ dependencies {
     )
 }
 
+tasks.withType(Test) {
+    maxParallelForks = 1
+    jvmArgs "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
+};
+
 djobi.createReleaseWithVariants(variants)

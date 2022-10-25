@@ -63,8 +63,8 @@ subprojects {
             options.encoding = 'UTF-8'
             options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
 
-            sourceCompatibility = JavaVersion.VERSION_11
-            targetCompatibility = JavaVersion.VERSION_11
+            sourceCompatibility = JavaVersion.VERSION_17
+            targetCompatibility = JavaVersion.VERSION_17
         }
         compileTestJava {
             options.encoding = 'UTF-8'
@@ -200,6 +200,7 @@ subprojects {
 
         failFast = false
         testLogging.showStandardStreams = true
+        maxParallelForks = 1
         //reports.html.enabled = false
     };
 };

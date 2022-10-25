@@ -1,10 +1,6 @@
 package io.datatok.djobi.spark.executor.config;
 
-import com.google.inject.Inject;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigBeanFactory;
-import com.typesafe.config.ConfigFactory;
-import io.datatok.djobi.configuration.Configuration;
+import com.typesafe.config.Optional;
 import io.datatok.djobi.utils.MyMapUtils;
 
 import java.util.List;
@@ -12,26 +8,32 @@ import java.util.Map;
 
 public class SparkExecutorConfig {
 
+    @Optional
     private String master;
 
+    @Optional
     private String appName;
 
+    @Optional
     private String yarnUrl;
 
     /**
      * Hold extra data sources
      */
+    @Optional
     private List<SparkExecutorDataSourceConfig> extraDataSources;
 
     /**
      * eg: http://XXXX/history/{{app_id}}/jobs/job/?id={{id}}
      */
+    @Optional
     private String webHistoryUrlForJob;
 
     /**
      * Hold spark configuration
      */
-    private Map<String, Object> config;
+    @Optional
+    private Map<String, Object> conf;
 
     public SparkExecutorConfig() {
     }
@@ -68,12 +70,20 @@ public class SparkExecutorConfig {
         this.webHistoryUrlForJob = webHistoryUrlForJob;
     }
 
-    public Map<String, Object> getConfig() {
-        return config;
+    public Map<String, Object> getConf() {
+        return conf;
     }
 
-    public void setConfig(Map<String, Object> config) {
-        this.config = config;
+    public Map<String, String> getConfFlatten() {
+        if (getConf() == null) {
+            return null;
+        }
+
+        return MyMapUtils.valuesToString(MyMapUtils.flattenKeys(getConf()));
+    }
+
+    public void setConf(Map<String, Object> conf) {
+        this.conf = conf;
     }
 
     public List<SparkExecutorDataSourceConfig> getExtraDataSources() {

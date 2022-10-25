@@ -137,6 +137,6 @@ public class MyMapUtils {
 
     public static Map<String, String> valuesToString(Map<String, Object> source) {
         return source.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> (String)e.getValue()));
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
     }
 }

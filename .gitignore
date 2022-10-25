@@ -9,6 +9,7 @@ out.log
 dev/volumes/
 !dev/volumes/test_func_reports/.gitkeep
 djobi-1.0
+run.sh
 
 # Created by https://www.gitignore.io/api/intellij
 

@@ -23,6 +23,10 @@ public class SparkExecutorConfigFactory {
             getDefaults()
         );
 
+        return create(config);
+    }
+
+    public SparkExecutorConfig create(Config config) {
         return ConfigBeanFactory.create(config, SparkExecutorConfig.class);
     }
 
@@ -32,7 +36,7 @@ public class SparkExecutorConfigFactory {
             appName: "djobi-app"
             yarnUrl: ""
             extraDataSources: []
-            config {}
+            conf {}
         """;
 
         return ConfigFactory.parseString(buffer);

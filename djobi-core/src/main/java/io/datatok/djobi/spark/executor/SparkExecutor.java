@@ -1,7 +1,6 @@
 package io.datatok.djobi.spark.executor;
 
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigValue;
 import io.datatok.djobi.engine.stage.Stage;
 import io.datatok.djobi.executors.Executor;
 import io.datatok.djobi.spark.executor.config.SparkExecutorConfig;
@@ -19,7 +18,6 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.functions;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -196,9 +194,13 @@ true
 
         conf.setAppName(configuration.getAppName());
 
-        for (Map.Entry<String, String> entry : MyMapUtils.<String>flattenKeys(configuration.getConfig()).entrySet()) {
-            logger.debug(String.format("configure Spark executor %s = %s", entry.getKey(), entry.getValue()));
-            conf.set(entry.getKey(), entry.getValue());
+        final Map<String, String> flattenConfig = configuration.getConfFlatten();
+
+        if (flattenConfig != null) {
+            for (Map.Entry<String, String> entry : flattenConfig.entrySet()) {
+                logger.debug(String.format("configure Spark executor %s = %s", entry.getKey(), entry.getValue()));
+                conf.set(entry.getKey(), entry.getValue());
+            }
         }
 
         if (this.lastConf != null && this.lastConf.containsKey("conf")) {

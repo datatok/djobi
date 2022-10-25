@@ -1,11 +1,11 @@
 package io.datatok.djobi.loaders.yaml.pojo;
 
-import io.datatok.djobi.utils.Bag;
+import java.util.Map;
 
 public class ExecutorDefinition {
 
     public String type;
 
-    public Bag spec;
+    public Map<String, Object> spec;
 
 }

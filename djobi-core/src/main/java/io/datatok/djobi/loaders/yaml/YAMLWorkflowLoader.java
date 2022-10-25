@@ -12,6 +12,7 @@ import io.datatok.djobi.loaders.matrix.MatrixGenerator;
 import io.datatok.djobi.loaders.yaml.pojo.JobDefinition;
 import io.datatok.djobi.loaders.yaml.pojo.WorkflowDefinition;
 import io.datatok.djobi.utils.ActionArgFactory;
+import io.datatok.djobi.utils.Bag;
 import io.datatok.djobi.utils.MyMapUtils;
 import io.datatok.djobi.loaders.utils.WKJobFilter;
 import io.datatok.djobi.utils.bags.ParameterBag;
@@ -39,11 +40,11 @@ public class YAMLWorkflowLoader {
 
     private static final Logger logger = Logger.getLogger(YAMLWorkflowLoader.class);
 
-    private static final Set<String> fileNameCandidates = Set.of("pipeline.yml", "pipeline.yaml", "djobi.yml", "djobi.yaml");
+    private static final Set<String> fileNameCandidates = Set.of("workflow.yml", "workflow.yaml", "pipeline.yml", "pipeline.yaml", "djobi.yml", "djobi.yaml", "wk.yaml", "wk.yml");
     private static final Set<String> extensionCandidates = Set.of("yml", "yaml");
 
     @Inject
-    private MatrixGenerator materializer;
+    private MatrixGenerator matrixGenerator;
 
     @Inject
     private ActionArgFactory actionArgFactory;
@@ -201,7 +202,7 @@ public class YAMLWorkflowLoader {
                         }
 
                         try {
-                            jobsToRunParameters = materializer.generate(pipelineParameters, jobContextParameters);
+                            jobsToRunParameters = matrixGenerator.generate(pipelineParameters, jobContextParameters);
                         } catch (Exception e) {
                             e.printStackTrace();
                             logger.error("JobTaskExpandable", e);
@@ -215,10 +216,6 @@ public class YAMLWorkflowLoader {
             jobs = new ArrayList<>();
         }
 
-        /**
-         * @todo refactor: Executor must be created for 1 pipeline
-         */
-
         final Executor executor;
 
         if (definition.executor != null && definition.executor.type != null) {
@@ -228,7 +225,7 @@ public class YAMLWorkflowLoader {
         }
 
         if (definition.executor != null && definition.executor.spec != null) {
-            executor.configure(definition.executor.spec);
+            executor.configure(Bag.fromMap(definition.executor.spec));
         }
 
         workflow

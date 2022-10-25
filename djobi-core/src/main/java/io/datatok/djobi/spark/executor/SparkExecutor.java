@@ -254,28 +254,25 @@ true
     }
 
     private void setupData() {
-        for (Map.Entry<String, SparkExecutorDataSourceConfig> entry : configuration.getExtraDataSources().entrySet()) {
-            final String dsName = entry.getKey();
-            final SparkExecutorDataSourceConfig dsConfig = entry.getValue();
+        for (SparkExecutorDataSourceConfig dsConfig : configuration.getExtraDataSources()) {
+            logger.info(String.format("Setup table %s", dsConfig.getName()));
 
-            logger.info(String.format("Setup table %s", entry));
-
-            switch (dsConfig.type) {
+            switch (dsConfig.getType()) {
                 case "table" -> {
                     Dataset<Row> df = sqlContext
                         .read()
-                        .format(dsConfig.format)
-                        .load(dsConfig.path);
+                        .format(dsConfig.getFormat())
+                        .load(dsConfig.getPath());
                     /*
                     if (dataItem.hasPath("columns")) {
                         for (Map.Entry<String, ConfigValue> column : dataItem.getObject("columns").entrySet()) {
                             df = df.withColumn(column.getKey(), functions.lit(column.getValue().render()));
                         }
                     }*/
-                    df.createOrReplaceTempView(dsName);
+                    df.createOrReplaceTempView(dsConfig.getName());
                 }
                 case "sql" -> sqlContext
-                    .sql(dsConfig.sql);
+                    .sql(dsConfig.getSql());
             }
         }
     }

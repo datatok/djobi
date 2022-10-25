@@ -256,6 +256,10 @@ public class SparkReporter extends SparkListener {
 
 
     private String getWebHistoryUrlForJob(final String id) {
+        if (this.configuration.getWebHistoryUrlForJob() == null) {
+            return "";
+        }
+
         return this.configuration.getWebHistoryUrlForJob()
                 .replace("{{app_id}}", currentApplicationID)
                 .replace("{{id}}", id)

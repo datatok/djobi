@@ -19,10 +19,6 @@ public class SparkExecutorTest {
         long count = sparkExecutor.getSQLContext().sql("SELECT * FROM utils_country").count();
 
         Assertions.assertEquals(248, count);
-
-        String test = sparkExecutor.getSQLContext().sql("SELECT test FROM utils_country LIMIT 1").first().getString(0);
-
-        Assertions.assertEquals("\"toto\"", test);
     }
 
 }

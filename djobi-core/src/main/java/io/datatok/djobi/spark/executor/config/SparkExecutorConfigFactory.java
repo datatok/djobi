@@ -4,11 +4,9 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import com.typesafe.config.ConfigFactory;
 import io.datatok.djobi.configuration.Configuration;
-import io.datatok.djobi.utils.MyMapUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Map;
 
 /**
  * Create Spark executor config bean.
@@ -30,10 +28,10 @@ public class SparkExecutorConfigFactory {
 
     private Config getDefaults() {
         final String buffer = """
-            master: "localhost[1]"
+            master: "local[1]"
             appName: "djobi-app"
             yarnUrl: ""
-            extraDataSources: {}
+            extraDataSources: []
             config {}
         """;
 

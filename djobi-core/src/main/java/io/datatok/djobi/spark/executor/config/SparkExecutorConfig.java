@@ -7,6 +7,7 @@ import com.typesafe.config.ConfigFactory;
 import io.datatok.djobi.configuration.Configuration;
 import io.datatok.djobi.utils.MyMapUtils;
 
+import java.util.List;
 import java.util.Map;
 
 public class SparkExecutorConfig {
@@ -20,7 +21,7 @@ public class SparkExecutorConfig {
     /**
      * Hold extra data sources
      */
-    private Map<String, SparkExecutorDataSourceConfig> extraDataSources;
+    private List<SparkExecutorDataSourceConfig> extraDataSources;
 
     /**
      * eg: http://XXXX/history/{{app_id}}/jobs/job/?id={{id}}
@@ -59,14 +60,6 @@ public class SparkExecutorConfig {
         this.yarnUrl = yarnUrl;
     }
 
-    public Map<String, SparkExecutorDataSourceConfig> getExtraDataSources() {
-        return extraDataSources;
-    }
-
-    public void setExtraDataSources(Map<String, SparkExecutorDataSourceConfig> extraDataSources) {
-        this.extraDataSources = extraDataSources;
-    }
-
     public String getWebHistoryUrlForJob() {
         return webHistoryUrlForJob;
     }
@@ -81,5 +74,13 @@ public class SparkExecutorConfig {
 
     public void setConfig(Map<String, Object> config) {
         this.config = config;
+    }
+
+    public List<SparkExecutorDataSourceConfig> getExtraDataSources() {
+        return extraDataSources;
+    }
+
+    public void setExtraDataSources(List<SparkExecutorDataSourceConfig> extraDataSources) {
+        this.extraDataSources = extraDataSources;
     }
 }

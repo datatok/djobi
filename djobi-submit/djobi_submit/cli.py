@@ -17,7 +17,7 @@ def cli():
 @click.option("--config-file", help="", envvar="DJOBI_CONF")
 @click.option("--djobi-conf", multiple=True, type=(str, str), help="Override Djobi config")
 
-@click.option("--master", default="localhost[*]", help="The spark master URL", envvar="SPARK_MASTER")
+@click.option("--master", default="local[*]", help="The spark master URL", envvar="SPARK_MASTER")
 @click.option("--driver-java-options", default="", help="Extra driver java options.", envvar="SPARK_DRIVER_JAVA_OPTS")
 @click.option("--driver-memory", default="800M", help="Spark driver memory.", envvar="SPARK_DRIVER_MEMORY")
 @click.option("--driver-cores", default=1, help="Spark driver cores.", envvar="SPARK_DRIVER_CORES")

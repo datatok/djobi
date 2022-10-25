@@ -51,7 +51,6 @@ def run(
     extra_env_variables = {}
     spark_files         = []
     spark_jars          = []
-    djobi_version       = os.getenv("DJOBI_VERSION")
     djobi_home          = os.getenv("DJOBI_HOME")
     spark_home          = os.getenv("SPARK_HOME")
     log4j               = f"{djobi_home}/log4j.properties"
@@ -63,12 +62,15 @@ def run(
         print("spark_home is empty, SPARK_HOME env variable is missing?")
         exit(1)
 
-    if not djobi_version:
-        print("djobi_version is empty, DJOBI_VERSION env variable is missing?")
-        exit(1)
-
     if not djobi_home:
         print("djobi_home is empty, DJOBI_HOME env variable is missing?")
+        exit(1)
+
+    with open(f"{djobi_home}/VERSION") as f:
+        djobi_version = f.readline()
+
+    if not djobi_version:
+        print("djobi_version is empty, ${DJOBI_HOME}/VERSION file is missing?")
         exit(1)
 
     if not config_file:
@@ -127,7 +129,7 @@ exec {spark_home}/bin/spark-submit \
 --jars {buffer_jars} \
 --class io.datatok.djobi.Main \
 --name {name} \
---master {master} \
+--master '{master}' \
 --num-executors {executor_instances} \
 --executor-memory {executor_memory} \
 --executor-cores {executor_cores} \

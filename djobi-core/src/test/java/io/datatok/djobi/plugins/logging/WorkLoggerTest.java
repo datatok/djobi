@@ -152,8 +152,8 @@ class WorkLoggerTest {
         final YAMLWorkflowLoader pipelineLoader = injector.getInstance(YAMLWorkflowLoader.class);
         final Engine engine = injector.getInstance(Engine.class);
 
-        elasticsearchUtils.deleteIndex(esSink.getSettingUrl(), esSink.getSettingIndex());
-        elasticsearchUtils.deleteIndex(stageSink.getSettingUrl(), stageSink.getSettingIndex());
+        elasticsearchUtils.deleteIndex(esSink.getElasticsearchEndpoint(), esSink.getElasticsearchIndex());
+        elasticsearchUtils.deleteIndex(stageSink.getElasticsearchEndpoint(), stageSink.getElasticsearchIndex());
 
         final Workflow workflow =  pipelineLoader.get(
                 ExecutionRequest.build("./src/test/resources/pipelines/good_dummy2.yml")
@@ -162,10 +162,10 @@ class WorkLoggerTest {
 
         engine.run(workflow);
 
-        elasticsearchUtils.refresh(esSink.getSettingUrl(), esSink.getSettingIndex());
-        elasticsearchUtils.refresh(stageSink.getSettingUrl(), stageSink.getSettingIndex());
+        elasticsearchUtils.refresh(esSink.getElasticsearchEndpoint(), esSink.getElasticsearchIndex());
+        elasticsearchUtils.refresh(stageSink.getElasticsearchEndpoint(), stageSink.getElasticsearchIndex());
 
-        int c = elasticsearchUtils.searchCount(esSink.getSettingUrl(), esSink.getSettingIndex());
+        int c = elasticsearchUtils.searchCount(esSink.getElasticsearchEndpoint(), esSink.getElasticsearchIndex());
 
         Assertions.assertEquals(1, c);
 
@@ -173,7 +173,7 @@ class WorkLoggerTest {
     }
 
     private void assertJobLog(ElasticsearchUtils elasticsearchUtils, ElasticsearchLogSink esSink, Workflow workflow) throws Exception {
-        Map<String, Object> doc = elasticsearchUtils.query(esSink.getSettingUrl(), esSink.getSettingIndex(), workflow.getJob(0).getUid());
+        Map<String, Object> doc = elasticsearchUtils.query(esSink.getElasticsearchEndpoint(), esSink.getElasticsearchIndex(), workflow.getJob(0).getUid());
 
         doc = (Map<String, Object>) MyMapUtils.browse(doc, "_source");
 

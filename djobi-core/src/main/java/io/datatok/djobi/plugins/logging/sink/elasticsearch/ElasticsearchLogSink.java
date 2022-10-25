@@ -15,26 +15,28 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Write work logs to elasticsearch.
+ */
 public class ElasticsearchLogSink implements LogSink {
 
     @Inject
     private Http http;
-
-    static private final Map<String, String> serverVersions = new HashMap<>();
     
     static private final Logger logger = Logger.getLogger(ElasticsearchLogSink.class);
 
-    private final String settingUrl;
+    private final String elasticsearchEndpoint;
 
-    private String settingIndex;
+    private final String elasticsearchIndex;
 
-    private boolean initialized = false;
-
+    /**
+     * Hold ready status, to prevent error logs flood.
+     */
     private boolean isWorking = true;
 
     public ElasticsearchLogSink(final LoggingSinkConfig config) {
-        this.settingIndex = config.getStoreBucket();
-        this.settingUrl = config.getStoreURL();
+        this.elasticsearchIndex = config.getStoreBucket();
+        this.elasticsearchEndpoint = config.getStoreURL();
     }
 
     /**
@@ -42,32 +44,8 @@ public class ElasticsearchLogSink implements LogSink {
      *
      * @since v3.7.0
      */
-    private void init() {
-        this.initialized = true;
-
-        if (!this.settingIndex.contains("/")) {
-            if (!serverVersions.containsKey(this.settingUrl)) {
-                try {
-                    serverVersions.put(this.settingUrl, (String) http.get(this.settingUrl).execute().at("version.number"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            final String version = serverVersions.get(this.settingUrl);
-
-            if (version == null || version.startsWith("2")) {
-                logger.error("Only support ES >= 7");
-            }
-        }
-    }
-
     public Map<String, Object> getDocument(String documentId) throws IOException {
-        if (!initialized) {
-            init();
-        }
-
-        return http.get(String.format("%s/%s/%s",this.settingUrl, this.settingIndex, documentId)).executeAsDict();
+        return http.get(String.format("%s/%s/%s",this.elasticsearchEndpoint, this.elasticsearchIndex, documentId)).executeAsDict();
     }
 
     @Override
@@ -78,17 +56,13 @@ public class ElasticsearchLogSink implements LogSink {
             return null;
         }
 
-        if (!initialized) {
-            init();
-        }
-
         HttpRequest request;
 
         if (documentId == null || documentId.isEmpty()) {
-            final String url = String.format("%s/%s?refresh",this.settingUrl, this.settingIndex);
+            final String url = String.format("%s/%s/_doc/?refresh",this.elasticsearchEndpoint, this.elasticsearchIndex);
             request = http.post(url);
         } else {
-            final String url = String.format("%s/%s/%s?refresh",this.settingUrl, this.settingIndex, documentId);
+            final String url = String.format("%s/%s/_doc/%s?refresh",this.elasticsearchEndpoint, this.elasticsearchIndex, documentId);
             request = http.put(url);
         }
 
@@ -121,10 +95,6 @@ public class ElasticsearchLogSink implements LogSink {
             return null;
         }
 
-        if (!initialized) {
-            init();
-        }
-
         return updateOrCreate(null, data);
     }
 
@@ -135,11 +105,7 @@ public class ElasticsearchLogSink implements LogSink {
             return ;
         }
 
-        if (!initialized) {
-            init();
-        }
-
-        final String url = String.format("%s/%s/%s/_update", this.settingUrl, this.settingIndex, documentId);
+        final String url = String.format("%s/%s/_doc/%s/_update", this.elasticsearchEndpoint, this.elasticsearchIndex, documentId);
 
         logger.debug(String.format("update %s", url));
 
@@ -150,19 +116,11 @@ public class ElasticsearchLogSink implements LogSink {
         }
     }
 
-    public String getSettingUrl() {
-        if (!initialized) {
-            init();
-        }
-
-        return settingUrl;
+    public String getElasticsearchEndpoint() {
+        return elasticsearchEndpoint;
     }
 
-    public String getSettingIndex() {
-        if (!initialized) {
-            init();
-        }
-
-        return settingIndex;
+    public String getElasticsearchIndex() {
+        return elasticsearchIndex;
     }
 }

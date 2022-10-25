@@ -47,8 +47,8 @@ public class ElasticsearchWorkLoggerTest {
         Assertions.assertEquals(1, workflow.getJobs().size());
 
         final String configStr = "djobi.plugins.logger { sinks { " +
-                "jobs { enabled = true, type = elasticsearch, options { url = \"http://elasticsearch-127-0-0-1.nip.io\", index = \"djobi-jobs/_doc\" } } \n" +
-                "stages { enabled = true, type = elasticsearch, options { url = \"http://elasticsearch-127-0-0-1.nip.io\", index = \"djobi-stages/_doc\" } } \n" +
+                "jobs { enabled = true, type = elasticsearch, options { url = \"http://elasticsearch-127-0-0-1.nip.io\", index = \"djobi-jobs\" } } \n" +
+                "stages { enabled = true, type = elasticsearch, options { url = \"http://elasticsearch-127-0-0-1.nip.io\", index = \"djobi-stages\" } } \n" +
                 "metrics { enabled = false } \n" +
                 "" +
                 "} }";

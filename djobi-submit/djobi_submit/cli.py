@@ -1,5 +1,5 @@
 from email.policy import default
-import click, os, subprocess
+import click, os
 
 @click.group()
 def cli():
@@ -27,6 +27,9 @@ def cli():
 @click.option("--executor-cores", default=1, help="Spark executor cores.", envvar="SPARK_EXECUTOR_CORES")
 @click.option("--spark-conf", multiple=True, type=(str, str), help="Extra Spark conf")
 
+@click.option("--log-level", default="info", help='Set the logging level ("debug"|"info"|"warn"|"error"|"fatal") (default "info")', envvar="DJOBI_LOG_LEVEL")
+@click.option("--verbosity", default="normal", help='Set the stdout report verbosity ("quiet"|"normal"|"verbose"|"alicia")', envvar="DJOBI_VERBOSITY")
+
 @click.pass_context
 def run(
     ctx,
@@ -45,7 +48,9 @@ def run(
     executor_instances: int,
     executor_memory: str,
     executor_cores: int,
-    spark_conf: tuple
+    spark_conf: tuple,
+    log_level: str,
+    verbosity: str
 ) -> None:
     
     extra_env_variables = {}
@@ -94,10 +99,13 @@ def run(
 
         elastic_home        = os.getenv("ELASTIC_HOME")
         apm_agent_config    = f"-Delastic.apm.service_name=djobi -Delastic.apm.server_urls={apm_server_url} -Delastic.apm.verify_server_cert=false -Delastic.apm.disable_instrumentations=okhttp,jdbc,asynchttpclient,concurrent,servlet-api-async,servlet-api,jax-rs,jax-ws,render,quartz,executor,annotations"
-        JVMDriverOptions    = trim(f"{JVMDriverOptions} -javaagent:{elastic_home}/elastic-apm-agent.jar {apm_agent_config}", " ")
-        JVMExecutorOptions  = trim(f"{JVMExecutorOptions} -javaagent:elastic-apm-agent.jar {apm_agent_config}", " ")
+        JVMDriverOptions    = f"{JVMDriverOptions} -javaagent:{elastic_home}/elastic-apm-agent.jar {apm_agent_config}".strip()
+        JVMExecutorOptions  = f"{JVMExecutorOptions} -javaagent:elastic-apm-agent.jar {apm_agent_config}".strip()
         
         spark_files.append(f"${elastic_home}/elastic-apm-agent.jar")
+        
+    if len(log_level) > 0:
+        JVMDriverOptions  = f"{JVMDriverOptions} -Dlog.level={log_level}".strip()
     
     spark_conf_list = list(spark_conf)
         
@@ -122,6 +130,8 @@ def run(
         
     for k,v in extra_env_variables.items():
         buffer_env_vars = f"{buffer_env_vars}export {k}={v} \n"
+        
+    buffer_djobi_args = f"{buffer_djobi_args} --verbosity {verbosity}"
         
     out_cmd = f"""
 {buffer_env_vars}

@@ -17,7 +17,7 @@ RUN apk add --update --no-cache wget curl
 ##
 FROM base AS spark-base
 
-ARG SPARK_VERSION=3.3.0
+ARG SPARK_VERSION=3.3.1
 ARG HADOOP_VERSION=3
 ARG SPARK_CDN=https://dlcdn.apache.org/spark
 
@@ -48,18 +48,16 @@ ENV PATH "${DJOBI_HOME}/submit/venv/bin:$PATH"
 
 WORKDIR ${DJOBI_HOME}/submit
 
-RUN python3 -m venv venv
+COPY djobi-submit .
 
-COPY djobi-submit/requirements.txt ./
-
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --user --no-cache-dir -e .
 
 ##
 # Stage Djobi
 ##
 FROM base
 
-RUN apk add --update --no-cache openjdk11 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community && \
+RUN apk add --update --no-cache openjdk17 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community && \
     apk add --update --no-cache \
             bash \
             tini \
@@ -84,7 +82,7 @@ COPY --from=spark-base   --chown=1000:1000 /spark               ${SPARK_HOME}
 COPY                     --chown=1000:1000 build/release        ${DJOBI_HOME}
 COPY                     --chown=1000:1000 packages/docker      ${DJOBI_HOME}/docker
 COPY                     --chown=1000:1000 djobi-submit         ${DJOBI_HOME}/submit
-COPY --from=djobi-submit --chown=1000:1000 ${DJOBI_HOME}/submit/venv ${DJOBI_HOME}/submit/venv
+COPY --from=djobi-submit --chown=1000:1000 /root/.local         ${DJOBI_HOME}/.local
 
 ##
 # add djobi user to run as no-root

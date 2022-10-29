@@ -56,9 +56,8 @@ public class ExecuteWorkflowCommand implements Runnable {
     @CommandLine.Parameters(paramLabel = "workflow", defaultValue = "${DJOBI_PIPELINE}" ,arity = "1..*", description = "workflow definition URL (ex: YAML file path)")
     String workflowDefinitionURL;
 
-    @CommandLine.Option(names = { "-v", "--verbose" }, description = "Verbose mode. Helpful for troubleshooting. " +
-            "Multiple -v options increase the verbosity.")
-    private final boolean[] verbosityOption = new boolean[0];
+    @CommandLine.Option(names = { "-v", "--verbosity" }, description = "Set the stdout report verbosity (\"quiet\"|\"normal\"|\"verbose\"|\"alicia\")")
+    String verbosityOption;
 
     @Override
     public void run() {

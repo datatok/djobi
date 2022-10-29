@@ -8,6 +8,7 @@ import io.datatok.djobi.cli.CommandKernel;
 import io.datatok.djobi.cli.StdoutReporter;
 import io.datatok.djobi.cli.utils.CLISimpleUtils;
 import io.datatok.djobi.cli.utils.CLIUtils;
+import io.datatok.djobi.logging.LoggerSetup;
 import io.datatok.djobi.plugins.report.Reporter;
 import io.datatok.djobi.plugins.s3.S3Plugin;
 import io.datatok.djobi.plugins.stages.DefaultActionsPlugin;
@@ -27,6 +28,9 @@ final public class Main implements Serializable {
      */
     public static void main(String[] args) {
         final Djobi application;
+
+        // Configure logger as fast as possible
+        LoggerSetup.init();
 
         try {
             final ApplicationBuilder builder = new ApplicationBuilder()

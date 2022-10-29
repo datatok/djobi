@@ -1,7 +1,7 @@
 ## Dependencies
 
 * base image: alpine:3.16
-* java 11
+* java 17 (JRE)
 
 ## Entrypoint
 
@@ -12,3 +12,7 @@ The python application ``djobi-submit`` is a wrapper to spark-submit which run d
 ```
 entrypoint.sh -> python djobi-submit -> spark-submit
 ```
+
+## Docs
+
+* https://www.docker.com/blog/containerized-python-development-part-1/

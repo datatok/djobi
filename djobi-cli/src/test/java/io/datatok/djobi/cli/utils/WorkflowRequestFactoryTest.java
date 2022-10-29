@@ -35,7 +35,7 @@ public class WorkflowRequestFactoryTest {
             MyMapUtils.mapString(),
     "a,b",
     "",
-            new boolean[]{}
+            ""
         );
 
         Assertions.assertEquals("yesterday", pipelineExecutionRequest.getArgument("date"));

@@ -61,12 +61,12 @@ services:
       djobi 
         --djobi-conf djobi.plugins.logger.enabled false 
         --djobi-conf djobi.plugins.apm.enabled false 
+        --support-elasticsearch 7
         /opt/dev/pipelines/es2fs -adate=yesterday
     environment:
       DJOBI_CONF: /opt/dev/default.conf
       DJOBI_SUPPORT_UA_PARSER: "true"
       SPARK_MASTER: "local[1]"
-      DJOBI_SUPPORT_ELASTICSEARCH: "true"
       projectRoot: /opt
     depends_on:
     - elasticsearch
@@ -76,5 +76,5 @@ services:
     volumes:
     - ./dev:/opt/dev
     - /Users/t.decaux/dev/qwant/qwant.jks:/usr/local/openjdk-11/lib/security/cacerts:ro
-    - ./packages/docker/entrypoint.sh:/opt/djobi/docker/entrypoint.sh:ro
-    - ./djobi-submit/djobi_submit:/opt/djobi/.local/lib/python3.10/site-packages/djobi_submit:ro
+    #- ./packages/docker/entrypoint.sh:/opt/djobi/docker/entrypoint.sh:ro
+    #- ./djobi-submit/djobi_submit:/opt/djobi/.local/lib/python3.10/site-packages/djobi_submit:ro

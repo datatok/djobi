@@ -14,7 +14,7 @@ parameters:
   date:
     type: daily_date
 jobs:
-  job1:
+  - name: job1
     stages:
       input:
         kind: "random_generator"

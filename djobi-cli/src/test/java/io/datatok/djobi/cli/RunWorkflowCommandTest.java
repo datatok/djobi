@@ -58,33 +58,14 @@ public class RunWorkflowCommandTest {
 
     @Test
     void runPipelinePathFromEnv() throws Exception {
-        withEnvironmentVariable("DJOBI_PIPELINE", "./src/test/resources/pipelines/mono.yml")
-            .execute(() -> {
-                commandKernel.run("run");
+        withEnvironmentVariable("DJOBI_PIPELINE", "./src/test/resources/pipelines/mono.yml").
+        execute(() -> {
+            commandKernel.run("run");
 
-                ExecutionRequest lastObj = workflowRequestFactory.getLastObjectBuilt();
+            ExecutionRequest lastObj = workflowRequestFactory.getLastObjectBuilt();
 
-                Assertions.assertEquals("./src/test/resources/pipelines/mono.yml", lastObj.getDefinitionURI());
-            });
-    }
-
-    @Test
-    void runVerbose() {
-        commandKernel.run("run", "-v", "./src/test/resources/pipelines/mono.yml");
-
-        Assertions.assertEquals(outVerbosity.getVerbosityLevel(), VerbosityLevel.VERBOSE);
-        Assertions.assertTrue(outVerbosity.isNotQuiet());
-        Assertions.assertTrue(outVerbosity.isVerbose());
-        Assertions.assertFalse(outVerbosity.isVeryVerbose());
-    }
-
-    @Test
-    void runVeryVerbose() {
-        commandKernel.run("run", "-vv", "./src/test/resources/pipelines/mono.yml");
-
-        Assertions.assertEquals(outVerbosity.getVerbosityLevel(), VerbosityLevel.VERY_VERBOSE);
-        Assertions.assertTrue(outVerbosity.isVerbose());
-        Assertions.assertTrue(outVerbosity.isVeryVerbose());
+            Assertions.assertEquals("./src/test/resources/pipelines/mono.yml", lastObj.getDefinitionURI());
+        });
     }
 
 }

@@ -13,6 +13,9 @@ cidre/build:
 dev/test:
 	docker-compose -f "docker-compose.yml" -f "djobi-core/docker-compose-ci.yml" -f "djobi-kafka/docker-compose-ci.yml" run --rm gradle
 
+packaging/docker/build:
+	docker-compose build djobi
+
 .PHONY: build/release
 build/release:
 	gradle -Prelease.useLastTag=true clean djobiAssemble -x test
@@ -44,6 +47,7 @@ run/simple:
         --driver-cores 1 \
         --executor-instances 1 \
         --support-elasticsearch 7 \
+        --log-level info \
         ~/dev/datatok/djobi/dev/workflows/es2fs --arg date=yesterday > run.sh
 
 	cat run.sh

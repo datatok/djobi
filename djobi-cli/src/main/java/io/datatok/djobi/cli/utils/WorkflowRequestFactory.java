@@ -39,7 +39,7 @@ public class WorkflowRequestFactory {
             final Map<String, String> inMetaMap,
             final String inJobsFilter,
             final String inPhasesFilter,
-            final boolean[] verbosity
+            final String verbosity
     ) {
         final ExecutionRequest pipelineRequest = new ExecutionRequest();
 
@@ -69,26 +69,17 @@ public class WorkflowRequestFactory {
         return lastObjectBuilt;
     }
 
-    private VerbosityLevel getVerbosity(boolean[] verbosity) {
-        int l = verbosity == null ? 0 : verbosity.length;
-
-        if (l < 1) {
+    private VerbosityLevel getVerbosity(String verbosity) {
+        if (verbosity == null || verbosity.isEmpty()) {
             return VerbosityLevel.NORMAL;
         }
 
-        if (l < 2) {
-            return VerbosityLevel.VERBOSE;
-        }
-
-        if (l < 3) {
-            return VerbosityLevel.VERY_VERBOSE;
-        }
-
-        if (l < 4) {
-            return VerbosityLevel.VERY_VERY_VERBOSE;
-        }
-
-        return VerbosityLevel.ALICIA;
+        return switch (verbosity) {
+            case "quiet" -> VerbosityLevel.QUIET;
+            case "verbose" -> VerbosityLevel.VERBOSE;
+            case "alicia" -> VerbosityLevel.ALICIA;
+            default -> VerbosityLevel.NORMAL;
+        };
     }
 
 }

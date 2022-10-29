@@ -39,14 +39,14 @@ export DJOBI_VERSION
 
 case "$1" in
   "")
-    set -- python -m djobi_submit run --help
+    set -- python3 submit/djobi_submit/ run --help
     ;;
   djobi)
     shift 1
 
     echo "#!/bin/sh" > /tmp/cmd.sh
 
-    python -m djobi_submit run "$@" >> /tmp/cmd.sh
+    python3 submit/djobi_submit/ run "$@" >> /tmp/cmd.sh
 
     chmod +x /tmp/cmd.sh
 

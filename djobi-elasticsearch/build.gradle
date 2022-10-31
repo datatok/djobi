@@ -14,8 +14,8 @@ configurations {
     es7
     es8
 
-    testRuntimeOnly.extendsFrom es7
-    compileOnly.extendsFrom es7
+    testRuntimeOnly.extendsFrom es8
+    compileOnly.extendsFrom es8
 }
 
 dependencies {

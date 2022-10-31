@@ -15,8 +15,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -101,7 +99,7 @@ class ESOutputRunnerTest extends ActionTest {
         Assertions.assertEquals(15, elasticsearchUtils.searchCount(esURL, "test", null));
     }
 
-    private ActionRunResult run(String cleanQuery) throws Exception {
+    private void run(String cleanQuery) throws Exception {
         final String esURL = configuration.getString("elasticsearch");
 
         SparkExecutor executor = getSparkExecutor();
@@ -118,13 +116,12 @@ class ESOutputRunnerTest extends ActionTest {
                     .configure(new Bag(
                         "host", esURL,
                         "clean_query", cleanQuery,
-                        "index", "test/doc"
+                        "index", "test"
                     ))
                     .run(dfData);
 
         elasticsearchUtils.refresh(esURL, "test");
 
-        return runResult;
     }
 
 }

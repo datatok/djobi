@@ -49,6 +49,7 @@ services:
   # Build and run djobi
   ##
   djobi:
+    tty: true
     build:
       context: .
       dockerfile: ./packages/docker/Dockerfile
@@ -59,10 +60,13 @@ services:
       #  https_proxy:
     command: |+
       djobi 
-        --djobi-conf djobi.plugins.logger.enabled false 
-        --djobi-conf djobi.plugins.apm.enabled false 
-        --support-elasticsearch 7
-        /opt/dev/pipelines/es2fs -adate=yesterday
+        --djobi-conf djobi.plugins.logger.enabled true 
+        --djobi-conf djobi.plugins.apm.enabled false
+        --djobi-conf elasticsearch "http://elasticsearch:9200"
+        --log-level info
+        --verbosity quiet
+        --support-elasticsearch 8
+        /opt/dev/workflows/es2fs -adate=yesterday
     environment:
       DJOBI_CONF: /opt/dev/default.conf
       DJOBI_SUPPORT_UA_PARSER: "true"

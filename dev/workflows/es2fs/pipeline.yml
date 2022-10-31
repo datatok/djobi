@@ -34,10 +34,10 @@ jobs:
       kind: "org.spark.mutate"
       spec:
         adds:
-          day: "{{day}}\\/{{month}}\\/{{year}}"
+          day: "{{ day }}/{{month}}/{{year}}"
     - name: output
       kind: org.elasticsearch.output
       spec:
         host: "{{env.elasticsearch}}"
         index: "out"
-        clean_query: "day:{{day}}\\/{{month}}\\/{{year}}"
+        clean_query: day.keyword:{{day}}\/{{month}}\/{{year}}

@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 @Singleton
@@ -47,7 +48,7 @@ public class ESOutputExistingRemover {
      * @return bool
      * @throws Exception
      */
-    public boolean execute(final ESOutputConfig config, final Job Job) throws Exception {
+    public boolean execute(final ESOutputConfig config, final Job Job) {
         logger.info(String.format("[output:elasticsearch] clean: %s/%s?q=%s", config.url, config.index, config.clean_query));
 
         int deleteTries = 1000;
@@ -62,7 +63,7 @@ public class ESOutputExistingRemover {
                 //http.post(String.format("%s/%s/_flush", config.url, realEsIndex)).execute().close();
 
                 final HashMap<String, Object> response = http.get(
-                        String.format("%s/%s/_count?q=%s", config.url, realEsIndex, URLEncoder.encode(config.clean_query, "UTF-8"))
+                        String.format("%s/%s/_count?q=%s", config.url, realEsIndex, URLEncoder.encode(config.clean_query, StandardCharsets.UTF_8))
                 ).executeAsDict();
 
                 final int itemsCount = getCountValue(response);
@@ -94,27 +95,41 @@ public class ESOutputExistingRemover {
                     {
                         cleanRequest = http.delete(String.format("%s/%s/_query?size=10000&timeout=10s&q=%s", config.url, config.index, URLEncoder.encode(config.clean_query, "UTF-8")));
                     }
-                    else
+                    else if (esVersion.startsWith("7"))
                     {
                         cleanRequest = http.post(String.format("%s/%s/_delete_by_query?size=10000&timeout=10s&q=%s", config.url, realEsIndex, URLEncoder.encode(config.clean_query, "UTF-8")));
+                    }
+                    else
+                    {
+                        cleanRequest = http.post(String.format("%s/%s/_delete_by_query?max_docs=10000&timeout=10s&q=%s", config.url, realEsIndex, URLEncoder.encode(config.clean_query, "UTF-8")));
                     }
 
                     HttpResponse r = cleanRequest.execute();
 
-                    if (r.statusCode() == 404) {
-                        logger.error("delete query gives a 404 error, maybe a plugin is missing?");
-                        return false;
+                    switch (r.statusCode()) {
+                        case 404 -> {
+                            logger.error("delete query gives a 404 error, maybe a plugin is missing?");
+                            return false;
+                        }
+                        case 400 -> {
+                            logger.error(String.format("[400] %s", r.raw()));
+                            return false;
+                        }
                     }
 
-                    logger.info(r.raw());
+                    logger.debug(r.raw());
 
-                    Thread.sleep(2000);
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         } catch(IOException e) {
             logger.error("[output:elasticsearch] clean: exception", e);
 
-            throw e;
+            return false;
         }
     }
 }

@@ -1,0 +1,156 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: djobi
+data:
+  config.conf: |
+    elasticsearch : "https://hot-es-client:9200"
+    hot_elasticsearch: "http://hot-es-client:9200"
+    conso_elasticsearch: "http://conso-es-client:9200"
+    metrics_elasticsearch: "http://djobi-metrics-es:9200"
+
+    djobi {
+      plugins {
+        logger {
+          enabled=true
+          class="io.datatok.djobi.plugins.logging.LoggingPlugin"
+
+          sinks {
+            logs {
+              type = "elasticsearch"
+              options {
+                url=${metrics_elasticsearch}
+                index="djobi-logs"
+              }
+            }
+
+            stages {
+              type = "elasticsearch"
+              options {
+                url=${metrics_elasticsearch}
+                index="djobi-stages"
+              }
+            }
+
+            metrics {
+              type = "elasticsearch"
+              enabled = false
+              options {
+                url=${metrics_elasticsearch}
+                index="djobi-metrics"
+              }
+            }
+
+            jobs {
+              type = "elasticsearch"
+              options {
+                url=${metrics_elasticsearch}
+                index="djobi-jobs"
+              }
+            }
+          }
+        }
+
+        apm {
+            enabled=true
+        }
+
+        reporting {
+            enabled=true
+        }
+      }
+
+      http {
+        transports {
+          web {
+            proxy {
+              http = "http://XXXXXXX:2001"
+            }
+            target = "web"
+          }
+        }
+      }
+
+      checkers {
+        http_files_listing_local {
+          url = "http://XXXXXX"
+          prefix = "/var/www"
+          format = "csv"
+        }
+      }
+
+      logger {
+        enabled=true
+        yarn="http://XXXXXXX:8088"
+      }
+
+      executors {
+        spark {
+                #master="yarn-client"
+
+          executor {
+              instances=2
+              cores=4
+              memory="10g"
+
+              java {
+                  options="-Dlog4j.configuration=log4j.properties -XX:+UseCompressedOops -XX:+UseParallelGC"
+              }
+          }
+
+          driver {
+              cores=2
+              memory="4g"
+
+              java {
+                  options="-Dlog4j.configuration=log4j.properties -XX:+UseCompressedOops -XX:+UseParallelGC"
+              }
+          }
+
+          conf {
+            spark {
+              memory.fraction = 0.2
+              rdd.compress = true
+
+              hadoop {
+                dfs {
+                  nameservices = "XXXXX:8020"
+                }
+                fs {
+                  defaultFS = "hdfs://XXXX:8020"
+                }
+              }
+
+              yarn {
+                  am {
+                      nodeLabelExpression="master"
+                  }
+
+                  queue="djobi"
+
+                  submit {
+                      waitAppCompletion=true
+                  }
+              }
+
+              sql {
+                  shuffle.partitions = 10
+                  parquet.compression.codec = "snappy"
+              }
+
+              yarn {
+                  submit.waitAppCompletion = true
+                  am.nodeLabelExpression = "master"
+              }
+
+              es {
+                  scroll.size = 2000
+                  mapping.date.rich = false
+                  nodes.wan.only = true
+                  port = 9200
+              }
+            }
+          }
+        }
+      }
+    }

@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: djobi-workflow-test
+data:
+  json_1: |
+    {"name" : "Alicia", "age" : 11, "sex" : "f" }
+    {"name" : "Joseph", "age" : 6, "sex" : "m" }
+  workflow.yaml: |
+    parameters:
+      date:
+        type: daily_date
+    jobs:
+    - name: job1
+      stages:
+      - name: setup_file
+        kind: fs-input
+        spec:
+          path: "./json_1"
+          format: json
+      - name: as_table
+        kind: org.spark.mutate
+        spec:
+          alias_table: my_json_1
+      - name: input
+        kind: sql
+        check: false
+        spec:
+          query: |
+            SELECT * FROM my_json_1
+      - name: filter
+        kind: "org.spark.mutate"
+        spec:
+          adds:
+            day: "{{day}}\\/{{month}}\\/{{year}}"
+      - name: output
+        kind: org.elasticsearch.output
+        spec:
+          host: "{{env.conso_elasticsearch}}"
+          index: "out"
+          clean_query: "day:{{day}}\\/{{month}}\\/{{year}}"

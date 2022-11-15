@@ -26,11 +26,11 @@ project.ext.dependencyStrings = [
 
 /**
  * Spark provided dependencies
- * Can be used with compileOnly
+ * Can be used with compileOnly (from https://github.com/apache/spark/blob/master/pom.xml)
  */
 project.ext.sparkDependencyStrings = [
-    JACKSON_CORE: 'com.fasterxml.jackson.core:jackson-core:2.10.0',
-    APACHE_COMMONS_TEXT: 'org.apache.commons:commons-text:1.4'
+    JACKSON_CORE: 'com.fasterxml.jackson.core:jackson-core:2.14.0',
+    APACHE_COMMONS_TEXT: 'org.apache.commons:commons-text:1.10.0'
 ]
 
 allprojects {

@@ -32,8 +32,10 @@ public class SparkExecutorConfigFactory {
 
     private Config getDefaults() {
         final String buffer = """
-            master: "local[1]"
-            appName: "djobi-app"
+            defaults {
+                master: "local[1]"
+                appName: "djobi-app"
+            }
             yarnUrl: ""
             extraDataSources: []
             conf {}

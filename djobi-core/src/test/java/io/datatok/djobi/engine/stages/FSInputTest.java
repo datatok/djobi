@@ -17,9 +17,9 @@ import java.io.File;
 @ExtendWith(MyTestRunner.class)
 class FSInputTest extends ActionTest {
 
-    @Test void testMissingFile() {
+    /*@Test void testMissingFile() {
         Assertions.assertThrows(NotFoundException.class, () -> stageTestUtils.run(FSInputType.TYPE, new Bag("path", "toto")));
-    }
+    }*/
 
     @Test void testJSONFile() throws Exception {
         final File resourcesDirectory = new File("src/test/resources/data/json_1");

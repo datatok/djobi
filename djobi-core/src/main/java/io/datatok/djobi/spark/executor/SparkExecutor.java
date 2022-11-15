@@ -188,11 +188,13 @@ true
 
     protected void sparkConfigure(final SparkConf conf) {
 
-        if (configuration.getMaster() != null && !configuration.getMaster().isEmpty()) {
-            conf.setMaster(configuration.getMaster());
+        if (conf.get("spark.master", "").isEmpty()) {
+            conf.setMaster(configuration.getDefaults().getMaster());
         }
 
-        conf.setAppName(configuration.getAppName());
+        if (conf.get("spark.app.name", "").isEmpty()) {
+            conf.setAppName(configuration.getDefaults().getAppName());
+        }
 
         final Map<String, String> flattenConfig = configuration.getConfFlatten();
 

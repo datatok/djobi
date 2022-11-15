@@ -9,10 +9,7 @@ import java.util.Map;
 public class SparkExecutorConfig {
 
     @Optional
-    private String master;
-
-    @Optional
-    private String appName;
+    private SparkConfigDefaults defaults;
 
     @Optional
     private String yarnUrl;
@@ -36,22 +33,6 @@ public class SparkExecutorConfig {
     private Map<String, Object> conf;
 
     public SparkExecutorConfig() {
-    }
-
-    public String getMaster() {
-        return master;
-    }
-
-    public void setMaster(String master) {
-        this.master = master;
-    }
-
-    public String getAppName() {
-        return appName;
-    }
-
-    public void setAppName(String appName) {
-        this.appName = appName;
     }
 
     public String getYarnUrl() {
@@ -92,5 +73,13 @@ public class SparkExecutorConfig {
 
     public void setExtraDataSources(List<SparkExecutorDataSourceConfig> extraDataSources) {
         this.extraDataSources = extraDataSources;
+    }
+
+    public SparkConfigDefaults getDefaults() {
+        return defaults;
+    }
+
+    public void setDefaults(SparkConfigDefaults defaults) {
+        this.defaults = defaults;
     }
 }

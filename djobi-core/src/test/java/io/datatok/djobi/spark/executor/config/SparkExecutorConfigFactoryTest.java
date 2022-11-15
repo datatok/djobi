@@ -23,9 +23,10 @@ class SparkExecutorConfigFactoryTest {
     @Test
     void create() {
         SparkExecutorConfig config = configFactory.create(ConfigFactory.parseString("""
-            master = "local[1]"
-            
-            appName = "djobi-test"
+            defaults {
+                master = "local[1]"
+                appName = "djobi-test"
+            }
             
             webHistoryUrlForJob = "http://localhost:4040"
             
@@ -39,7 +40,7 @@ class SparkExecutorConfigFactoryTest {
             ]
         """).resolve());
 
-        Assertions.assertEquals("djobi-test", config.getAppName());
+        Assertions.assertEquals("djobi-test", config.getDefaults().getAppName());
     }
 
     @Test
@@ -85,7 +86,7 @@ class SparkExecutorConfigFactoryTest {
 
         final SparkContext context = executor.getSparkContext();
 
-        Assertions.assertEquals("djobi-test", context.appName());
+        Assertions.assertEquals("djobi-app", context.appName());
 
         Assertions.assertEquals("true", context.getConf().get("spark.es.nodes.wan.only"));
     }

@@ -29,9 +29,10 @@ public class SparkFSInput implements ActionRunner {
         final FileSystem hdfs = sparkExecutor.getHDFS();
         final SQLContext sqlContext = sparkExecutor.getSQLContext();
 
-        if ((config.paths == null || config.paths.isEmpty()) && !hdfs.exists(new Path(config.path))) {
+        // Skip test
+        /*if ((config.paths == null || config.paths.isEmpty()) && !hdfs.exists(new Path(config.path))) {
             throw new NotFoundException(stage, "input file " + config.path + " not found!");
-        }
+        }*/
 
         final Dataset<Row> df = getDataset(sqlContext, config.path, config.paths, config.format);
 

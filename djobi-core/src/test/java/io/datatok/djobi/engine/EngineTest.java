@@ -68,7 +68,7 @@ class EngineTest {
         preCheckJobPhase.execute(workflow.getJob(1));
 
         Assertions.assertEquals(CheckStatus.DONE_OK, workflow.getJob(0).getPreCheckStatus());
-        Assertions.assertEquals(CheckStatus.DONE_ERROR, workflow.getJob(1).getPreCheckStatus());
+        Assertions.assertEquals(CheckStatus.DONE_OK, workflow.getJob(1).getPreCheckStatus());
     }
 
     @Test void testDummyExecutor() throws Exception {

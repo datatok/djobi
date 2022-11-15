@@ -23,6 +23,8 @@ public class FSInputPreChecker implements ActionPreChecker {
             return CheckResult.no().putMeta(CheckResult.REASON, "check_path is null!");
         }
 
+        return CheckResult.ok(CheckResult.REASON, "Skipped because https://github.com/datatok/djobi/issues/19 !");
+/*
         final String argFilePath = configuration.path;
         final FileSystem hdfs = (FileSystem) stage.getJob().getWorkflow().getExecutor().get("hdfs");
 
@@ -34,6 +36,6 @@ public class FSInputPreChecker implements ActionPreChecker {
 
         logger.error("[check] File at '" + argFilePath + "' does not exist!");
 
-        return CheckResult.error("File at '" + argFilePath + "' does not exist!");
+        return CheckResult.error("File at '" + argFilePath + "' does not exist!");*/
     }
 }

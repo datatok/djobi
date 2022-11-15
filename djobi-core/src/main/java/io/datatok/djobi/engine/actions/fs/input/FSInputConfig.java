@@ -10,6 +10,7 @@ public class FSInputConfig extends ActionConfiguration {
     public String format;
     public String path;
     public String paths;
+    
 
     FSInputConfig(final Bag stageConfiguration, final Job job, final TemplateUtils templateUtils) {
         super(stageConfiguration, job, templateUtils);

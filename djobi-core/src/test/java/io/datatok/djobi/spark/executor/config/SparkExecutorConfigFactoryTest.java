@@ -86,7 +86,7 @@ class SparkExecutorConfigFactoryTest {
 
         final SparkContext context = executor.getSparkContext();
 
-        Assertions.assertEquals("djobi-app", context.appName());
+        Assertions.assertEquals("djobi", context.appName());
 
         Assertions.assertEquals("true", context.getConf().get("spark.es.nodes.wan.only"));
     }

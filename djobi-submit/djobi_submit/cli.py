@@ -17,14 +17,14 @@ def cli():
 @click.option("--config-file", help="", envvar="DJOBI_CONF")
 @click.option("--djobi-conf", multiple=True, type=(str, str), help="Override Djobi config")
 
-@click.option("--master", default="local[*]", help="The spark master URL", envvar="SPARK_MASTER")
+@click.option("--master", default="", help="The spark master URL", envvar="SPARK_MASTER")
 @click.option("--driver-java-options", default="", help="Extra driver java options.", envvar="SPARK_DRIVER_JAVA_OPTS")
-@click.option("--driver-memory", default="800M", help="Spark driver memory.", envvar="SPARK_DRIVER_MEMORY")
-@click.option("--driver-cores", default=1, help="Spark driver cores.", envvar="SPARK_DRIVER_CORES")
+@click.option("--driver-memory", default="", help="Spark driver memory.", envvar="SPARK_DRIVER_MEMORY")
+@click.option("--driver-cores", default=0, help="Spark driver cores.", envvar="SPARK_DRIVER_CORES")
 @click.option("--executor-java-options", default="", help="Extra executor java options.", envvar="SPARK_EXECUTOR_JAVA_OPTS")
-@click.option("--executor-instances", default=1, help="How many spark executor instances.", envvar="SPARK_EXECUTORS")
-@click.option("--executor-memory", default="1G", help="Spark executor memory.", envvar="SPARK_EXECUTOR_MEMORY")
-@click.option("--executor-cores", default=1, help="Spark executor cores.", envvar="SPARK_EXECUTOR_CORES")
+@click.option("--executor-instances", default=0, help="How many spark executor instances.", envvar="SPARK_EXECUTORS")
+@click.option("--executor-memory", default="", help="Spark executor memory.", envvar="SPARK_EXECUTOR_MEMORY")
+@click.option("--executor-cores", default=0, help="Spark executor cores.", envvar="SPARK_EXECUTOR_CORES")
 @click.option("--spark-conf", multiple=True, type=(str, str), help="Extra Spark conf")
 
 @click.option("--log-level", default="info", help='Set the logging level ("debug"|"info"|"warn"|"error"|"fatal") (default "info")', envvar="DJOBI_LOG_LEVEL")
@@ -132,20 +132,34 @@ def run(
         buffer_env_vars = f"{buffer_env_vars}export {k}={v} \n"
         
     buffer_djobi_args = f"{buffer_djobi_args} --verbosity {verbosity}"
+    
+    buffer_misc = ""
+    
+    if len(master) > 0:
+        buffer_misc = f"{buffer_misc} --master '{master}' "
+        
+    if executor_instances > 0:
+        buffer_misc = f"{buffer_misc} --num-executors {executor_instances} "
+        
+    if executor_cores > 0:
+        buffer_misc = f"{buffer_misc} --executor-cores {executor_cores} "
+
+    if len(executor_memory) > 0:
+        buffer_misc = f"{buffer_misc} --executor-memory {executor_memory} "
+    
+    if driver_cores > 0:
+        buffer_misc = f"{buffer_misc} --driver-cores {driver_cores} "
+
+    if len(driver_memory) > 0:
+        buffer_misc = f"{buffer_misc} --driver-memory {driver_memory} "
         
     out_cmd = f"""
 {buffer_env_vars}
 exec {spark_home}/bin/spark-submit \
 --jars {buffer_jars} \
 --class io.datatok.djobi.Main \
---name {name} \
---master '{master}' \
---num-executors {executor_instances} \
---executor-memory {executor_memory} \
---executor-cores {executor_cores} \
+--name {name} {buffer_misc} \
 --deploy-mode client \
---driver-memory {driver_memory} \
---driver-cores {driver_cores} \
 --driver-java-options=\"{JVMDriverOptions}\" \
 {buffer_spark_conf} \
 {buffer_files} \
